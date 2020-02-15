@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "./",
   "dependencies": {
-    "3box": "^1.16.1",
+    "3box": "^1.17.0",
     "3box-chatbox-react": "0.0.5",
     "3box-comments-react": "0.0.9",
     "3box-profile-edit-react": "0.0.4",
