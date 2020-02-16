@@ -12,18 +12,23 @@ import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
 import "./App.css";
 const Box = require('3box');
-const AppName = 'DecentralizedPortifolio';
+const AppName = 'DecentralizedPortfolio_test0';
 const usersRegistered = 'users_registered';
 const admin = "did:3:bafyreiecus2e6nfupnqfbajttszjru3voolppqzhyizz3ysai6os6ftn3m";
 
 
-class UserPage extends Component {
 
+class UserPage extends Component {
+  state = {
+    confidentialThreadName: null,
+    threadAdmin: null,
+    messages: null
+  }
   constructor(props){
     super(props);
     this.addContact = this.addContact.bind(this);
   }
-  componentWillMount = async function(){
+  componentDidMount = async function(){
 
     if(this.props.box){
       const space = await this.props.box.openSpace(AppName);
@@ -37,11 +42,44 @@ class UserPage extends Component {
         const postId = await thread.post(this.props.coinbase);
         await space.private.set("contact_"+this.props.profile.address,postId);
       }
-      const thread = await space.joinThread("contact_"+this.props.coinbase+"_"+this.props.profile.address,{firstModerator:this.props.coinbase,members:true,ghost: false});
-      const members = await thread.listMembers();
-      if(members.length == 0){
-        await thread.addMember(this.props.profile.address);
+      const userProfile = await Box.getSpace(this.props.profile.address,AppName);
+      const threadAddressByUser = userProfile['contactThread_'+this.props.coinbase];
+      console.log(threadAddressByUser);
+      if(threadAddressByUser){
+        const confidentialThreadNameByUser = "contact_"+this.props.profile.address+"_"+this.props.coinbase;
+        await space.public.set('contactThread_'+this.props.profile.address,threadAddressByUser);
+        const thread = await space.joinThreadByAddress(threadAddressByUser)
+        console.log(await thread.getPosts());
+        this.setState({
+          confidentialThreadName: confidentialThreadNameByUser,
+          threadAdmin: this.props.profile.address
+        });
+      } else {
+        const confidentialThreadName = "contact_"+this.props.coinbase+"_"+this.props.profile.address;
+        let threadAddress = await space.public.get('contactThread_'+this.props.profile.address);
+        console.log(threadAddress)
+        if(!threadAddress){
+          //const thread = await space.createConfidentialThread(confidentialThreadName,{firstModerator:this.props.coinbase,members: true});
+          const thread = await space.joinThread(confidentialThreadName,{firstModerator:this.props.coinbase,members: true});
+          const members = await thread.listMembers();
+
+          if(members.length == 0){
+            await thread.addMember(this.props.profile.address);
+            console.log("member added");
+          }
+          threadAddress = thread.address
+
+          await space.public.set('contactThread_'+this.props.profile.address,threadAddress);
+
+        }
+
+
+        this.setState({
+          confidentialThreadName: confidentialThreadName,
+          threadAdmin: this.props.coinbase
+        });
       }
+
     }
 
   }
@@ -65,13 +103,14 @@ class UserPage extends Component {
   render(){
     const itens = this.props.itens
     const profile = this.props.profile
-    if(this.props.coinbase){
+    console.log(this.state);
+    if(this.state.confidentialThreadName){
 
       return(
         <div>
-              <Tabs defaultActiveKey="portifolio">
-                <Tab eventKey="portifolio" title="Portifolio" style={{paddingTop:'10px'}}>
-                  <h5>{profile.name} portifolio</h5>
+              <Tabs defaultActiveKey="portfolio">
+                <Tab eventKey="portfolio" title="Portfolio" style={{paddingTop:'10px'}}>
+                  <h5>{profile.name} portfolio</h5>
                   {
                     itens.map(function(item){
                       if(!item.img){
@@ -107,8 +146,8 @@ class UserPage extends Component {
                   <ThreeBoxComments
                                         // required
                                         spaceName={AppName}
-                                        threadName={"contact_"+this.props.coinbase+"_"+profile.address}
-                                        adminEthAddr={this.props.coinbase}
+                                        threadName={this.state.confidentialThreadName}
+                                        adminEthAddr={this.state.threadAdmin}
 
 
                                         // Required props for context A) & B)
@@ -120,9 +159,9 @@ class UserPage extends Component {
 
                                         // Required prop for context C)
                                         //ethereum={ethereum}
-
                                         // optional
                                         members={true}
+
                   />
 
 
@@ -161,7 +200,7 @@ class UserPage extends Component {
     }
     return(
       <div>
-             <h5>{profile.name} portifolio</h5>
+             <h5>{profile.name} portfolio</h5>
              {
                itens.map(function(item){
                  return(
@@ -203,8 +242,9 @@ class Users extends Component {
     });
     console.log(this.state)
     const posts = await Box.getThread(AppName, usersRegistered, admin, false)
-    const space = await this.props.box.openSpace(AppName);
+
     /*
+    const space = await this.props.box.openSpace(AppName);
     const thread = await space.joinThread(usersRegistered,{firstModerator:admin});
     const p = await thread.getPosts();
     console.log(p)
@@ -272,7 +312,7 @@ class Users extends Component {
             let div_profile = <div></div>
             if(profile.name && profile.description){
               div_profile = <div>
-                                    <p><small>Decentralized portifolio profile</small></p>
+                                    <p><small>Decentralized portfolio profile</small></p>
                                     <p>Name: {profile.name}</p>
                                     <p>Description: {profile.description}</p>
                                   </div>
@@ -291,7 +331,7 @@ class Users extends Component {
                     </Col>
                       <Col lg={12}>
                       {div_profile}
-                      <Button variant="primary" href={"#user_"+profile.address} onClick={()=>{ that.renderUserPage(profile) }}>Portifolio</Button>
+                      <Button variant="primary" href={"#user_"+profile.address} onClick={()=>{ that.renderUserPage(profile) }}>Portfolio</Button>
                       </Col>
 
                     </Row>
@@ -316,7 +356,7 @@ class Users extends Component {
 }
 
 
-class Portifolio extends Component {
+class Portfolio extends Component {
   state = {
     web3: null,
     coinbase:null,
@@ -325,8 +365,8 @@ class Portifolio extends Component {
     space: null,
     fields:[{ // for a field with a textarea input
               inputType: 'textarea',
-              key: 'portifolio',
-              field: 'Portifolio'
+              key: 'portfolio',
+              field: 'Portfolio'
             }],
     itens: []
   }
@@ -365,6 +405,10 @@ class Portifolio extends Component {
     await this.state.space.syncDone
     const profile = await this.state.space.public.all()
     console.log(profile)
+    const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
+    const oldPostId = await this.state.space.private.get('reg_postId');
+    const postId = await thread.post(profile);
+    await this.state.space.private.set('reg_postId',postId);
     this.setState({
       profile:profile
     });
@@ -576,14 +620,22 @@ class Profile extends Component {
         const addr = post.message
         console.log(addr)
         if(addr){
-          let thread = await this.state.space.joinThread("contact_"+addr+"_"+this.state.coinbase,{firstModerator:addr,members:true,ghost: false});
           await this.state.space.syncDone;
-          let members = await thread.listMembers();
-          let posts = await thread.getPosts();
-          if(posts.length > 0){
-            this.state.views.push(addr);
-            this.forceUpdate();
+          const userProfile = await Box.getSpace(addr,AppName);
+          const threadName = 'contactThread_'+this.props.coinbase;
+          const threadAddress =  userProfile[threadName];
+          console.log(threadAddress);
+          if(threadAddress){
+            let thread = await this.state.space.joinThreadByAddress(threadAddress);
+            console.log(thread);
+            let members = await thread.listMembers();
+            //let posts = await thread.getPosts();
+            if(members.length > 0){
+              this.state.views.push(addr);
+              this.forceUpdate();
+            }
           }
+
         }
 
     }
@@ -635,16 +687,39 @@ class Profile extends Component {
         const postId = await thread.post(this.state.space.address);
         await this.state.space.private.set("contact_"+addr,postId);
     }
-    let thread = await this.state.space.joinThread("contact_"+addr+"_"+this.state.coinbase,{firstModerator:addr,members:true,ghost: false});
+    const profile = await Box.getSpace(addr,AppName);
+    console.log(profile);
+    const threadName = 'contactThread_'+this.state.coinbase;
+    const threadAddress =  profile[threadName];
+    console.log(threadAddress);
     await this.state.space.syncDone;
-    let members = await thread.listMembers();
-    let posts = await thread.getPosts();
-    console.log(members)
-    console.log(posts)
-    console.log(members.length)
-    if(members.length > 0 && posts.length > 0){
+    if(threadAddress){
+      const thread = await this.state.space.joinThreadByAddress(threadAddress);
+      const members = await thread.listMembers();
+      console.log(members)
+      const itens = [];
+      for(const item of Object.values(profile)){
+
+        console.log(item)
+        if(item.uri && item.img){
+          itens.push({
+            name: item.name,
+            description: item.description,
+            uri: item.uri,
+            img: item.img
+          });
+        } else if(item.uri){
+          itens.push({
+            name: item.name,
+            description: item.description,
+            uri: item.uri
+          });
+        }
+
+      }
       ReactDOM.render(
-        <ThreeBoxComments
+        <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} itens={itens} />
+        /*<ThreeBoxComments
                               // required
                               spaceName={AppName}
                               threadName={"contact_"+addr+"_"+this.props.coinbase}
@@ -662,12 +737,12 @@ class Profile extends Component {
                               //ethereum={ethereum}
 
                               // optional
-                              members={true}
-        />,
+        />*/,
         document.getElementById('chatPage')
-      )
+      );
       return
     }
+
 
     ReactDOM.render(
         <p>No messages to you</p>,
@@ -676,8 +751,9 @@ class Profile extends Component {
     return
 
 
-
   }
+
+
   contactPage = async function(addr){
     const removed = ReactDOM.unmountComponentAtNode(document.getElementById("contactPage"));
 
@@ -696,7 +772,7 @@ class Profile extends Component {
     console.log(members)
     console.log(posts)
     console.log(members.length)
-    if(members.length > 0){
+    //if(members.length > 0){
       const itens = [];
       const profile = await Box.getSpace(addr, AppName);
       for(const item of Object.values(profile)){
@@ -724,14 +800,14 @@ class Profile extends Component {
         document.getElementById('contactPage')
       )
       return
-    }
-
+    //}
+    /*
     ReactDOM.render(
         <p>No messages to you</p>,
         document.getElementById('contactPage')
     );
     return
-
+    */
   }
   render() {
     if(!this.state.box){
@@ -875,7 +951,7 @@ class App extends Component {
 
     this.usersPage = this.usersPage.bind(this);
     this.homePage = this.homePage.bind(this);
-    this.portifolioPage= this.portifolioPage.bind(this);
+    this.portfolioPage= this.portfolioPage.bind(this);
     this.loginPageNoWeb3 = this.loginPageNoWeb3.bind(this);
     this.offersPage = this.offersPage.bind(this);
     this.tutorialPage = this.tutorialPage.bind(this);
@@ -950,7 +1026,7 @@ class App extends Component {
       page:  <Container>
 
               <Card>
-              <Card.Header as="h3">Welcome to decentralized portifolio</Card.Header>
+              <Card.Header as="h3">Welcome to decentralized portfolio</Card.Header>
               <Card.Body>
                 <Row>
                   <Col sm={4}>
@@ -996,7 +1072,7 @@ class App extends Component {
                       {/*<Card.Img variant="top" src="./imgs/ipfs.png" />*/}
                       <Card.Body>
                         <Card.Title>How to use it?</Card.Title>
-                        <Card.Text>Step by step on how to use DecentralizedPortifolio</Card.Text>
+                        <Card.Text>Step by step on how to use DecentralizedPortfolio</Card.Text>
                         <Button variant="primary" onClick={this.tutorialPage}>Tutorial</Button>
                       </Card.Body>
                     </Card>
@@ -1038,13 +1114,13 @@ class App extends Component {
     return
   }
 
-  portifolioPage = async function(){
+  portfolioPage = async function(){
     if(!this.state.space){
       await this.openSpace();
     }
     console.log(this.state.profile);
     this.setState({
-      page: <Portifolio
+      page: <Portfolio
                   web3 = {this.state.web3}
                   coinbase = {this.state.coinbase}
                   box = {this.state.box}
@@ -1123,13 +1199,13 @@ class App extends Component {
                         <img src={require('./imgs/brave_Crypto2.png')} style={{maxWidth:' 60%'}}/>
                       </li>
                       <li>
-                        Accept wallet connection, 3box login/sign up and open DecentralizedPortifolio space <br/>
+                        Accept wallet connection, 3box login/sign up and open DecentralizedPortfolio space <br/>
                         <img src={require('./imgs/brave_3box.png')} style={{maxWidth:' 60%'}}/> <br/>
                       </li>
-                      <li>
+                      {/*<li>
                         Fill your profile <br/>
                         <img src={require('./imgs/brave_3boxProfiles.png')} style={{maxWidth:' 60%'}}/> <br/>
-                      </li>
+                      </li>*/}
 
                     </ol>
 
@@ -1152,7 +1228,7 @@ class App extends Component {
     const box = this.state.box;
 
     ReactDOM.render(
-      <p>Aprove access to open your Decentralized Portifolio Space</p>,
+      <p>Aprove access to open your Decentralized Portfolio Space</p>,
       document.getElementById("loading_status")
     );
     $("#alert_info").show();
@@ -1273,7 +1349,7 @@ class App extends Component {
             <Nav className="mr-auto">
               <Nav.Link href="#home" onClick={this.homePage}>Home</Nav.Link>
               <Nav.Link href="#profile" onClick={this.editProfilePage}>Profile</Nav.Link>
-              <Nav.Link href="#portifolio" onClick={this.portifolioPage}>Portifolio</Nav.Link>
+              <Nav.Link href="#portfolio" onClick={this.portfolioPage}>Portfolio</Nav.Link>
               <Nav.Link href="#users" onClick={this.usersPage}>Users</Nav.Link>
               <Nav.Link href="#job_offers" onClick={this.offersPage}>Jobs Offers</Nav.Link>
               <Nav.Link href="#logout" onClick={this.logout}>Logout</Nav.Link>
