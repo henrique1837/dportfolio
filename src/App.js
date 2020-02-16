@@ -12,7 +12,7 @@ import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
 import "./App.css";
 const Box = require('3box');
-const AppName = 'DecentralizedPortfolio_test0';
+const AppName = 'DecentralizedPortfolio_test1';
 const usersRegistered = 'users_registered';
 const admin = "did:3:bafyreiecus2e6nfupnqfbajttszjru3voolppqzhyizz3ysai6os6ftn3m";
 
@@ -248,9 +248,9 @@ class Users extends Component {
     const thread = await space.joinThread(usersRegistered,{firstModerator:admin});
     const p = await thread.getPosts();
     console.log(p)
-    for(const a of p){
-       await thread.deletePost(a.postId)
-    }
+    //for(const a of p){
+       await thread.deletePost("zdpuAyUTrjDKhobJqhfBz2J8yAhM85NCaWdDvViFj9dFnsB3Y")
+    //}
     alert('deleted')
     return
     */
@@ -309,6 +309,7 @@ class Users extends Component {
           <Col lg={4} style={{height: '500px',overflowY:'scroll'}}>
         {
           this.state.users.map(function(profile){
+            console.log(profile)
             let div_profile = <div></div>
             if(profile.name && profile.description){
               div_profile = <div>
@@ -407,6 +408,7 @@ class Portfolio extends Component {
     console.log(profile)
     const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
     const oldPostId = await this.state.space.private.get('reg_postId');
+    await thread.deletePost(oldPostId);
     const postId = await thread.post(profile);
     await this.state.space.private.set('reg_postId',postId);
     this.setState({
@@ -420,6 +422,11 @@ class Portfolio extends Component {
     try{
       await this.state.space.public.remove($("#s_remove :selected").val());
       await this.state.space.syncDone
+      const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
+      const oldPostId = await this.state.space.private.get('reg_postId');
+      await thread.deletePost(oldPostId);
+      const postId = await thread.post(profile);
+      await this.state.space.private.set('reg_postId',postId);
       const profile = await this.state.space.public.all()
       this.setState({
         profile: profile
@@ -439,9 +446,9 @@ class Portfolio extends Component {
     const coinbase = this.props.coinbase
     const box = this.props.box;
     const space = this.props.space;
-
-    const profile = this.props.profile;
     await space.syncDone;
+    const profile = await this.props.space.public.all()
+
     console.log(profile);
 
 
@@ -664,6 +671,12 @@ class Profile extends Component {
       coinbase: this.props.coinbase
     });
     await this.props.space.syncDone;
+    const profile = await this.state.space.public.all();
+    const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
+    const oldPostId = await this.state.space.private.get('reg_postId');
+    await thread.deletePost(oldPostId);
+    const postId = await thread.post(profile);
+    await this.state.space.private.set('reg_postId',postId);
   }
 
   profileSaved = async function() {
@@ -673,7 +686,7 @@ class Profile extends Component {
     const oldPostId = await this.state.space.private.get('reg_postId');
     const postId = await thread.post(profile);
     await this.state.space.private.set('reg_postId',postId);
-    //await thread.deletePost(oldPostId);
+    await thread.deletePost(oldPostId);
     alert("saved");
   };
   chatPage = async function(addr){
@@ -1261,17 +1274,20 @@ class App extends Component {
     if (!this.state.hasWeb3) {
       return (
         <div>
-          <Container className="themed-container" fluid={true}>
-          <Navbar bg="primary" variant="dark">
-            <Navbar.Brand href="#home">Decentralized Portfolio</Navbar.Brand>
-            <Navbar.Toggle />
-            <Nav className="mr-auto">
-              <Nav.Link href="#home" onClick={this.homePage}>Home</Nav.Link>
-              <Nav.Link href="#users" onClick={this.usersPage}>Users</Nav.Link>
-              <Nav.Link href="#job_offers" onClick={this.offersPage}>Jobs Offers</Nav.Link>
-              <Nav.Link href="#login" onClick={this.loginPageNoWeb3}>Login</Nav.Link>
-            </Nav>
+          <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark">
+            <Navbar.Brand href="#home" onClick={this.homePage}>Decentralized Portfolio</Navbar.Brand>
+            <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+            <Navbar.Collapse id="responsive-navbar-nav">
+              <Nav className="mr-auto">
+                <Nav.Link href="#home" onClick={this.homePage}>Home</Nav.Link>
+                <Nav.Link href="#users" onClick={this.usersPage}>Users</Nav.Link>
+                <Nav.Link href="#job_offers" onClick={this.offersPage}>Jobs Offers</Nav.Link>
+                <Nav.Link href="#login" onClick={this.loginPageNoWeb3}>Login</Nav.Link>
+              </Nav>
+            </Navbar.Collapse>
           </Navbar>
+          <Container className="themed-container" fluid={true}>
+
           <Container>
           {
             this.state.page
@@ -1288,17 +1304,20 @@ class App extends Component {
     if((!this.state.doingLogin) && (this.state.hasWeb3) && (!this.state.coinbase)){
       return (
         <div>
-          <Container className="themed-container" fluid={true}>
-            <Navbar bg="primary" variant="dark">
-              <Navbar.Brand href="#home">Decentralized Portfolio</Navbar.Brand>
-              <Navbar.Toggle />
+          <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark">
+            <Navbar.Brand href="#home" onClick={this.homePage}>Decentralized Portfolio</Navbar.Brand>
+            <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+            <Navbar.Collapse id="responsive-navbar-nav">
               <Nav className="mr-auto">
                 <Nav.Link href="#home" onClick={this.homePage}>Home</Nav.Link>
                 <Nav.Link href="#users" onClick={this.usersPage}>Users</Nav.Link>
                 <Nav.Link href="#job_offers" onClick={this.offersPage}>Jobs Offers</Nav.Link>
                 <Nav.Link href="#login" onClick={this.login}>Login</Nav.Link>
               </Nav>
-            </Navbar>
+            </Navbar.Collapse>
+          </Navbar>
+          <Container className="themed-container" fluid={true}>
+
             <Container>
             {
               this.state.page
@@ -1316,11 +1335,12 @@ class App extends Component {
 
       return(
         <div>
+          <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark" >
+            <Navbar.Brand href="#home">Decentralized Portfolio</Navbar.Brand>
+            <Navbar.Toggle />
+          </Navbar>
           <Container className="themed-container" fluid={true}>
-            <Navbar bg="primary" variant="dark">
-              <Navbar.Brand href="#home">Decentralized Portfolio</Navbar.Brand>
-              <Navbar.Toggle />
-            </Navbar>
+
             <Alert variant="info" style={{textAlign: "center"}}>
               <h4>Loading dapp ...</h4>
               <div id="loading_status"></div>
@@ -1342,10 +1362,10 @@ class App extends Component {
 
     return (
       <div>
-        <Container className="themed-container" fluid={true}>
-          <Navbar bg="primary" variant="dark">
-            <Navbar.Brand href="#home">Decentralized Portfolio</Navbar.Brand>
-            <Navbar.Toggle />
+        <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark">
+          <Navbar.Brand href="#home" onClick={this.homePage}>Decentralized Portfolio</Navbar.Brand>
+          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+          <Navbar.Collapse id="responsive-navbar-nav">
             <Nav className="mr-auto">
               <Nav.Link href="#home" onClick={this.homePage}>Home</Nav.Link>
               <Nav.Link href="#profile" onClick={this.editProfilePage}>Profile</Nav.Link>
@@ -1354,7 +1374,10 @@ class App extends Component {
               <Nav.Link href="#job_offers" onClick={this.offersPage}>Jobs Offers</Nav.Link>
               <Nav.Link href="#logout" onClick={this.logout}>Logout</Nav.Link>
             </Nav>
-          </Navbar>
+          </Navbar.Collapse>
+        </Navbar>
+        <Container className="themed-container" fluid={true}>
+
           <Alert variant="info" style={{textAlign: "center",display:"none"}} id='alert_info'>
             <h4>Loading dapp ...</h4>
             <div id="loading_status"></div>
