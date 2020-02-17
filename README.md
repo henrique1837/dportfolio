@@ -1,6 +1,8 @@
 
-Done with [https://3box.io/](3box)
+Done with [3box](https://3box.io/)
+
 Latest version: [https://gateway.ipfs.io/ipfs/QmVQii2s4eNjtk8ZMxA1NzWqAhohW24MjArV6aLGcK3aY4](https://gateway.ipfs.io/ipfs/QmVQii2s4eNjtk8ZMxA1NzWqAhohW24MjArV6aLGcK3aY4)
+
 Template: [https://www.creative-tim.com/product/argon-dashboard-react](https://www.creative-tim.com/product/argon-dashboard-react)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
