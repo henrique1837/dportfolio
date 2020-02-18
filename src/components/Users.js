@@ -21,7 +21,6 @@ const admin = "did:3:bafyreiecus2e6nfupnqfbajttszjru3voolppqzhyizz3ysai6os6ftn3m
 class Users extends Component {
   state = {
     users: [],
-    itens: {},
     box: null,
     coinbase: null,
     userPage: <div></div>
@@ -71,7 +70,7 @@ class Users extends Component {
   renderUserPage = async(profile) => {
     const removed = ReactDOM.unmountComponentAtNode(document.getElementById("userPage"))
 
-    const itens = [];
+    /*const itens = [];
     for(const item of Object.values(profile)){
 
       console.log(item)
@@ -90,12 +89,12 @@ class Users extends Component {
         });
       }
 
-    }
+    }*/
 
     console.log(profile);
 
     ReactDOM.render(
-      <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} itens={itens} />,
+      <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} />,
       document.getElementById('userPage')
     );
 

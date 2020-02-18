@@ -21,66 +21,98 @@ class UserPage extends Component {
   state = {
     confidentialThreadName: null,
     threadAdmin: null,
-    messages: null
+    items: null
   }
   constructor(props){
     super(props);
     this.addContact = this.addContact.bind(this);
+    this.setItems = this.setItems.bind(this);
+    this.setChannel = this.setChannel.bind(this);
   }
   componentDidMount = async function(){
-
+    this.setItems();
     if(this.props.box){
-      const space = await this.props.box.openSpace(AppName);
-      await space.syncDone;
-      console.log("contacts_"+this.props.profile.address)
-      console.log(this.props.coinbase)
-      const isContact = await space.private.get("contact_"+this.props.profile.address);
-      console.log(isContact);
-      if(!isContact){
-        const thread = await space.joinThread("contacts_"+this.props.profile.address,{firstModerator:this.props.profile.address});
-        const postId = await thread.post(this.props.coinbase);
-        await space.private.set("contact_"+this.props.profile.address,postId);
-      }
-      const userProfile = await Box.getSpace(this.props.profile.address,AppName);
-      const threadAddressByUser = userProfile['contactThread_'+this.props.coinbase];
-      console.log(threadAddressByUser);
-      if(threadAddressByUser){
-        const confidentialThreadNameByUser = "contact_"+this.props.profile.address+"_"+this.props.coinbase;
-        await space.public.set('contactThread_'+this.props.profile.address,threadAddressByUser);
-        const thread = await space.joinThreadByAddress(threadAddressByUser)
-        //console.log(await thread.getPosts());
-        this.setState({
-          confidentialThreadName: confidentialThreadNameByUser,
-          threadAdmin: this.props.profile.address
-        });
-      } else {
-        const confidentialThreadName = "contact_"+this.props.coinbase+"_"+this.props.profile.address;
-        let threadAddress = await space.public.get('contactThread_'+this.props.profile.address);
-        console.log(threadAddress)
-        if(!threadAddress){
-          //const thread = await space.createConfidentialThread(confidentialThreadName,{firstModerator:this.props.coinbase,members: true});
-          const thread = await space.joinThread(confidentialThreadName,{firstModerator:this.props.coinbase,members: true});
-          const members = await thread.listMembers();
-
-          if(members.length == 0){
-            await thread.addMember(this.props.profile.address);
-            console.log("member added");
-          }
-          threadAddress = thread.address
-
-          await space.public.set('contactThread_'+this.props.profile.address,threadAddress);
-
-        }
-
-
-        this.setState({
-          confidentialThreadName: confidentialThreadName,
-          threadAdmin: this.props.coinbase
-        });
-      }
-
+      await this.setChannel();
     }
 
+  }
+  setChannel = async function(){
+    const space = await this.props.box.openSpace(AppName);
+    await space.syncDone;
+    console.log("contacts_"+this.props.profile.address)
+    console.log(this.props.coinbase)
+    const isContact = await space.private.get("contact_"+this.props.profile.address);
+    console.log(isContact);
+    if(!isContact){
+      const thread = await space.joinThread("contacts_"+this.props.profile.address,{firstModerator:this.props.profile.address});
+      const postId = await thread.post(this.props.coinbase);
+      await space.private.set("contact_"+this.props.profile.address,postId);
+    }
+    const userProfile = await Box.getSpace(this.props.profile.address,AppName);
+    const threadAddressByUser = userProfile['contactThread_'+this.props.coinbase];
+    console.log(threadAddressByUser);
+    if(threadAddressByUser){
+      const confidentialThreadNameByUser = "contact_"+this.props.profile.address+"_"+this.props.coinbase;
+      await space.public.set('contactThread_'+this.props.profile.address,threadAddressByUser);
+      const thread = await space.joinThreadByAddress(threadAddressByUser)
+      //console.log(await thread.getPosts());
+      await space.syncDone;
+      this.setState({
+        confidentialThreadName: confidentialThreadNameByUser,
+        threadAdmin: this.props.profile.address
+      });
+    } else {
+      const confidentialThreadName = "contact_"+this.props.coinbase+"_"+this.props.profile.address;
+      let threadAddress = await space.public.get('contactThread_'+this.props.profile.address);
+      console.log(threadAddress)
+      if(!threadAddress){
+        //const thread = await space.createConfidentialThread(confidentialThreadName,{firstModerator:this.props.coinbase,members: true});
+        const thread = await space.joinThread(confidentialThreadName,{firstModerator:this.props.coinbase,members: true});
+        const members = await thread.listMembers();
+
+        if(members.length == 0){
+          await thread.addMember(this.props.profile.address);
+          console.log("member added");
+        }
+        threadAddress = thread.address
+
+        await space.public.set('contactThread_'+this.props.profile.address,threadAddress);
+
+      }
+
+
+      this.setState({
+        confidentialThreadName: confidentialThreadName,
+        threadAdmin: this.props.coinbase
+      });
+    }
+    return
+  }
+  setItems = function(){
+    const profile = this.props.profile;
+    const items = [];
+    for(const item of Object.values(profile)){
+
+      console.log(item)
+      if(item.uri && item.img){
+        items.push({
+          name: item.name,
+          description: item.description,
+          uri: item.uri,
+          img: item.img
+        });
+      } else if(item.uri){
+        items.push({
+          name: item.name,
+          description: item.description,
+          uri: item.uri
+        });
+      }
+    }
+    this.setState({
+      items: items
+    });
+    return
   }
   addContact = async function(){
     const space = await this.props.box.openSpace(AppName);
@@ -95,24 +127,38 @@ class UserPage extends Component {
       const postId = await thread.post(this.props.profile.address);
       await space.private.set("contactAdded_"+this.props.profile.address,postId);
     }
+    await space.syncDone;
     alert('saved')
     return
   }
 
   render(){
-    const itens = this.props.itens
     const profile = this.props.profile
     console.log(this.state);
-    if(this.state.confidentialThreadName){
+    const items = this.state.items
+    if(this.state.items){
+      const items = this.state.items
+      if(this.state.confidentialThreadName){
 
-      return(
-        <div>
-              <Tabs defaultActiveKey="portfolio" className="nav-fill flex-column flex-md-row">
-                <Tab eventKey="portfolio" title="Portfolio" style={{paddingTop:'10px'}}>
-                  <h5>{profile.name} portfolio</h5>
-                  {
-                    itens.map(function(item){
-                      if(!item.img){
+        return(
+          <div>
+                <Tabs defaultActiveKey="portfolio" className="nav-fill flex-column flex-md-row">
+                  <Tab eventKey="portfolio" title="Portfolio" style={{paddingTop:'10px'}}>
+                    <h5>{profile.name} portfolio</h5>
+                    {
+                      items.map(function(item){
+                        if(!item.img){
+                          return(
+                            <div>
+                              <hr />
+                              <div>
+                                <p>Name: {item.name}</p>
+                                <p>Description: {item.description}</p>
+                                <p>URI: {item.uri}</p>
+                              </div>
+                            </div>
+                          )
+                        }
                         return(
                           <div>
                             <hr />
@@ -120,102 +166,95 @@ class UserPage extends Component {
                               <p>Name: {item.name}</p>
                               <p>Description: {item.description}</p>
                               <p>URI: {item.uri}</p>
+                              <p><img style={{maxWidth: '400px'}} src={item.img}/></p>
                             </div>
                           </div>
                         )
-                      }
-                      return(
-                        <div>
-                          <hr />
-                          <div>
-                            <p>Name: {item.name}</p>
-                            <p>Description: {item.description}</p>
-                            <p>URI: {item.uri}</p>
-                            <p><img style={{maxWidth: '400px'}} src={item.img}/></p>
-                          </div>
-                        </div>
-                      )
-                    })
-                  }
-                  <Button variant="primary" onClick={this.addContact}>Add contact</Button>
-                </Tab>
-                <Tab eventKey="privMessage" title="Private message" style={{paddingTop:'10px'}}>
-                  <h5>Private message</h5>
+                      })
+                    }
+                    <Button variant="primary" onClick={this.addContact}>Add contact</Button>
+                  </Tab>
+                  <Tab eventKey="privMessage" title="Private message" style={{paddingTop:'10px'}}>
+                    <h5>Private message</h5>
 
-                  <ThreeBoxComments
-                                        // required
-                                        spaceName={AppName}
-                                        threadName={this.state.confidentialThreadName}
-                                        adminEthAddr={this.state.threadAdmin}
+                    <ThreeBoxComments
+                                          // required
+                                          spaceName={AppName}
+                                          threadName={this.state.confidentialThreadName}
+                                          adminEthAddr={this.state.threadAdmin}
 
 
-                                        // Required props for context A) & B)
-                                        box={this.props.box}
-                                        currentUserAddr={this.props.coinbase}
+                                          // Required props for context A) & B)
+                                          box={this.props.box}
+                                          currentUserAddr={this.props.coinbase}
 
-                                        // Required prop for context B)
-                                        //loginFunction={handleLogin}
+                                          // Required prop for context B)
+                                          //loginFunction={handleLogin}
 
-                                        // Required prop for context C)
-                                        //ethereum={ethereum}
-                                        // optional
-                                        members={true}
+                                          // Required prop for context C)
+                                          //ethereum={ethereum}
+                                          // optional
+                                          members={true}
 
-                  />
+                    />
 
 
 
-                </Tab>
-                <Tab eventKey="comments" title="Comments" style={{paddingTop:'10px'}}>
-                  <h5>Comments</h5>
+                  </Tab>
+                  <Tab eventKey="comments" title="Comments" style={{paddingTop:'10px'}}>
+                    <h5>Comments</h5>
 
-                  <ThreeBoxComments
-                                        // required
-                                        spaceName={AppName}
-                                        threadName={"job_offers_"+profile.address}
-                                        adminEthAddr={profile.address}
-
-
-                                        // Required props for context A) & B)
-                                        box={this.props.box}
-                                        currentUserAddr={this.props.coinbase}
-
-                                        // Required prop for context B)
-                                        //loginFunction={handleLogin}
-
-                                        // Required prop for context C)
-                                        //ethereum={ethereum}
-
-                                        // optional
-                                        members={false}
-                  />
+                    <ThreeBoxComments
+                                          // required
+                                          spaceName={AppName}
+                                          threadName={"job_offers_"+profile.address}
+                                          adminEthAddr={profile.address}
 
 
+                                          // Required props for context A) & B)
+                                          box={this.props.box}
+                                          currentUserAddr={this.props.coinbase}
 
-                </Tab>
-              </Tabs>
-        </div>
+                                          // Required prop for context B)
+                                          //loginFunction={handleLogin}
+
+                                          // Required prop for context C)
+                                          //ethereum={ethereum}
+
+                                          // optional
+                                          members={false}
+                    />
+
+
+
+                  </Tab>
+                </Tabs>
+          </div>
+        )
+      }
+      return(
+        <div>
+               <h5>{profile.name} portfolio</h5>
+               {
+                 items.map(function(item){
+                   return(
+                     <div>
+                       <hr />
+                       <div>
+                         <p>Name: {item.name}</p>
+                         <p>Description: {item.description}</p>
+                         <p>URI: {item.uri}</p>
+                         <p><img style={{maxWidth: '400px'}} src={item.img}/></p>
+                       </div>
+                     </div>
+                   )
+                 })
+               }
+               </div>
       )
     }
     return(
-      <div>
-             <h5>{profile.name} portfolio</h5>
-             {
-               itens.map(function(item){
-                 return(
-                   <div>
-                     <hr />
-                     <div>
-                       <p>Name: {item.name}</p>
-                       <p>Description: {item.description}</p>
-                       <p>URI: {item.uri}</p>
-                       <p><img style={{maxWidth: '400px'}} src={item.img}/></p>
-                     </div>
-                   </div>
-                 )
-               })
-             }
-             </div>
+      <div>Loading ... </div>
     )
   }
 }

@@ -36,6 +36,7 @@ class Profile extends Component {
 
   componentWillMount = async function(){
 
+    await this.props.space.syncDone;
     const profile = await this.props.space.public.all();
     console.log("contacts_"+profile.address)
     const threadC = await this.state.space.joinThread("contacts_"+profile.address,{firstModerator:profile.address})
@@ -85,6 +86,7 @@ class Profile extends Component {
           this.forceUpdate();
         }
     }
+    await this.props.space.syncDone;
 
 
 
@@ -96,7 +98,6 @@ class Profile extends Component {
       coinbase: this.props.coinbase
     });
     try{
-      await this.props.space.syncDone;
       const profile = await this.state.space.public.all();
       const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
       const oldPostId = await this.state.space.private.get('reg_postId');
@@ -109,7 +110,7 @@ class Profile extends Component {
   }
 
   profileSaved = async function() {
-    await this.state.space.syncDone
+    await this.props.space.syncDone;
     const profile = await this.state.space.public.all();
     const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
     const oldPostId = await this.state.space.private.get('reg_postId');
@@ -119,7 +120,7 @@ class Profile extends Component {
     alert("saved");
   };
   chatPage = async function(addr){
-
+    await this.props.space.syncDone;
     const removed = ReactDOM.unmountComponentAtNode(document.getElementById("chatPage"));
     //const space = await this.props.box.openSpace(AppName);
     const isContact = await this.state.space.private.get("contact_"+addr);
@@ -159,6 +160,7 @@ class Profile extends Component {
         }
 
       }
+      await this.props.space.syncDone;
       ReactDOM.render(
         <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} itens={itens} />
         /*<ThreeBoxComments
@@ -217,7 +219,7 @@ class Profile extends Component {
     //if(members.length > 0){
       const itens = [];
       const profile = await Box.getSpace(addr, AppName);
-      for(const item of Object.values(profile)){
+      /*for(const item of Object.values(profile)){
 
         console.log(item)
         if(item.uri && item.img){
@@ -235,10 +237,10 @@ class Profile extends Component {
           });
         }
 
-      }
+      }*/
       ReactDOM.render(
 
-        <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} itens={itens} />,
+        <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} />,
         document.getElementById('contactPage')
       )
       return
