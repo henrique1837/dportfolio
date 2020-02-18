@@ -1,3 +1,6 @@
+## DecentralizedPortfolio
+
+A dapp where users can construct their portfolio, contact with each other using direct/public chat or comment box, view offers to join a project and contact.
 
 Done with [3box](https://3box.io/)
 
