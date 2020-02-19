@@ -100,10 +100,7 @@ class Profile extends Component {
     try{
       const profile = await this.state.space.public.all();
       const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
-      const oldPostId = await this.state.space.private.get('reg_postId');
-      await thread.deletePost(oldPostId);
       const postId = await thread.post(profile);
-      await this.state.space.private.set('reg_postId',postId);
     } catch(err){
       console.log(err)
     }
@@ -113,10 +110,7 @@ class Profile extends Component {
     await this.props.space.syncDone;
     const profile = await this.state.space.public.all();
     const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
-    const oldPostId = await this.state.space.private.get('reg_postId');
     const postId = await thread.post(profile);
-    await this.state.space.private.set('reg_postId',postId);
-    await thread.deletePost(oldPostId);
     alert("saved");
   };
   chatPage = async function(addr){

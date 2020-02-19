@@ -340,21 +340,17 @@ class App extends Component {
     );
     $("#alert_info").show();
     const space = await box.openSpace(AppName);
-    await space.syncDone;
+
     ReactDOM.render(
       <p>Opening your profile</p>,
       document.getElementById("loading_status")
     );
     await space.public.set('address',coinbase);
+    await space.syncDone;
     const profile = await space.public.all();
-    const registered = await space.private.get('registered');
     console.log(profile)
-    if(!registered){
-      const thread = await space.joinThread(usersRegistered,{firstModerator:admin});
-      const postId = await thread.post(profile);
-      await space.private.set('registered',true);
-      await space.private.set('reg_postId',postId)
-    }
+    const thread = await space.joinThread(usersRegistered,{firstModerator:admin});
+    const postId = await thread.post(profile);
 
     this.setState({
       profile: profile,
@@ -475,7 +471,7 @@ class App extends Component {
           <Alert variant="default" style={{textAlign: "center",display:"none"}} id='alert_info'>
             <h4>Loading dapp ...</h4>
             <div id="loading_status"></div>
-            
+
           </Alert>
           <Container>
           {

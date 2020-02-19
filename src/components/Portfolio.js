@@ -19,7 +19,6 @@ const admin = "did:3:bafyreiecus2e6nfupnqfbajttszjru3voolppqzhyizz3ysai6os6ftn3m
 
 class Portfolio extends Component {
   state = {
-    web3: null,
     coinbase:null,
     box:null,
     profile: null,
@@ -29,19 +28,32 @@ class Portfolio extends Component {
               key: 'portfolio',
               field: 'Portfolio'
             }],
-    itens: []
+    thread: null,
+    posts: []
   }
 
   constructor(props){
     super(props);
     this.addItem = this.addItem.bind(this);
-    this.refreshItems = this.refreshItems.bind(this);
     this.removeItem = this.removeItem.bind(this);
   }
 
 
   componentDidMount = async ()  => {
-    await this.refreshItems();
+    const thread = await this.props.space.joinThread("items_"+this.props.coinbase,{firstModerator:this.props.coinbase,members: true});
+    this.setState({
+      thread: thread
+    })
+    const posts = await this.state.thread.getPosts();
+    this.setState({posts});
+
+     await this.state.thread.onUpdate(async()=> {
+       const posts = await this.state.thread.getPosts();
+       this.setState({posts});
+     });
+     this.setState({
+       profile: this.props.profile
+     });
   };
   addItem = async function(){
     let item;
@@ -50,89 +62,29 @@ class Portfolio extends Component {
         name: $("#item_name").val(),
         description: $("#item_description").val(),
         uri: $("#item_uri").val(),
-        img: JSON.parse($("#item_img").html()).content,
-        isItem: true
+        img: JSON.parse($("#item_img").html()).content
       }
     } else {
       item = {
         name: $("#item_name").val(),
         description: $("#item_description").val(),
-        uri: $("#item_uri").val(),
-        isItem: true
+        uri: $("#item_uri").val()
       }
     }
-
-    await this.state.space.public.set($("#item_name").val(), item);
-    await this.state.space.syncDone
-    const profile = await this.state.space.public.all()
-    console.log(profile)
-    const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
-    const oldPostId = await this.state.space.private.get('reg_postId');
-    await thread.deletePost(oldPostId);
-    const postId = await thread.post(profile);
-    await this.state.space.private.set('reg_postId',postId);
-    this.setState({
-      profile:profile
-    });
-    await this.refreshItems();
+    await this.state.thread.post(item);
     alert('Item saved');
     return;
   };
-  removeItem = async function(){
+  removeItem = async function(postId){
     try{
-      await this.state.space.public.remove($("#s_remove :selected").val());
-      await this.state.space.syncDone
-      const profile = await this.state.space.public.all()
-      const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
-      const oldPostId = await this.state.space.private.get('reg_postId');
-      await thread.deletePost(oldPostId);
-      const postId = await thread.post(profile);
-      await this.state.space.private.set('reg_postId',postId);
-      this.setState({
-        profile: profile
-      });
-
-      await this.refreshItems();
+      await this.state.thread.deletePost(postId);
       alert("removed");
     } catch(err){
       alert(err)
     }
 
   };
-  refreshItems = async function(){
-    const web3 = this.props.web3;
 
-    // Use web3 to get the user's coinbase.
-    const coinbase = this.props.coinbase
-    const box = this.props.box;
-    const space = this.props.space;
-    await space.syncDone;
-    const profile = await this.props.space.public.all()
-
-    console.log(profile);
-
-
-    this.state.itens = [];
-    this.forceUpdate();
-
-    for(const item of Object.values(profile)){
-      if((item.uri) &&
-          !this.state.itens.includes(item)){
-
-          this.state.itens.push(item)
-          this.forceUpdate();
-      }
-
-    }
-    this.setState({
-      web3: web3,
-      space: space,
-      coinbase: coinbase,
-      box: box,
-      profile: profile
-    });
-    return
-  };
 
 
   fileUpload = function(){
@@ -158,32 +110,35 @@ class Portfolio extends Component {
     }
   }
   render(){
-
+    const that = this;
     if(this.state.profile){
       return(
         <div>
           <div>
             <h3>Your public informations</h3>
-            <p>Wallet address: {this.state.coinbase}</p>
+            <p>Wallet address: {this.state.profile.address}</p>
             <p>Name: {this.state.profile.name}</p>
             <p>Description: {this.state.profile.description}</p>
           </div>
           <hr/>
-          <Tabs defaultActiveKey="itensadded" className="nav-fill flex-column flex-md-row">
-            <Tab eventKey="itensadded" title="Itens">
+          <Tabs defaultActiveKey="itemsadded" className="nav-fill flex-column flex-md-row">
+            <Tab eventKey="itemsadded" title="Items">
               <div>
-                <h4>Itens added</h4>
+                <h4>Items added</h4>
                 {
 
-                  this.state.itens.map(function(item){
+                  this.state.posts.map(function(post){
+                    const item = post.message;
+                    const postId = post.postId;
                     if(item.img){
                       return(
                         <div>
                           <hr/>
                           <p>Name: {item.name}</p>
                           <p>Description: {item.description}</p>
-                          <p>URI: {item.uri}</p>
-                          <p><img src={item.img} style={{maxWidth: '400px'}} /></p>
+                          <p>URI: <a href={item.uri} target="_blank">{item.uri}</a></p>
+                          <p><img src={item.img} style={{maxWidth: '300px'}} /></p>
+                          <Button onClick={()=>{ that.removeItem(postId)}} type="primary">Remove Item</Button>
                         </div>
                       )
                     }
@@ -192,7 +147,8 @@ class Portfolio extends Component {
                         <hr/>
                         <p>Name: {item.name}</p>
                         <p>Description: {item.description}</p>
-                        <p>URI: {item.uri}</p>
+                        <p>URI: <a href={item.uri} target="_blank">{item.uri}</a></p>
+                        <Button onClick={()=>{ that.removeItem(postId)}} type="primary">Remove Item</Button>
                       </div>
                     )
 
@@ -222,24 +178,6 @@ class Portfolio extends Component {
                 </Form>
                 <div id='item_img' style={{display: 'none'}}></div>
                 <Button onClick={this.addItem} variant="primary">Add item</Button>
-              </div>
-            </Tab>
-            <Tab eventKey="removeItem" title="Remove Item">
-              <div>
-                <h4>Remove Item</h4>
-                <Form.Group controlId="exampleForm.ControlSelect1">
-                  <Form.Label>Select</Form.Label>
-                  <Form.Control id='s_remove' as="select">
-                      {
-                        this.state.itens.map(function(item){
-                          return(
-                            <option value={item.name}>{item.name}</option>
-                          )
-                        })
-                      }
-                  </Form.Control>
-                </Form.Group>
-                <Button onClick={this.removeItem} type="primary">Remove</Button>
               </div>
             </Tab>
           </Tabs>

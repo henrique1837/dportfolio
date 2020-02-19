@@ -30,7 +30,7 @@ class UserPage extends Component {
     this.setChannel = this.setChannel.bind(this);
   }
   componentDidMount = async function(){
-    this.setItems();
+    await this.setItems();
     if(this.props.box){
       await this.setChannel();
     }
@@ -88,26 +88,18 @@ class UserPage extends Component {
     }
     return
   }
-  setItems = function(){
-    const profile = this.props.profile;
+  setItems = async function(){
+    const posts = await Box.getThread(AppName,"items_"+this.props.profile.address,this.props.profile.address,true);
     const items = [];
-    for(const item of Object.values(profile)){
-
+    for(const post of posts){
+      const item = post.message;
       console.log(item)
-      if(item.uri && item.img){
-        items.push({
+      items.push({
           name: item.name,
           description: item.description,
           uri: item.uri,
           img: item.img
-        });
-      } else if(item.uri){
-        items.push({
-          name: item.name,
-          description: item.description,
-          uri: item.uri
-        });
-      }
+      });
     }
     this.setState({
       items: items
@@ -127,7 +119,6 @@ class UserPage extends Component {
       const postId = await thread.post(this.props.profile.address);
       await space.private.set("contactAdded_"+this.props.profile.address,postId);
     }
-    await space.syncDone;
     alert('saved')
     return
   }
@@ -137,7 +128,6 @@ class UserPage extends Component {
     console.log(this.state);
     const items = this.state.items
     if(this.state.items){
-      const items = this.state.items
       if(this.state.confidentialThreadName){
 
         return(
@@ -243,8 +233,8 @@ class UserPage extends Component {
                        <div>
                          <p>Name: {item.name}</p>
                          <p>Description: {item.description}</p>
-                         <p>URI: {item.uri}</p>
-                         <p><img style={{maxWidth: '400px'}} src={item.img}/></p>
+                         <p>URI: <a href={item.uri} target="_blank">{item.uri}</a></p>
+                         <p><img style={{maxWidth: '300px'}} src={item.img}/></p>
                        </div>
                      </div>
                    )

@@ -38,20 +38,9 @@ class Users extends Component {
     });
     console.log(this.state)
     const posts = await Box.getThread(AppName, usersRegistered, admin,false)
-    //const posts = await thread.getPosts();
-    /*
-    const space = await this.props.box.openSpace(AppName);
-    const thread = await space.joinThread(usersRegistered,{firstModerator:admin});
-    const p = await thread.getPosts();
-    console.log(p)
-    //for(const a of p){
-      // await thread.deletePost("zdpuAx9zkQ4PSgSz9oYvkxkG25URySVfiZWndyU4FYAvkMUh6")
-    //}
-    //alert('deleted')
-    //return
-    */
+
     console.log(posts)
-    //const added = {}
+
     const added = []
     for(var i=posts.length-1;i>=0;i--){
         const post = posts[i];
@@ -70,27 +59,6 @@ class Users extends Component {
   renderUserPage = async(profile) => {
     const removed = ReactDOM.unmountComponentAtNode(document.getElementById("userPage"))
 
-    /*const itens = [];
-    for(const item of Object.values(profile)){
-
-      console.log(item)
-      if(item.uri && item.img){
-        itens.push({
-          name: item.name,
-          description: item.description,
-          uri: item.uri,
-          img: item.img
-        });
-      } else if(item.uri){
-        itens.push({
-          name: item.name,
-          description: item.description,
-          uri: item.uri
-        });
-      }
-
-    }*/
-
     console.log(profile);
 
     ReactDOM.render(
@@ -103,6 +71,11 @@ class Users extends Component {
 
   render(){
     const that = this;
+    if(this.state.users.length == 0){
+      return(
+        <div>Loading ... </div>
+      );
+    }
     return(
       <div>
         <h4>Users</h4>
