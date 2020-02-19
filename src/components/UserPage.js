@@ -9,6 +9,7 @@ import EditProfile from '3box-profile-edit-react';
 import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
+import PrivateChat from './PrivateChat.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 const Box = require('3box');
 const AppName = 'DecentralizedPortfolio_test2';
@@ -21,7 +22,9 @@ class UserPage extends Component {
   state = {
     confidentialThreadName: null,
     threadAdmin: null,
-    items: null
+    items: null,
+    space: null,
+    coinbase: null,
   }
   constructor(props){
     super(props);
@@ -39,6 +42,10 @@ class UserPage extends Component {
   setChannel = async function(){
     const space = await this.props.box.openSpace(AppName);
     await space.syncDone;
+    this.setState({
+      space: space,
+      coinbase: this.props.coinbase
+    });
     console.log("contacts_"+this.props.profile.address)
     console.log(this.props.coinbase)
     const isContact = await space.private.get("contact_"+this.props.profile.address);
@@ -59,7 +66,8 @@ class UserPage extends Component {
       await space.syncDone;
       this.setState({
         confidentialThreadName: confidentialThreadNameByUser,
-        threadAdmin: this.props.profile.address
+        threadAdmin: this.props.profile.address,
+        threadAddress: thread.address
       });
     } else {
       const confidentialThreadName = "contact_"+this.props.coinbase+"_"+this.props.profile.address;
@@ -83,7 +91,8 @@ class UserPage extends Component {
 
       this.setState({
         confidentialThreadName: confidentialThreadName,
-        threadAdmin: this.props.coinbase
+        threadAdmin: this.props.coinbase,
+        threadAddress: threadAddress
       });
     }
     return
@@ -166,7 +175,8 @@ class UserPage extends Component {
                   </Tab>
                   <Tab eventKey="privMessage" title="Private message" style={{paddingTop:'10px'}}>
                     <h5>Private message</h5>
-
+                    <PrivateChat threadAddress={this.state.threadAddress} space={this.state.space} coinbase={this.state.coinbase} />
+                    {/*
                     <ThreeBoxComments
                                           // required
                                           spaceName={AppName}
@@ -187,6 +197,7 @@ class UserPage extends Component {
                                           members={true}
 
                     />
+                    */}
 
 
 

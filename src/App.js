@@ -1,6 +1,7 @@
 import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from "web3";
+import Authereum from 'authereum'
 import $ from 'jquery';
 import {Button,Form,Table,Tabs,Tab,Container,Row,Col,Alert,Nav,Navbar,Card,Modal,Collapse} from 'react-bootstrap';
 //import getWeb3 from "./components/getWeb3.js";
@@ -80,13 +81,21 @@ class App extends Component {
   login = async function(){
     try {
       // Get network provider and web3 instance.
-      await window.ethereum.enable();
+      let web3;
+      if(window.ethereum){
+        await window.ethereum.enable();
+        web3 = new Web3(window.ethereum);
+      } else {
+        const authereum = new Authereum('mainnet');
+        const provider = await authereum.getProvider()
+        web3 = new Web3(provider);
+        await provider.enable()
+      }
+
       this.setState({
         doingLogin: true
       });
 
-      const web3 = new Web3(window.ethereum);
-      console.log(web3)
       // Use web3 to get the user's coinbase.
       const coinbase = await web3.eth.getCoinbase();
       console.log(coinbase);
@@ -325,7 +334,9 @@ class App extends Component {
   }
   loginPageNoWeb3 = function(){
     this.setState({
-      page: <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a></p>
+      page: <div>
+               <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or login with <a href="#auth_login" onClick={this.login}>authereum</a></p>
+            </div>
     });
     return
   }
