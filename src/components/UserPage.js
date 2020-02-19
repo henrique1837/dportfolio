@@ -74,8 +74,8 @@ class UserPage extends Component {
       let threadAddress = await space.public.get('contactThread_'+this.props.profile.address);
       console.log(threadAddress)
       if(!threadAddress){
-        //const thread = await space.createConfidentialThread(confidentialThreadName,{firstModerator:this.props.coinbase,members: true});
-        const thread = await space.joinThread(confidentialThreadName,{firstModerator:this.props.coinbase,members: true});
+        const thread = await space.createConfidentialThread(confidentialThreadName);
+        //const thread = await space.joinThread(confidentialThreadName,{firstModerator:this.props.coinbase,members: true});
         const members = await thread.listMembers();
 
         if(members.length == 0){
