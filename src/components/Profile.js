@@ -114,6 +114,11 @@ class Profile extends Component {
     alert("saved");
   };
   chatPage = async function(addr){
+    ReactDOM.unmountComponentAtNode(document.getElementById("contactPage"));
+    ReactDOM.render(
+        <div></div>,
+        document.getElementById('contactPage')
+    );
     await this.props.space.syncDone;
     const removed = ReactDOM.unmountComponentAtNode(document.getElementById("chatPage"));
     //const space = await this.props.box.openSpace(AppName);
@@ -132,50 +137,9 @@ class Profile extends Component {
     await this.state.space.syncDone;
     if(threadAddress){
       const thread = await this.state.space.joinThreadByAddress(threadAddress);
-      const members = await thread.listMembers();
-      console.log(members)
-      const itens = [];
-      for(const item of Object.values(profile)){
-
-        console.log(item)
-        if(item.uri && item.img){
-          itens.push({
-            name: item.name,
-            description: item.description,
-            uri: item.uri,
-            img: item.img
-          });
-        } else if(item.uri){
-          itens.push({
-            name: item.name,
-            description: item.description,
-            uri: item.uri
-          });
-        }
-
-      }
       await this.props.space.syncDone;
       ReactDOM.render(
-        <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} itens={itens} />
-        /*<ThreeBoxComments
-                              // required
-                              spaceName={AppName}
-                              threadName={"contact_"+addr+"_"+this.props.coinbase}
-                              adminEthAddr={addr}
-
-
-                              // Required props for context A) & B)
-                              box={this.props.box}
-                              currentUserAddr={this.props.coinbase}
-
-                              // Required prop for context B)
-                              //loginFunction={handleLogin}
-
-                              // Required prop for context C)
-                              //ethereum={ethereum}
-
-                              // optional
-        />*/,
+        <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} />,
         document.getElementById('chatPage')
       );
       return
@@ -193,6 +157,11 @@ class Profile extends Component {
 
 
   contactPage = async function(addr){
+    ReactDOM.unmountComponentAtNode(document.getElementById("chatPage"));
+    ReactDOM.render(
+        <div></div>,
+        document.getElementById('chatPage')
+    );
     const removed = ReactDOM.unmountComponentAtNode(document.getElementById("contactPage"));
 
     const space = await this.props.box.openSpace(AppName);
@@ -210,42 +179,15 @@ class Profile extends Component {
     console.log(members)
     console.log(posts)
     console.log(members.length)
-    //if(members.length > 0){
-      const itens = [];
-      const profile = await Box.getSpace(addr, AppName);
-      /*for(const item of Object.values(profile)){
 
-        console.log(item)
-        if(item.uri && item.img){
-          itens.push({
-            name: item.name,
-            description: item.description,
-            uri: item.uri,
-            img: item.img
-          });
-        } else if(item.uri){
-          itens.push({
-            name: item.name,
-            description: item.description,
-            uri: item.uri
-          });
-        }
-
-      }*/
-      ReactDOM.render(
+    const itens = [];
+    const profile = await Box.getSpace(addr, AppName);
+    ReactDOM.render(
 
         <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} />,
         document.getElementById('contactPage')
-      )
-      return
-    //}
-    /*
-    ReactDOM.render(
-        <p>No messages to you</p>,
-        document.getElementById('contactPage')
-    );
+    )
     return
-    */
   }
   render() {
     if(!this.state.box){
