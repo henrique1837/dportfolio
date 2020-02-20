@@ -14,6 +14,7 @@ import ProfileHover from 'profile-hover';
 import Profile from './components/Profile.js';
 import Portfolio from './components/Portfolio.js';
 import Users from './components/Users.js';
+import Jobs from './components/Jobs.js';
 import "./App.css";
 import "./assets/scss/argon-dashboard-react.scss";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -63,6 +64,7 @@ class App extends Component {
     this.loginPageNoWeb3 = this.loginPageNoWeb3.bind(this);
     this.offersPage = this.offersPage.bind(this);
     this.tutorialPage = this.tutorialPage.bind(this);
+    this.commentsPage = this.commentsPage.bind(this);
 
     this.openSpace = this.openSpace.bind(this);
   }
@@ -247,34 +249,62 @@ class App extends Component {
     return
   }
   offersPage = async function() {
+
+
     if(!this.state.coinbase){
       this.setState({
-        page:   <ThreeBoxComments
-                 // required
-                 spaceName={AppName}
-                 threadName={"job_offers"}
-                 adminEthAddr={admin}
+        page: <Jobs/>
+      })
+      return
+    }
+    if(!this.state.space){
+      await this.openSpace();
+    }
+    this.setState({
+      page: <Jobs box={this.state.box} coinbase={this.state.coinbase} space={this.state.space} />
+    })
+    return
+  }
+  commentsPage = async function(){
+    if(!this.state.coinbase){
+
+      this.setState({
+        page: <div>
+            <h4>Comments</h4>
+            <p>Feedbacks or suggestion for nexts versions of this dapp</p>
+            <hr/>
+            <ThreeBoxComments
+                    // required
+                    spaceName={AppName}
+                    threadName={"job_offers"}
+                    adminEthAddr={admin}
 
 
-                 // Required props for context A) & B)
-                 //box={this.state.box}
-                 //currentUserAddr={this.state.coinbase}
+                    // Required props for context A) & B)
+                    //box={this.state.box}
+                    //currentUserAddr={this.state.coinbase}
 
-                 // Required prop for context B)
-                 //loginFunction={handleLogin}
+                    // Required prop for context B)
+                    //loginFunction={handleLogin}
 
-                 // Required prop for context C)
-                 ethereum={null}
+                    // Required prop for context C)
+                    ethereum={null}
 
-                 // optional
-                 members={false}
-             />
+                    // optional
+                    members={false}
+                />
+
+
+          </div>
       });
       return;
     }
     await this.state.box.syncDone;
     this.setState({
-      page:
+      page: <div>
+          <h4>Comments</h4>
+          <p>Use this space to give feedback or suggestion for nexts versions of this dapp</p>
+          <hr/>
                         <ThreeBoxComments
                              // required
                              spaceName={AppName}
@@ -295,9 +325,9 @@ class App extends Component {
                              // optional
                              members={false}
                          />
+        </div>
 
     });
-    return
   }
   tutorialPage = async() =>{
     this.setState({
@@ -383,6 +413,7 @@ class App extends Component {
                 <Nav.Link href="#home" onClick={this.homePage}>Home</Nav.Link>
                 <Nav.Link href="#users" onClick={this.usersPage}>Users</Nav.Link>
                 <Nav.Link href="#job_offers" onClick={this.offersPage}>Jobs Offers</Nav.Link>
+                <Nav.Link href="#comments" onClick={this.commentsPage}>Comments</Nav.Link>
                 <Nav.Link href="#login" onClick={this.loginPageNoWeb3}>Login</Nav.Link>
               </Nav>
             </Navbar.Collapse>
@@ -402,36 +433,7 @@ class App extends Component {
         </div>
       );
     }
-    if((!this.state.doingLogin) && (this.state.hasWeb3) && (!this.state.coinbase)){
-      return (
-        <div>
-          <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark">
-            <Navbar.Brand href="#home" onClick={this.homePage}>Decentralized Portfolio</Navbar.Brand>
-            <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-            <Navbar.Collapse id="responsive-navbar-nav">
-              <Nav className="mr-auto">
-                <Nav.Link href="#home" onClick={this.homePage}>Home</Nav.Link>
-                <Nav.Link href="#users" onClick={this.usersPage}>Users</Nav.Link>
-                <Nav.Link href="#job_offers" onClick={this.offersPage}>Jobs Offers</Nav.Link>
-                <Nav.Link href="#login" onClick={this.login}>Login</Nav.Link>
-              </Nav>
-            </Navbar.Collapse>
-          </Navbar>
-          <Container className="themed-container" fluid={true}>
 
-            <Container>
-            {
-              this.state.page
-            }
-            </Container>
-            {
-              this.state.footer
-            }
-          </Container>
-
-        </div>
-      );
-    }
     if(this.state.doingLogin){
 
       return(
@@ -473,6 +475,7 @@ class App extends Component {
               <Nav.Link href="#portfolio" onClick={this.portfolioPage}>Portfolio</Nav.Link>
               <Nav.Link href="#users" onClick={this.usersPage}>Users</Nav.Link>
               <Nav.Link href="#job_offers" onClick={this.offersPage}>Jobs Offers</Nav.Link>
+              <Nav.Link href="#comments" onClick={this.commentsPage}>Comments</Nav.Link>
               <Nav.Link href="#logout" onClick={this.logout}>Logout</Nav.Link>
             </Nav>
           </Navbar.Collapse>

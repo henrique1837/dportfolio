@@ -25,7 +25,14 @@ class Profile extends Component {
     coinbase: null,
     views: [],
     contacts: [],
-    page: <div></div>
+    page: <div></div>,
+    fields: [
+      { // for a field with a text input
+        inputType: 'text',
+        key: 'techs', // the key used to save the value
+        field: 'Techs' // how to display the key in the UI
+      }
+    ]
   }
   constructor(props){
     super(props)
@@ -208,7 +215,7 @@ class Profile extends Component {
                       currentUserAddr={this.state.coinbase}
 
                       // optional
-                      //customFields={this.state.fields}
+                      customFields={this.state.fields}
                       redirectFn={this.profileSaved}
                   />
             </Tab>

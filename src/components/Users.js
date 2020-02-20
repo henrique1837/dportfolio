@@ -29,6 +29,7 @@ class Users extends Component {
   constructor(props){
     super(props);
     this.renderUserPage = this.renderUserPage.bind(this);
+    this.filterUsers = this.filterUsers.bind(this);
   }
 
   componentDidMount = async () => {
@@ -37,6 +38,7 @@ class Users extends Component {
       coinbase: this.props.coinbase
     });
     console.log(this.state)
+
     const posts = await Box.getThread(AppName, usersRegistered, admin,false)
 
     console.log(posts)
@@ -52,6 +54,7 @@ class Users extends Component {
           this.forceUpdate();
         }
     }
+
   };
 
 
@@ -69,6 +72,65 @@ class Users extends Component {
     return
   };
 
+  filterUsers = async function(){
+    try{
+      if(!$("#input_filter").val().replace(/\s/g, '')){
+        $(".div_profile").show();
+        return
+      }
+      const values = $("#input_filter").val().replace(/\s/g, '').toLowerCase().split(',');
+
+      $(".div_profile").hide();
+      console.log(values)
+      const users = this.state.users;
+      const filteredUsers = [];
+      console.log(values)
+      console.log(users)
+      for(var i=users.length-1;i>=0;i--){
+        const user = users[i];
+        console.log(user)
+        const techs = user.techs;
+        const allTrue = [];
+        if(techs){
+          const treatedTechs = techs.toLowerCase().replace(/\s/g, '').split(',');
+          console.log(treatedTechs)
+          for(const value of values){
+            if(treatedTechs.includes(value)){
+                allTrue.push(true);
+            } else {
+                allTrue.push(false)
+            }
+
+          }
+        }
+        if(allTrue.length>0){
+          const isFiltered = allTrue.every(function(isTrue){
+              return isTrue == true
+          });
+          console.log(isFiltered)
+          if(isFiltered){
+            filteredUsers.push(user.address);
+          }
+
+        }
+      }
+      console.log(filteredUsers);
+      if(filteredUsers.length>0){
+        for(const filteredUser of filteredUsers){
+            $(".div_profile.div_"+filteredUser).show();
+        }
+      }
+
+
+    } catch(err){
+      console.log(err)
+      $(".div_profile").show();
+    }
+
+
+    return
+  };
+
   render(){
     const that = this;
     if(this.state.users.length == 0){
@@ -78,7 +140,15 @@ class Users extends Component {
     }
     return(
       <div>
-        <h4>Users</h4>
+        <Row>
+          <h4>Users</h4>
+        </Row>
+        <Row>
+          <Form.Group>
+            <Form.Label>Techs</Form.Label>
+            <Form.Control placeholder="Techs" id='input_filter' onChange={this.filterUsers}/>
+          </Form.Group>
+        </Row>
         <Row>
           <Col lg={4} style={{height: '500px',overflowY:'scroll'}}>
         {
@@ -90,13 +160,14 @@ class Users extends Component {
                                     <p><small>Decentralized portfolio profile</small></p>
                                     <p>Name: {profile.name}</p>
                                     <p>Description: {profile.description}</p>
+                                    <p>Techs: {profile.techs}</p>
                                   </div>
             }
             return(
 
 
                 <div>
-                    <Row>
+                    <Row className={"div_profile div_"+profile.address}>
                     <Col lg={12}>
                       <ProfileHover
                         address={profile.address}
@@ -108,9 +179,9 @@ class Users extends Component {
                       {div_profile}
                       <Button variant="primary" href={"#user_"+profile.address} onClick={()=>{ that.renderUserPage(profile) }}>Portfolio</Button>
                       </Col>
-
-                    </Row>
                     <hr/>
+                    </Row>
+
                 </div>
             )
           })
