@@ -4,20 +4,26 @@ import Web3 from "web3";
 import Authereum from 'authereum'
 import $ from 'jquery';
 import {Button,Form,Table,Tabs,Tab,Container,Row,Col,Alert,Nav,Navbar,Card,Modal,Collapse} from 'react-bootstrap';
-//import getWeb3 from "./components/getWeb3.js";
-//import * as Box from '3box';
+import {
+  BrowserRouter as Router,
+  Link,
+  Route,
+  Switch,
+  Redirect
+} from 'react-router-dom';
 import EditProfile from '3box-profile-edit-react';
 import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
 
+import Home from './components/Home.js';
+import Menu from './components/Menu.js';
 import Profile from './components/Profile.js';
 import Portfolio from './components/Portfolio.js';
 import Users from './components/Users.js';
 import Jobs from './components/Jobs.js';
 import "./App.css";
 import "./assets/scss/argon-dashboard-react.scss";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Box = require('3box');
 const AppName = 'DecentralizedPortfolio_test2';
@@ -34,42 +40,18 @@ class App extends Component {
     box: null,
     space: null,
     doingLogin:false,
-    page: <Container></Container>,
-    footer: <footer style={{marginTop: '20px'}}>
-              <Row>
-                <Col lg={4}>
-                  <p>Proudly done using <a href="https://3box.com" target='_blank' title='3Box'>3Box</a></p>
-                </Col>
-                <Col lg={4}>
-                  <p>Support by using <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or donating</p>
-                </Col>
-                <Col lg={4}>
-                  <p>Use a private,fast and secure browser</p>
-                  <p>Earn rewards in BAT token while browsing</p>
-                  <p>Install <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a></p>
-                </Col>
-              </Row>
-            </footer>
    };
   constructor(props){
     super(props)
 
     this.logout = this.logout.bind(this);
     this.login = this.login.bind(this);
-    this.editProfilePage = this.editProfilePage.bind(this);
 
-    this.usersPage = this.usersPage.bind(this);
-    this.homePage = this.homePage.bind(this);
-    this.portfolioPage= this.portfolioPage.bind(this);
-    this.loginPageNoWeb3 = this.loginPageNoWeb3.bind(this);
-    this.offersPage = this.offersPage.bind(this);
-    this.tutorialPage = this.tutorialPage.bind(this);
-    this.commentsPage = this.commentsPage.bind(this);
 
     this.openSpace = this.openSpace.bind(this);
   }
   componentDidMount = async () => {
-    this.homePage();
+
     if(window.ethereum){
       this.setState({
         hasWeb3:true
@@ -116,9 +98,9 @@ class App extends Component {
       this.setState({
         web3:web3,
         coinbase:coinbase,
-        box: box,
-        doingLogin: false
+        box: box
       });
+      await this.openSpace();
     } catch (error) {
       // Catch any errors for any of the above operations.
 
@@ -137,231 +119,9 @@ class App extends Component {
       box: null,
       space: null
     })
-    this.homePage();
   };
-  homePage = function() {
-    this.setState({
-      page:  <Container>
-
-              <Card>
-              <Card.Header as="h3">Welcome to decentralized portfolio</Card.Header>
-              <Card.Body>
-                <Row>
-                  <Col sm={4}>
-                    <Card>
-                      {/*<Card.Img variant="top" src="./imgs/ipfs.png" />*/}
-                      <Card.Body>
-                        <Card.Title>Decentralized storage</Card.Title>
-                        <Card.Text>Everything is stored in <a href='https://ipfs.io' target='_blank' title='Interplanetary File System'>IPFS</a> using <a href='https://orbitdb.org/' target='_blank' title='OrbitDB'>OrbitDB</a> and linked to your decentralized identity thanks to <a href="https://3box.com" target='_blank' title='3Box'>3Box</a></Card.Text>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                  <Col sm={4}>
-                    <Card>
-                      {/*<Card.Img variant="top" src="./imgs/ipfs.png" />*/}
-                      <Card.Body>
-                        <Card.Title>Share same data in multiple dapps</Card.Title>
-                        <Card.Text>Every dapp that uses 3Box can request same data you input here.</Card.Text>
-                      </Card.Body>
-                    </Card>
-                    <h4></h4>
-
-                  </Col>
-                  <Col sm={4}>
-                  <Card>
-                    {/*<Card.Img variant="top" src="./imgs/ipfs.png" />*/}
-                    <Card.Body>
-                      <Card.Title>Receive jobs offers</Card.Title>
-                      <Card.Text>Talk directly with employers with no middleman! No fees to use it for both parties!</Card.Text>
-                    </Card.Body>
-                  </Card>
-
-                  </Col>
-                </Row>
-              </Card.Body>
-              </Card>
-              <hr/>
-              <Card>
-              <Card.Header as="h3">Informations</Card.Header>
-              <Card.Body>
-                <Row>
-                  <Col sm={6}>
-                    <Card>
-                      {/*<Card.Img variant="top" src="./imgs/ipfs.png" />*/}
-                      <Card.Body>
-                        <Card.Title>How to use it?</Card.Title>
-                        <Card.Text>Step by step on how to use DecentralizedPortfolio</Card.Text>
-                        <Button variant="primary" onClick={this.tutorialPage}>Tutorial</Button>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-
-                  {/*<Col sm={6}>
-                  <Card>
-                    <Card.Body>
-                      <Card.Title>Roadmap</Card.Title>
-                      <Card.Text>What will be the future of that dapp?</Card.Text>
-                      <Button variant="primary">Roadmap</Button>
-                    </Card.Body>
-                  </Card>
-
-                  </Col>*/}
-                </Row>
-              </Card.Body>
-              </Card>
-            </Container>
-    })
-    return
-  }
-
-  editProfilePage = async function() {
-
-    if(!this.state.space){
-      await this.openSpace();
-    }
-    this.setState({
-      page: <Profile box={this.state.box} space={this.state.space} coinbase={this.state.coinbase} />
-    })
-    return
-  }
-  usersPage = function() {
-    const that = this;
-    this.setState({
-      page: <Users box={this.state.box} coinbase={this.state.coinbase} />
-    })
-    return
-  }
-
-  portfolioPage = async function(){
-    if(!this.state.space){
-      await this.openSpace();
-    }
-    console.log(this.state.profile);
-    this.setState({
-      page: <Portfolio
-                  web3 = {this.state.web3}
-                  coinbase = {this.state.coinbase}
-                  box = {this.state.box}
-                  space = {this.state.space}
-                  profile = {this.state.profile}
-            />
-    })
-    return
-  }
-  offersPage = async function() {
 
 
-    if(!this.state.coinbase){
-      this.setState({
-        page: <Jobs/>
-      })
-      return
-    }
-    if(!this.state.space){
-      await this.openSpace();
-    }
-    this.setState({
-      page: <Jobs box={this.state.box} coinbase={this.state.coinbase} space={this.state.space} />
-    })
-    return
-  }
-  commentsPage = async function(){
-    if(!this.state.coinbase){
-
-      this.setState({
-        page: <div>
-            <h4>Comments</h4>
-            <p>Feedbacks or suggestion for nexts versions of this dapp</p>
-            <hr/>
-            <ThreeBoxComments
-                    // required
-                    spaceName={AppName}
-                    threadName={"job_offers"}
-                    adminEthAddr={admin}
-
-
-                    // Required props for context A) & B)
-                    //box={this.state.box}
-                    //currentUserAddr={this.state.coinbase}
-
-                    // Required prop for context B)
-                    //loginFunction={handleLogin}
-
-                    // Required prop for context C)
-                    ethereum={null}
-
-                    // optional
-                    members={false}
-                />
-
-
-          </div>
-      });
-      return;
-    }
-    await this.state.box.syncDone;
-    this.setState({
-      page: <div>
-          <h4>Comments</h4>
-          <p>Use this space to give feedback or suggestion for nexts versions of this dapp</p>
-          <hr/>
-                        <ThreeBoxComments
-                             // required
-                             spaceName={AppName}
-                             threadName={"job_offers"}
-                             adminEthAddr={admin}
-
-
-                             // Required props for context A) & B)
-                             box={this.state.box}
-                             currentUserAddr={this.state.coinbase}
-
-                             // Required prop for context B)
-                             //loginFunction={handleLogin}
-
-                             // Required prop for context C)
-                             //ethereum={ethereum}
-
-                             // optional
-                             members={false}
-                         />
-        </div>
-
-    });
-  }
-  tutorialPage = async() =>{
-    this.setState({
-      page:      <Card>
-                  <Card.Header as="h3">Tutorial</Card.Header>
-                  <Card.Body>
-                    <Card.Title>How to use this dapp?</Card.Title>
-                    <Card.Text>
-                    <ol>
-                      <li>Install <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a></li>
-                      <li>
-                        Create your ethereum wallet (or import existing one) <br/>
-                        <img src={require('./imgs/brave_Crypto0.png')} style={{maxWidth:' 60%'}}/> <br/>
-                        <img src={require('./imgs/brave_Crypto1.png')} style={{maxWidth:' 60%'}}/> <br/>
-                        <img src={require('./imgs/brave_Crypto2.png')} style={{maxWidth:' 60%'}}/>
-                      </li>
-                      <li>
-                        Accept wallet connection, 3box login/sign up and open DecentralizedPortfolio space <br/>
-                        <img src={require('./imgs/brave_3box.png')} style={{maxWidth:' 60%'}}/> <br/>
-                      </li>
-                      {/*<li>
-                        Fill your profile <br/>
-                        <img src={require('./imgs/brave_3boxProfiles.png')} style={{maxWidth:' 60%'}}/> <br/>
-                      </li>*/}
-
-                    </ol>
-
-                     </Card.Text>
-                    <Button variant='primary' onClick={this.homePage}>HomePage</Button>
-                  </Card.Body>
-                 </Card>
-    })
-    return
-  }
   loginPageNoWeb3 = function(){
     this.setState({
       page: <div>
@@ -401,117 +161,223 @@ class App extends Component {
     return;
   }
   render() {
-
-    if (!this.state.hasWeb3) {
+    if(this.state.space || !this.state.hasWeb3){
       return (
         <div>
-          <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark">
-            <Navbar.Brand href="#home" onClick={this.homePage}>Decentralized Portfolio</Navbar.Brand>
-            <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-            <Navbar.Collapse id="responsive-navbar-nav">
-              <Nav className="mr-auto">
-                <Nav.Link href="#home" onClick={this.homePage}>Home</Nav.Link>
-                <Nav.Link href="#users" onClick={this.usersPage}>Users</Nav.Link>
-                <Nav.Link href="#job_offers" onClick={this.offersPage}>Jobs Offers</Nav.Link>
-                <Nav.Link href="#comments" onClick={this.commentsPage}>Comments</Nav.Link>
-                <Nav.Link href="#login" onClick={this.loginPageNoWeb3}>Login</Nav.Link>
-              </Nav>
-            </Navbar.Collapse>
-          </Navbar>
-          <Container className="themed-container" fluid={true}>
+          <Router>
+            <Menu box={this.state.box}
+                  space={this.state.space}
+                  hasWeb3={this.state.hasWeb3}
+                  doingLogin={this.state.doingLogin} />
 
-          <Container>
-          {
-            this.state.page
-          }
-          </Container>
-          {
-            this.state.footer
-          }
-          </Container>
+            <Container className="themed-container" fluid={true}>
 
-        </div>
-      );
-    }
+             <Alert variant="default" style={{textAlign: "center",display:"none"}} id='alert_info'>
+                  <h4>Loading dapp ...</h4>
+                  <div id="loading_status"></div>
+              </Alert>
 
-    if(this.state.doingLogin){
+              <Switch>
+                    <Route path="/home" component={Home} />
+                    <Route path="/profile" render={() => {
+                      if(!this.state.space){
+                        return(
+                          <Redirect to="/home" />
+                        )
+                      }
+                      return(
+                        <Profile box={this.state.box} space={this.state.space} coinbase={this.state.coinbase} />
+                      )
+                    }} />
+                    <Route path="/portfolio" render={() => {
+                      if(!this.state.space){
+                        return(
+                          <Redirect to="/home" />
+                        )
+                      }
+                      return(
+                        <Portfolio
+                                   web3 = {this.state.web3}
+                                   coinbase = {this.state.coinbase}
+                                   box = {this.state.box}
+                                   space = {this.state.space}
+                                   profile = {this.state.profile}
+                             />
+                      )
+                    }} />
+                    <Route path="/users" render={() => {
 
-      return(
-        <div>
-          <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark" >
-            <Navbar.Brand href="#home">Decentralized Portfolio</Navbar.Brand>
-            <Navbar.Toggle />
-          </Navbar>
-          <Container className="themed-container" fluid={true}>
+                      return(
+                        <Users box={this.state.box} coinbase={this.state.coinbase} />
+                      )
+                      }} />
+                    <Route path="/jobs" render={() => {
+                      if(!this.state.coinbase ){
+                        return(
+                          <Jobs/>
+                        )
+                      }
+                      if(!this.state.space){
+                        return(
+                          <Redirect to="/home" />
+                        )
+                      }
+                      return(
+                          <Jobs box={this.state.box} coinbase={this.state.coinbase} space={this.state.space} />
+                      )
+                    }} />
+                    <Route path="/comments" render={() => {
+                      if(!this.state.coinbase){
+                        return(
+                          <div>
+                             <h4>Comments</h4>
+                             <p>Feedbacks or suggestion for nexts versions of this dapp</p>
+                             <hr/>
+                             <ThreeBoxComments
+                                     // required
+                                     spaceName={AppName}
+                                     threadName={"job_offers"}
+                                     adminEthAddr={admin}
 
-            <Alert variant="default" style={{textAlign: "center"}}>
-              <h4>Loading dapp ...</h4>
-              <div id="loading_status"></div>
 
-            </Alert>
-            <Container>
-            {
-              this.state.page
-            }
+                                     // Required props for context A) & B)
+                                     //box={this.state.box}
+                                     //currentUserAddr={this.state.coinbase}
+
+                                     // Required prop for context B)
+                                     //loginFunction={handleLogin}
+
+                                     // Required prop for context C)
+                                     ethereum={null}
+
+                                     // optional
+                                     members={false}
+                                 />
+
+
+                           </div>
+                        );
+                      }
+                      if(!this.state.space){
+                        return(
+                          <Redirect to="/home" />
+                        );
+                      }
+
+                      return(
+                        <div>
+                           <h4>Comments</h4>
+                           <p>Use this space to give feedback or suggestion for nexts versions of this dapp</p>
+                           <hr/>
+                                         <ThreeBoxComments
+                                              // required
+                                              spaceName={AppName}
+                                              threadName={"job_offers"}
+                                              adminEthAddr={admin}
+
+
+                                              // Required props for context A) & B)
+                                              box={this.state.box}
+                                              currentUserAddr={this.state.coinbase}
+
+                                              // Required prop for context B)
+                                              //loginFunction={handleLogin}
+
+                                              // Required prop for context C)
+                                              //ethereum={ethereum}
+
+                                              // optional
+                                              members={false}
+                                          />
+                         </div>
+
+                      );
+                    }} />
+                    <Route path="/loginNoWeb3" render={() => {
+                      return(
+                        <div>
+                           <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or login with <a href="#auth_login" onClick={this.login}>authereum</a></p>
+                        </div>
+                      )
+                    }} />
+                    <Route path="/login" render={() => {
+                      if(!this.state.hasWeb3){
+                        return(
+                          <Redirect to="/loginNoWeb3" />
+                        );
+                      }
+
+                      return(
+                        this.login()
+                      )
+                    }} />
+                    <Route path="/logout" render={() => {
+                      if(!this.state.space){
+                        return(
+                          <Redirect to="/home" />
+                        );
+                      }
+                      return(
+                        this.logout()
+                      );
+                    }}/>
+
+                    <Route render={() => {
+                      return(
+                        <Redirect to="/home" />
+                      );
+                    }} />
+              </Switch>
+
             </Container>
-            {
-              this.state.footer
-            }
-          </Container>
-
+          </Router>
+          <footer style={{marginTop: '20px'}}>
+                    <Row>
+                      <Col lg={4}>
+                        <p>Proudly done using <a href="https://3box.com" target='_blank' title='3Box'>3Box</a></p>
+                      </Col>
+                      <Col lg={4}>
+                        <p>Support by using <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or donating</p>
+                      </Col>
+                      <Col lg={4}>
+                        <p>Use a private,fast and secure browser</p>
+                        <p>Earn rewards in BAT token while browsing</p>
+                        <p>Install <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a></p>
+                      </Col>
+                    </Row>
+           </footer>
         </div>
       );
     }
-
-    return (
+    return(
       <div>
-        <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark">
-          <Navbar.Brand href="#home" onClick={this.homePage}>Decentralized Portfolio</Navbar.Brand>
-          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-          <Navbar.Collapse id="responsive-navbar-nav">
-            <Nav className="mr-auto">
-              <Nav.Link href="#home" onClick={this.homePage}>Home</Nav.Link>
-              <Nav.Link href="#profile" onClick={this.editProfilePage}>Profile</Nav.Link>
-              <Nav.Link href="#portfolio" onClick={this.portfolioPage}>Portfolio</Nav.Link>
-              <Nav.Link href="#users" onClick={this.usersPage}>Users</Nav.Link>
-              <Nav.Link href="#job_offers" onClick={this.offersPage}>Jobs Offers</Nav.Link>
-              <Nav.Link href="#comments" onClick={this.commentsPage}>Comments</Nav.Link>
-              <Nav.Link href="#logout" onClick={this.logout}>Logout</Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
+        <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark" >
+          <Navbar.Brand href="#home">Decentralized Portfolio</Navbar.Brand>
+          <Navbar.Toggle />
         </Navbar>
         <Container className="themed-container" fluid={true}>
 
-          <Alert variant="default" style={{textAlign: "center",display:"none"}} id='alert_info'>
+          <Alert variant="default" style={{textAlign: "center"}}>
             <h4>Loading dapp ...</h4>
             <div id="loading_status"></div>
 
           </Alert>
-          <Container>
-          {
-            this.state.page
-          }
-          </Container>
-          {
-            this.state.footer
-          }
-          <div style={{height: '10px'}}>
-            <ChatBox
-                // required
-                spaceName={AppName}
-                threadName="public_chat"
-
-
-                // Required props for context A) & B)
-                box={this.state.box}
-                currentUserAddr={this.state.coinbase}
-                // optional
-                popupChat
-                showEmoji
-            />
-          </div>
         </Container>
-
+        <footer style={{marginTop: '20px'}}>
+                  <Row>
+                    <Col lg={4}>
+                      <p>Proudly done using <a href="https://3box.com" target='_blank' title='3Box'>3Box</a></p>
+                    </Col>
+                    <Col lg={4}>
+                      <p>Support by using <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or donating</p>
+                    </Col>
+                    <Col lg={4}>
+                      <p>Use a private,fast and secure browser</p>
+                      <p>Earn rewards in BAT token while browsing</p>
+                      <p>Install <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a></p>
+                    </Col>
+                  </Row>
+        </footer>
       </div>
     );
 

@@ -10,7 +10,7 @@ import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
 import PrivateChat from './PrivateChat.js'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 const Box = require('3box');
 const AppName = 'DecentralizedPortfolio_test2';
 const usersRegistered = 'users_registered';

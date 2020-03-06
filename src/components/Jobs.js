@@ -10,7 +10,7 @@ import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
 import UserPage from './UserPage.js';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 const Box = require('3box');
 const AppName = 'DecentralizedPortfolio_test2';
 const jobsThread = 'jobs_posted';
@@ -50,6 +50,7 @@ class Jobs extends Component {
         posts:posts
       });
     } else {
+      await this.props.space.syncDone;
       const thread = await this.props.space.joinThread(jobsThread,{firstModerator:admin,members: false});
       this.setState({
         thread: thread
