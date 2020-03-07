@@ -40,9 +40,7 @@ class Users extends Component {
     console.log(this.state)
 
     const posts = await Box.getThread(AppName, usersRegistered, admin,false)
-
     console.log(posts)
-
     const added = []
     for(var i=posts.length-1;i>=0;i--){
         const post = posts[i];

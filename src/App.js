@@ -49,6 +49,10 @@ class App extends Component {
 
 
     this.openSpace = this.openSpace.bind(this);
+
+
+    this.setRedirect = this.setRedirect.bind(this);
+    this.renderRedirect = this.renderRedirect.bind(this);
   }
   componentDidMount = async () => {
 
@@ -110,15 +114,13 @@ class App extends Component {
       console.error(error);
     }
   }
-  logout = async function(){
-    await this.state.box.logout();
+  logout = function(){
     this.setState({
-      web3Err:false,
-      web3: null,
       coinbase: null,
       box: null,
       space: null
     })
+    return
   };
 
 
@@ -151,186 +153,53 @@ class App extends Component {
     const profile = await space.public.all();
     console.log(profile)
     const thread = await space.joinThread(usersRegistered,{firstModerator:admin});
+
+    let oldPostId = await space.private.get('registration');
+    if(oldPostId){
+      await thread.deletePost(oldPostId);
+    }
     const postId = await thread.post(profile);
+    await space.private.set('registration',postId);
 
     this.setState({
       profile: profile,
-      space: space
+      space: space,
+      doingLogin: false
     });
     $("#alert_info").hide();
+    this.setRedirect();
     return;
   }
+
+
+  setRedirect = () => {
+    this.setState({
+      redirect: true
+    })
+  }
+  renderRedirect = () => {
+    if (this.state.redirect) {
+      return(
+        <Redirect to='/home' />
+      );
+    }
+  }
   render() {
-    if(this.state.space || !this.state.hasWeb3){
-      return (
+    if(this.state.doingLogin){
+      return(
         <div>
-          <Router>
-            <Menu box={this.state.box}
-                  space={this.state.space}
-                  hasWeb3={this.state.hasWeb3}
-                  doingLogin={this.state.doingLogin} />
+          <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark" >
+            <Navbar.Brand href="#home">Decentralized Portfolio</Navbar.Brand>
+            <Navbar.Toggle />
+          </Navbar>
+          <Container className="themed-container" fluid={true}>
 
-            <Container className="themed-container" fluid={true}>
+            <Alert variant="default" style={{textAlign: "center"}}>
+              <h4>Loading dapp ...</h4>
+              <div id="loading_status"></div>
 
-             <Alert variant="default" style={{textAlign: "center",display:"none"}} id='alert_info'>
-                  <h4>Loading dapp ...</h4>
-                  <div id="loading_status"></div>
-              </Alert>
-
-              <Switch>
-                    <Route path="/home" component={Home} />
-                    <Route path="/profile" render={() => {
-                      if(!this.state.space){
-                        return(
-                          <Redirect to="/home" />
-                        )
-                      }
-                      return(
-                        <Profile box={this.state.box} space={this.state.space} coinbase={this.state.coinbase} />
-                      )
-                    }} />
-                    <Route path="/portfolio" render={() => {
-                      if(!this.state.space){
-                        return(
-                          <Redirect to="/home" />
-                        )
-                      }
-                      return(
-                        <Portfolio
-                                   web3 = {this.state.web3}
-                                   coinbase = {this.state.coinbase}
-                                   box = {this.state.box}
-                                   space = {this.state.space}
-                                   profile = {this.state.profile}
-                             />
-                      )
-                    }} />
-                    <Route path="/users" render={() => {
-
-                      return(
-                        <Users box={this.state.box} coinbase={this.state.coinbase} />
-                      )
-                      }} />
-                    <Route path="/jobs" render={() => {
-                      if(!this.state.coinbase ){
-                        return(
-                          <Jobs/>
-                        )
-                      }
-                      if(!this.state.space){
-                        return(
-                          <Redirect to="/home" />
-                        )
-                      }
-                      return(
-                          <Jobs box={this.state.box} coinbase={this.state.coinbase} space={this.state.space} />
-                      )
-                    }} />
-                    <Route path="/comments" render={() => {
-                      if(!this.state.coinbase){
-                        return(
-                          <div>
-                             <h4>Comments</h4>
-                             <p>Feedbacks or suggestion for nexts versions of this dapp</p>
-                             <hr/>
-                             <ThreeBoxComments
-                                     // required
-                                     spaceName={AppName}
-                                     threadName={"job_offers"}
-                                     adminEthAddr={admin}
-
-
-                                     // Required props for context A) & B)
-                                     //box={this.state.box}
-                                     //currentUserAddr={this.state.coinbase}
-
-                                     // Required prop for context B)
-                                     //loginFunction={handleLogin}
-
-                                     // Required prop for context C)
-                                     ethereum={null}
-
-                                     // optional
-                                     members={false}
-                                 />
-
-
-                           </div>
-                        );
-                      }
-                      if(!this.state.space){
-                        return(
-                          <Redirect to="/home" />
-                        );
-                      }
-
-                      return(
-                        <div>
-                           <h4>Comments</h4>
-                           <p>Use this space to give feedback or suggestion for nexts versions of this dapp</p>
-                           <hr/>
-                                         <ThreeBoxComments
-                                              // required
-                                              spaceName={AppName}
-                                              threadName={"job_offers"}
-                                              adminEthAddr={admin}
-
-
-                                              // Required props for context A) & B)
-                                              box={this.state.box}
-                                              currentUserAddr={this.state.coinbase}
-
-                                              // Required prop for context B)
-                                              //loginFunction={handleLogin}
-
-                                              // Required prop for context C)
-                                              //ethereum={ethereum}
-
-                                              // optional
-                                              members={false}
-                                          />
-                         </div>
-
-                      );
-                    }} />
-                    <Route path="/loginNoWeb3" render={() => {
-                      return(
-                        <div>
-                           <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or login with <a href="#auth_login" onClick={this.login}>authereum</a></p>
-                        </div>
-                      )
-                    }} />
-                    <Route path="/login" render={() => {
-                      if(!this.state.hasWeb3){
-                        return(
-                          <Redirect to="/loginNoWeb3" />
-                        );
-                      }
-
-                      return(
-                        this.login()
-                      )
-                    }} />
-                    <Route path="/logout" render={() => {
-                      if(!this.state.space){
-                        return(
-                          <Redirect to="/home" />
-                        );
-                      }
-                      return(
-                        this.logout()
-                      );
-                    }}/>
-
-                    <Route render={() => {
-                      return(
-                        <Redirect to="/home" />
-                      );
-                    }} />
-              </Switch>
-
-            </Container>
-          </Router>
+            </Alert>
+          </Container>
           <footer style={{marginTop: '20px'}}>
                     <Row>
                       <Col lg={4}>
@@ -345,24 +214,183 @@ class App extends Component {
                         <p>Install <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a></p>
                       </Col>
                     </Row>
-           </footer>
+          </footer>
         </div>
       );
     }
-    return(
+
+    return (
       <div>
-        <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark" >
-          <Navbar.Brand href="#home">Decentralized Portfolio</Navbar.Brand>
-          <Navbar.Toggle />
-        </Navbar>
-        <Container className="themed-container" fluid={true}>
+        <Router>
+          {this.renderRedirect()}
+          <Menu box={this.state.box}
+                space={this.state.space}
+                hasWeb3={this.state.hasWeb3}
+                doingLogin={this.state.doingLogin} />
 
-          <Alert variant="default" style={{textAlign: "center"}}>
-            <h4>Loading dapp ...</h4>
-            <div id="loading_status"></div>
+          <Container className="themed-container" fluid={true}>
 
-          </Alert>
-        </Container>
+           <Alert variant="default" style={{textAlign: "center",display:"none"}} id='alert_info'>
+                <h4>Loading dapp ...</h4>
+                <div id="loading_status"></div>
+            </Alert>
+
+            <Switch>
+                  <Route path="/home" component={Home} />
+                  <Route path="/profile" render={() => {
+                    if(!this.state.space){
+                      return(
+                        <Redirect to="/home" />
+                      )
+                    }
+                    return(
+                      <Profile box={this.state.box} space={this.state.space} coinbase={this.state.coinbase} />
+                    )
+                  }} />
+                  <Route path="/portfolio" render={() => {
+                    if(!this.state.space){
+                      return(
+                        <Redirect to="/home" />
+                      )
+                    }
+                    return(
+                      <Portfolio
+                                 web3 = {this.state.web3}
+                                 coinbase = {this.state.coinbase}
+                                 box = {this.state.box}
+                                 space = {this.state.space}
+                                 profile = {this.state.profile}
+                           />
+                    )
+                  }} />
+                  <Route path="/users" render={() => {
+
+                    return(
+                      <Users box={this.state.box} coinbase={this.state.coinbase} />
+                    )
+                    }} />
+                  <Route path="/jobs" render={() => {
+                    if(!this.state.coinbase ){
+                      return(
+                        <Jobs/>
+                      )
+                    }
+                    if(!this.state.space){
+                      return(
+                        <Redirect to="/home" />
+                      )
+                    }
+                    return(
+                        <Jobs box={this.state.box} coinbase={this.state.coinbase} space={this.state.space} />
+                    )
+                  }} />
+                  <Route path="/comments" render={() => {
+                    if(!this.state.coinbase){
+                      return(
+                        <div>
+                           <h4>Comments</h4>
+                           <p>Feedbacks or suggestion for nexts versions of this dapp</p>
+                           <hr/>
+                           <ThreeBoxComments
+                                   // required
+                                   spaceName={AppName}
+                                   threadName={"job_offers"}
+                                   adminEthAddr={admin}
+
+
+                                   // Required props for context A) & B)
+                                   //box={this.state.box}
+                                   //currentUserAddr={this.state.coinbase}
+
+                                   // Required prop for context B)
+                                   //loginFunction={handleLogin}
+
+                                   // Required prop for context C)
+                                   ethereum={null}
+
+                                   // optional
+                                   members={false}
+                               />
+
+
+                         </div>
+                      );
+                    }
+                    if(!this.state.space){
+                      return(
+                        <Redirect to="/home" />
+                      );
+                    }
+
+                    return(
+                      <div>
+                         <h4>Comments</h4>
+                         <p>Use this space to give feedback or suggestion for nexts versions of this dapp</p>
+                         <hr/>
+                                       <ThreeBoxComments
+                                            // required
+                                            spaceName={AppName}
+                                            threadName={"job_offers"}
+                                            adminEthAddr={admin}
+
+
+                                            // Required props for context A) & B)
+                                            box={this.state.box}
+                                            currentUserAddr={this.state.coinbase}
+
+                                            // Required prop for context B)
+                                            //loginFunction={handleLogin}
+
+                                            // Required prop for context C)
+                                            //ethereum={ethereum}
+
+                                            // optional
+                                            members={false}
+                                        />
+                       </div>
+
+                    );
+                  }} />
+                  <Route path="/loginNoWeb3" render={() => {
+                    return(
+                      <div>
+                         <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or login with <a href="#auth_login" onClick={this.login}>authereum</a></p>
+                      </div>
+                    )
+                  }} />
+                  <Route path="/login" render={() => {
+                    if(!this.state.hasWeb3){
+                      return(
+                        <Redirect to="/loginNoWeb3" />
+                      );
+                    }
+
+                    return(
+                      <div>
+                         <p><a href="#auth_login" onClick={this.login}>Login</a></p>
+                      </div>
+                    )
+                  }} />
+                  <Route path="/logout" render={() => {
+                    if(!this.state.space){
+                      return(
+                        <Redirect to="/home" />
+                      );
+                    }
+                    return(
+                      this.logout()
+                    );
+                  }}/>
+
+                  <Route render={() => {
+                    return(
+                      <Redirect to="/home" />
+                    );
+                  }} />
+            </Switch>
+
+          </Container>
+        </Router>
         <footer style={{marginTop: '20px'}}>
                   <Row>
                     <Col lg={4}>
@@ -377,9 +405,10 @@ class App extends Component {
                       <p>Install <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a></p>
                     </Col>
                   </Row>
-        </footer>
+         </footer>
       </div>
     );
+
 
   }
 }
