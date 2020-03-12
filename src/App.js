@@ -53,6 +53,7 @@ class App extends Component {
 
     this.setRedirect = this.setRedirect.bind(this);
     this.renderRedirect = this.renderRedirect.bind(this);
+    this.chatBox = this.chatBox.bind(this);
   }
   componentDidMount = async () => {
 
@@ -160,14 +161,13 @@ class App extends Component {
     }
     const postId = await thread.post(profile);
     await space.private.set('registration',postId);
-
+    $("#alert_info").hide();
+    this.setRedirect();
     this.setState({
       profile: profile,
       space: space,
       doingLogin: false
     });
-    $("#alert_info").hide();
-    this.setRedirect();
     return;
   }
 
@@ -183,6 +183,27 @@ class App extends Component {
         <Redirect to='/home' />
       );
     }
+  }
+  chatBox = function(){
+    if(!this.state.space){
+      return
+    }
+    return(
+      <ChatBox
+          // required
+          spaceName={AppName}
+          threadName="chat"
+
+
+          // Required props for context A) & B)
+          box={this.state.box}
+          currentUserAddr={this.state.coinbase}
+
+          // optional
+          mute={false}
+          popupChat
+      />
+    )
   }
   render() {
     if(this.state.doingLogin){
@@ -266,7 +287,7 @@ class App extends Component {
                   <Route path="/users" render={() => {
 
                     return(
-                      <Users box={this.state.box} coinbase={this.state.coinbase} />
+                      <Users box={this.state.box} space={this.state.space} coinbase={this.state.coinbase} />
                     )
                     }} />
                   <Route path="/jobs" render={() => {
@@ -353,9 +374,9 @@ class App extends Component {
                   }} />
                   <Route path="/loginNoWeb3" render={() => {
                     return(
-                      <div>
+                      <center style={{paddingTop: '50px'}}>
                          <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or login with <a href="#auth_login" onClick={this.login}>authereum</a></p>
-                      </div>
+                      </center>
                     )
                   }} />
                   <Route path="/login" render={() => {
@@ -366,9 +387,11 @@ class App extends Component {
                     }
 
                     return(
-                      <div>
-                         <p><a href="#auth_login" onClick={this.login}>Login</a></p>
-                      </div>
+                      <Row style={{paddingTop: '50px'}}>
+                          <Col lg={3}>
+                            <Button variant="primary" onClick={this.login}>Login with injected web3</Button>
+                          </Col>
+                      </Row>
                     )
                   }} />
                   <Route path="/logout" render={() => {
@@ -391,7 +414,10 @@ class App extends Component {
 
           </Container>
         </Router>
-        <footer style={{marginTop: '20px'}}>
+        {
+          this.chatBox()
+        }
+        <footer style={{marginTop: '50px'}}>
                   <Row>
                     <Col lg={4}>
                       <p>Proudly done using <a href="https://3box.com" target='_blank' title='3Box'>3Box</a></p>

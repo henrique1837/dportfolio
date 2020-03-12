@@ -16,15 +16,13 @@ const AppName = 'DecentralizedPortfolio_test2';
 const usersRegistered = 'users_registered';
 const admin = "did:3:bafyreiecus2e6nfupnqfbajttszjru3voolppqzhyizz3ysai6os6ftn3m";
 
-
-
 class Profile extends Component {
   state = {
     box: null,
     space: null,
     coinbase: null,
-    views: [],
-    contacts: [],
+    threadContacts: null,
+    threadViews: null,
     page: <div></div>,
     fields: [
       { // for a field with a text input
@@ -39,85 +37,72 @@ class Profile extends Component {
     this.profileSaved = this.profileSaved.bind(this);
     this.chatPage = this.chatPage.bind(this);
     this.contactPage = this.contactPage.bind(this);
+
+    this.getContacts = this.getContacts.bind(this);
+    this.getViews = this.getViews.bind(this);
   }
 
-  componentWillMount = async function(){
-
-    await this.props.space.syncDone;
-    const profile = await this.props.space.public.all();
-    console.log("contacts_"+profile.address)
-    const threadC = await this.state.space.joinThread("contacts_"+profile.address,{firstModerator:profile.address})
-    //const posts = await Box.getThread(AppName, "contacts_"+profile.address,profile.address)
-    const posts = await threadC.getPosts();
-    console.log(posts)
-    const views = [];
-    for(const post of posts){
-        //const did = post.author;
-        //const prof = await Box.getSpace(did,AppName)
-        /*const prof = {
-          address: post.message
-        }*/
-        const addr = post.message
-        console.log(addr)
-        if(addr){
-          await this.state.space.syncDone;
-          const userProfile = await Box.getSpace(addr,AppName);
-          const threadName = 'contactThread_'+this.props.coinbase;
-          const threadAddress =  userProfile[threadName];
-          console.log(threadAddress);
-          if(threadAddress){
-            let thread = await this.state.space.joinThreadByAddress(threadAddress);
-            console.log(thread);
-            let members = await thread.listMembers();
-            //let posts = await thread.getPosts();
-            if(members.length > 0){
-              this.state.views.push(addr);
-              this.forceUpdate();
-            }
-          }
-
-        }
-
-    }
-    const contacts = [];
-    const threadContacts = await this.state.space.joinThread("contactsAdded_"+profile.address,{firstModerator:profile.address})
-    const postsContacts = await threadContacts.getPosts();
-    console.log("contactsAdded_"+profile.address)
-    console.log(postsContacts)
-    for(const post of postsContacts){
-        const address = post.message;
-
-
-        if(address){
-          this.state.contacts.push(address);
-          this.forceUpdate();
-        }
-    }
-    await this.props.space.syncDone;
-
-
-
-  }
   componentDidMount = async function(){
-    this.setState({
+    await this.setState({
       box: this.props.box,
       space: this.props.space,
       coinbase: this.props.coinbase
     });
-    try{
-      const profile = await this.state.space.public.all();
-      const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
-      const postId = await thread.post(profile);
-    } catch(err){
-      console.log(err)
-    }
+    console.log(this.state)
+    await this.state.space.syncDone;
+    await this.getContacts();
+    await this.getViews();
+    await this.setState({
+      loaded: true
+    });
+    return;
+  }
+
+  getContacts = async function(){
+    const coinbase = this.state.coinbase;
+    const threadContacts = await this.state.space.joinThread("contactsAdded_"+coinbase,{firstModerator:coinbase})
+    this.setState({
+      threadContacts: threadContacts,
+      space: this.props.space
+    })
+    const contacts = await this.state.threadContacts.getPosts();
+    console.log(contacts)
+    this.setState({contacts});
+    this.state.threadContacts.onUpdate(async () => {
+       const contacts = await this.state.threadContacts.getPosts();
+       this.setState({contacts});
+    });
+    return;
+  }
+
+  getViews = async function(){
+
+    const coinbase = this.state.coinbase
+    console.log("contacts_"+coinbase)
+    const threadViews = await this.state.space.joinThread("contacts_"+coinbase,{firstModerator:coinbase});
+    this.setState({
+      threadViews: threadViews
+    })
+    const views = await threadViews.getPosts();
+    console.log(views)
+    this.setState({views});
+    this.state.threadViews.onUpdate(async()=> {
+       const views = await this.state.threadViews.getPosts();
+       this.setState({views});
+    });
+    return;
   }
 
   profileSaved = async function() {
     await this.props.space.syncDone;
     const profile = await this.state.space.public.all();
     const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
+    let oldPostId = await this.state.space.private.get('registration');
+    if(oldPostId){
+      await thread.deletePost(oldPostId);
+    }
     const postId = await thread.post(profile);
+    await this.state.space.private.set('registration',postId);
     alert("saved");
   };
   chatPage = async function(addr){
@@ -128,6 +113,10 @@ class Profile extends Component {
     );
     await this.props.space.syncDone;
     const removed = ReactDOM.unmountComponentAtNode(document.getElementById("chatPage"));
+    ReactDOM.render(
+        <div>Loading ...</div>,
+        document.getElementById('chatPage')
+    );
     //const space = await this.props.box.openSpace(AppName);
     const isContact = await this.state.space.private.get("contact_"+addr);
     console.log(isContact)
@@ -170,7 +159,10 @@ class Profile extends Component {
         document.getElementById('chatPage')
     );
     const removed = ReactDOM.unmountComponentAtNode(document.getElementById("contactPage"));
-
+    ReactDOM.render(
+        <div>Loading ...</div>,
+        document.getElementById('contactPage')
+    );
     const space = await this.props.box.openSpace(AppName);
     const isContact = await this.state.space.private.get("contactAdded_"+addr);
     console.log(isContact)
@@ -197,7 +189,7 @@ class Profile extends Component {
     return
   }
   render() {
-    if(!this.state.box){
+    if(!this.state.loaded){
       return(
         <div>Loading ...</div>
       )
@@ -241,12 +233,12 @@ class Profile extends Component {
                                     members={false}
               />
             </Tab>
-            <Tab eventKey="messages" title="Messages" style={{paddingTop:'10px'}}>
+            <Tab eventKey="messages" title="Views" style={{paddingTop:'10px'}}>
               <Row>
                 <Col lg={4} style={{height: '500px',overflowY:'scroll'}}>
                   {
-                    this.state.views.map(function(addr){
-                      console.log(addr);
+                    this.state.views.map(function(post){
+                      const addr = post.message
                       return(
                         <Row>
                           <Col lg={8} >
@@ -273,7 +265,8 @@ class Profile extends Component {
               <Row>
                 <Col lg={4} style={{height: '500px',overflowY:'scroll'}}>
                   {
-                    this.state.contacts.map(function(addr){
+                    this.state.contacts.map(function(post){
+                      const addr = post.message
                       console.log(addr);
                       return(
                         <Row>
@@ -303,5 +296,7 @@ class Profile extends Component {
 
   }
 }
+
+
 
 export default Profile;

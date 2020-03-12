@@ -35,36 +35,33 @@ class Jobs extends Component {
   }
 
   componentDidMount = async () => {
-    this.setState({
+    await this.setState({
       box: this.props.box,
       coinbase: this.props.coinbase,
-      space: this.props.space,
-      thread: null,
-      posts: null
+      space: this.props.space
     });
 
     let posts
-    if(!this.props.box){
+    if(!this.state.space){
       posts = await Box.getThread(AppName, jobsThread, admin,false)
       this.setState({
         posts:posts
       });
-    } else {
-      await this.props.space.syncDone;
-      const thread = await this.props.space.joinThread(jobsThread,{firstModerator:admin,members: false});
-      this.setState({
-        thread: thread
-      })
-      const posts = await this.state.thread.getPosts();
-      this.setState({posts});
-
-       await this.state.thread.onUpdate(async()=> {
-         const posts = await this.state.thread.getPosts();
-         this.setState({posts});
-       });
-
+      return
     }
-    console.log(posts)
+    const thread = await this.state.space.joinThread(jobsThread,{firstModerator:admin,members: false});
+    await this.setState({
+      thread: thread
+    })
+    posts = await this.state.thread.getPosts();
+
+    await this.setState({posts});
+
+    this.state.thread.onUpdate(async()=> {
+       const posts = await this.state.thread.getPosts();
+       this.setState({posts});
+     });
+    return;
 
 
   };

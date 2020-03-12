@@ -30,32 +30,61 @@ class Users extends Component {
     super(props);
     this.renderUserPage = this.renderUserPage.bind(this);
     this.filterUsers = this.filterUsers.bind(this);
+    this.filterPosts = this.filterPosts.bind(this);
   }
 
   componentDidMount = async () => {
-    this.setState({
+    await this.setState({
       box: this.props.box,
+      space: this.props.space,
       coinbase: this.props.coinbase
     });
-    console.log(this.state)
 
-    const posts = await Box.getThread(AppName, usersRegistered, admin,false)
-    console.log(posts)
+    if(!this.state.space){
+      const posts = await Box.getThread(AppName, usersRegistered, admin,false)
+      const postsFiltered = await this.filterPosts(posts);
+      await this.setState({
+        posts: postsFiltered
+      });
+      return;
+    }
+    const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin,members: false});
+    await this.setState({
+      thread: thread
+    })
+    const posts = await this.state.thread.getPosts();
+    const postsFiltered = await this.filterPosts(posts);
+    await this.setState({
+      posts: postsFiltered
+    });
+
+    this.state.thread.onUpdate(async()=> {
+       const posts = await this.state.thread.getPosts();
+       const postsFiltered = await this.filterPosts(posts);
+       await this.setState({
+         posts: postsFiltered
+       });
+     });
+    return;
+
+  };
+
+
+  filterPosts = async function(posts){
     const added = []
+    const postsFiltered = [];
     for(var i=posts.length-1;i>=0;i--){
         const post = posts[i];
         const profile = post.message;
 
         if(!added.includes(profile.address)){
           added.push(profile.address)
-          this.state.users.push(profile);
+          postsFiltered.push(post);
+          this.state.users.push(post);
           this.forceUpdate();
         }
     }
-
-  };
-
-
+  }
 
   renderUserPage = async(profile) => {
     const removed = ReactDOM.unmountComponentAtNode(document.getElementById("userPage"))
@@ -131,7 +160,7 @@ class Users extends Component {
 
   render(){
     const that = this;
-    if(this.state.users.length == 0){
+    if(!this.state.posts){
       return(
         <div>Loading ... </div>
       );
@@ -150,7 +179,8 @@ class Users extends Component {
         <Row>
           <Col lg={4} style={{height: '500px',overflowY:'scroll'}}>
         {
-          this.state.users.map(function(profile){
+          this.state.posts.map(function(post){
+            const profile = post.message;
             console.log(profile)
             let div_profile = <div></div>
             if(profile.name && profile.description){
