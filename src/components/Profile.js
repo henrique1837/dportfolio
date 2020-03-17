@@ -2,7 +2,8 @@ import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from "web3";
 import $ from 'jquery';
-import {Button,Form,Table,Tabs,Tab,Container,Row,Col,Alert,Nav,Navbar,Card,Modal,Collapse} from 'react-bootstrap';
+import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
+        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';
 //import getWeb3 from "./components/getWeb3.js";
 //import * as Box from '3box';
 import EditProfile from '3box-profile-edit-react';
@@ -12,9 +13,11 @@ import ProfileHover from 'profile-hover';
 import UserPage from './UserPage.js';
 
 const Box = require('3box');
-const AppName = 'DecentralizedPortfolio_test2';
-const usersRegistered = 'users_registered';
-const admin = "did:3:bafyreiecus2e6nfupnqfbajttszjru3voolppqzhyizz3ysai6os6ftn3m";
+
+const Config = require('../config.js');
+const AppName = Config.AppName
+const usersRegistered = Config.usersRegistered
+const admin = Config.admin
 
 class Profile extends Component {
   state = {
@@ -114,7 +117,12 @@ class Profile extends Component {
     await this.props.space.syncDone;
     const removed = ReactDOM.unmountComponentAtNode(document.getElementById("chatPage"));
     ReactDOM.render(
-        <div>Loading ...</div>,
+        <center>
+          <Spinner animation="border" role="status">
+            <span className="sr-only">Loading...</span>
+          </Spinner>
+          <p>Loading ...</p>
+        </center>,
         document.getElementById('chatPage')
     );
     //const space = await this.props.box.openSpace(AppName);
@@ -160,7 +168,12 @@ class Profile extends Component {
     );
     const removed = ReactDOM.unmountComponentAtNode(document.getElementById("contactPage"));
     ReactDOM.render(
-        <div>Loading ...</div>,
+        <center>
+          <Spinner animation="border" role="status">
+            <span className="sr-only">Loading...</span>
+          </Spinner>
+          <p>Loading ...</p>
+        </center>,
         document.getElementById('contactPage')
     );
     const space = await this.props.box.openSpace(AppName);
@@ -191,7 +204,12 @@ class Profile extends Component {
   render() {
     if(!this.state.loaded){
       return(
-        <div>Loading ...</div>
+        <center>
+          <Spinner animation="border" role="status">
+            <span className="sr-only">Loading...</span>
+          </Spinner>
+          <p>Loading ...</p>
+        </center>
       )
     }
     const that = this;

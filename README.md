@@ -4,7 +4,7 @@ A dapp where users can construct their portfolio, contact with each other using 
 
 Done with [3box](https://3box.io/)
 
-Latest version: [https://gateway.ipfs.io/ipfs/QmacenSbr3oLu41HoTQtVBJaPSKTW8oHx5r8qnTuzEMej9/](https://gateway.ipfs.io/ipfs/QmacenSbr3oLu41HoTQtVBJaPSKTW8oHx5r8qnTuzEMej9/)
+Latest version: [https://gateway.ipfs.io/ipfs/QmbZNajEsdKWKRE1MvoZ2DA8WX5H3XygsrxdhUyUysZUpp/](https://gateway.ipfs.io/ipfs/QmbZNajEsdKWKRE1MvoZ2DA8WX5H3XygsrxdhUyUysZUpp/)
 
 Template: [https://www.creative-tim.com/product/argon-dashboard-react](https://www.creative-tim.com/product/argon-dashboard-react)
 

@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import Web3 from "web3";
 import Authereum from 'authereum'
 import $ from 'jquery';
-import {Button,Form,Table,Tabs,Tab,Container,Row,Col,Alert,Nav,Navbar,Card,Modal,Collapse} from 'react-bootstrap';
+import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
+        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';
 import {
   BrowserRouter as Router,
   Link,
@@ -11,6 +12,7 @@ import {
   Switch,
   Redirect
 } from 'react-router-dom';
+import { createBrowserHistory as browserHistory } from 'history'
 import EditProfile from '3box-profile-edit-react';
 import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
@@ -26,9 +28,10 @@ import "./App.css";
 import "./assets/scss/argon-dashboard-react.scss";
 
 const Box = require('3box');
-const AppName = 'DecentralizedPortfolio_test2';
-const usersRegistered = 'users_registered';
-const admin = "did:3:bafyreiecus2e6nfupnqfbajttszjru3voolppqzhyizz3ysai6os6ftn3m";
+const Config = require('./config.js');
+const AppName = Config.AppName
+const usersRegistered = Config.usersRegistered
+const admin = Config.admin
 
 
 
@@ -89,13 +92,23 @@ class App extends Component {
       const coinbase = await web3.eth.getCoinbase();
       console.log(coinbase);
       ReactDOM.render(
-        <p>Aprove access to your 3Box account</p>,
+        <div>
+          <Spinner animation="border" role="status">
+            <span className="sr-only">Loading...</span>
+          </Spinner>
+          <p>Aprove access to your 3Box account</p>
+        </div>,
         document.getElementById("loading_status")
       );
       const box = await Box.openBox(coinbase,window.ethereum);
       //const space = await box.openSpace(AppName);
       ReactDOM.render(
-        <p>Syncing your profile</p>,
+        <div>
+          <Spinner animation="border" role="status">
+            <span className="sr-only">Loading...</span>
+          </Spinner>
+          <p>Syncing your profile</p>
+        </div>,
         document.getElementById("loading_status")
       );
       await box.syncDone;
@@ -139,28 +152,42 @@ class App extends Component {
     const box = this.state.box;
 
     ReactDOM.render(
-      <p>Aprove access to open your Decentralized Portfolio Space</p>,
+      <div>
+      <Spinner animation="border" role="status">
+        <span className="sr-only">Loading...</span>
+      </Spinner>
+      <p>Aprove access to open your Decentralized Portfolio Space</p>
+      </div>,
       document.getElementById("loading_status")
     );
     $("#alert_info").show();
     const space = await box.openSpace(AppName);
 
     ReactDOM.render(
-      <p>Opening your profile</p>,
+      <div>
+      <Spinner animation="border" role="status">
+        <span className="sr-only">Loading...</span>
+      </Spinner>
+      <p>Opening your profile</p>
+      </div>,
       document.getElementById("loading_status")
     );
-    await space.public.set('address',coinbase);
     await space.syncDone;
     const profile = await space.public.all();
     console.log(profile)
-    const thread = await space.joinThread(usersRegistered,{firstModerator:admin});
-
+    const thread = await space.joinThread(usersRegistered,{firstModerator:admin,members: false});
+    console.log(thread)
     let oldPostId = await space.private.get('registration');
+    console.log(oldPostId)
     if(oldPostId){
       await thread.deletePost(oldPostId);
+    } else {
+      await space.public.set('address',coinbase);
     }
     const postId = await thread.post(profile);
+    console.log(postId)
     await space.private.set('registration',postId);
+
     $("#alert_info").hide();
     this.setRedirect();
     this.setState({
@@ -242,7 +269,7 @@ class App extends Component {
 
     return (
       <div>
-        <Router>
+        <Router history={browserHistory}>
           {this.renderRedirect()}
           <Menu box={this.state.box}
                 space={this.state.space}

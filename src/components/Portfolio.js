@@ -2,7 +2,8 @@ import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from "web3";
 import $ from 'jquery';
-import {Button,Form,Table,Tabs,Tab,Container,Row,Col,Alert,Nav,Navbar,Card,Modal,Collapse} from 'react-bootstrap';
+import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
+        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';
 //import getWeb3 from "./components/getWeb3.js";
 //import * as Box from '3box';
 import EditProfile from '3box-profile-edit-react';
@@ -11,9 +12,10 @@ import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
 
 const Box = require('3box');
-const AppName = 'DecentralizedPortfolio_test2';
-const usersRegistered = 'users_registered';
-const admin = "did:3:bafyreiecus2e6nfupnqfbajttszjru3voolppqzhyizz3ysai6os6ftn3m";
+
+const Config = require('../config.js');
+const AppName = Config.AppName
+const admin = Config.admin
 
 
 
@@ -28,8 +30,7 @@ class Portfolio extends Component {
               key: 'portfolio',
               field: 'Portfolio'
             }],
-    thread: null,
-    posts: []
+    thread: null
   }
 
   constructor(props){
@@ -40,18 +41,19 @@ class Portfolio extends Component {
 
 
   componentDidMount = async ()  => {
+    await this.props.space.syncDone;
     const thread = await this.props.space.joinThread("items_"+this.props.coinbase,{firstModerator:this.props.coinbase,members: true});
-    this.setState({
+    await this.setState({
       thread: thread
     })
     const posts = await this.state.thread.getPosts();
-    this.setState({posts});
+    await this.setState({posts});
 
      await this.state.thread.onUpdate(async()=> {
        const posts = await this.state.thread.getPosts();
-       this.setState({posts});
+       await this.setState({posts});
      });
-     this.setState({
+     await this.setState({
        profile: this.props.profile
      });
   };
@@ -185,7 +187,12 @@ class Portfolio extends Component {
       )
     }
     return(
-      <div>Loading ...</div>
+      <center>
+        <Spinner animation="border" role="status">
+          <span className="sr-only">Loading...</span>
+        </Spinner>
+        <p>Loading ...</p>
+      </center>
     )
   }
 

@@ -2,8 +2,8 @@ import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from "web3";
 import $ from 'jquery';
-import {Button,Form,Table,Tabs,Tab,Container,Row,Col,Alert,Nav,Navbar,Card,Modal,Collapse} from 'react-bootstrap';
-//import getWeb3 from "./components/getWeb3.js";
+import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
+        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';
 //import * as Box from '3box';
 import EditProfile from '3box-profile-edit-react';
 import ChatBox from '3box-chatbox-react';
@@ -12,9 +12,11 @@ import ProfileHover from 'profile-hover';
 import PrivateChat from './PrivateChat.js'
 
 const Box = require('3box');
-const AppName = 'DecentralizedPortfolio_test2';
-const usersRegistered = 'users_registered';
-const admin = "did:3:bafyreiecus2e6nfupnqfbajttszjru3voolppqzhyizz3ysai6os6ftn3m";
+
+const Config = require('../config.js');
+const AppName = Config.AppName
+const usersRegistered = Config.usersRegistered
+const admin = Config.admin
 
 
 
@@ -255,7 +257,12 @@ class UserPage extends Component {
       )
     }
     return(
-      <div>Loading ... </div>
+      <center>
+        <Spinner animation="border" role="status">
+          <span className="sr-only">Loading...</span>
+        </Spinner>
+        <p>Loading ...</p>
+      </center>
     )
   }
 }
