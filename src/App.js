@@ -10,9 +10,10 @@ import {
   Link,
   Route,
   Switch,
-  Redirect
+  Redirect,
+  withRouter
 } from 'react-router-dom';
-import { createBrowserHistory as browserHistory } from 'history'
+import { createBrowserHistory } from "history";
 import EditProfile from '3box-profile-edit-react';
 import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
@@ -32,7 +33,7 @@ const Config = require('./config.js');
 const AppName = Config.AppName
 const usersRegistered = Config.usersRegistered
 const admin = Config.admin
-
+const history = createBrowserHistory()
 
 
 class App extends Component {
@@ -42,7 +43,7 @@ class App extends Component {
     coinbase: null,
     box: null,
     space: null,
-    doingLogin:false,
+    doingLogin:false
    };
   constructor(props){
     super(props)
@@ -59,7 +60,7 @@ class App extends Component {
     this.chatBox = this.chatBox.bind(this);
   }
   componentDidMount = async () => {
-
+    console.log(history)
     if(window.ethereum){
       this.setState({
         hasWeb3:true
@@ -207,7 +208,7 @@ class App extends Component {
   renderRedirect = () => {
     if (this.state.redirect) {
       return(
-        <Redirect to='/home' />
+        <Redirect to={history.location.pathname+'#/home'} />
       );
     }
   }
@@ -269,12 +270,13 @@ class App extends Component {
 
     return (
       <div>
-        <Router history={browserHistory}>
+        <Router history={history}>
           {this.renderRedirect()}
           <Menu box={this.state.box}
                 space={this.state.space}
                 hasWeb3={this.state.hasWeb3}
-                doingLogin={this.state.doingLogin} />
+                doingLogin={this.state.doingLogin}
+                base_url = {history.location.pathname} />
 
           <Container className="themed-container" fluid={true}>
 
@@ -284,21 +286,21 @@ class App extends Component {
             </Alert>
 
             <Switch>
-                  <Route path="/home" component={Home} />
-                  <Route path="/profile" render={() => {
+                  <Route path={history.location.pathname+"#/home"} component={Home} />
+                  <Route path={history.location.pathname+"#/profile"} render={() => {
                     if(!this.state.space){
                       return(
-                        <Redirect to="/home" />
+                        <Redirect to={history.location.pathname+"#/home"} />
                       )
                     }
                     return(
                       <Profile box={this.state.box} space={this.state.space} coinbase={this.state.coinbase} />
                     )
                   }} />
-                  <Route path="/portfolio" render={() => {
+                  <Route path={history.location.pathname+"#/portfolio"} render={() => {
                     if(!this.state.space){
                       return(
-                        <Redirect to="/home" />
+                        <Redirect to={history.location.pathname+"#/home"} />
                       )
                     }
                     return(
@@ -311,13 +313,13 @@ class App extends Component {
                            />
                     )
                   }} />
-                  <Route path="/users" render={() => {
+                  <Route path={history.location.pathname+"#/users"} render={() => {
 
                     return(
                       <Users box={this.state.box} space={this.state.space} coinbase={this.state.coinbase} />
                     )
                     }} />
-                  <Route path="/jobs" render={() => {
+                  <Route path={history.location.pathname+"#/jobs"} render={() => {
                     if(!this.state.coinbase ){
                       return(
                         <Jobs/>
@@ -325,14 +327,14 @@ class App extends Component {
                     }
                     if(!this.state.space){
                       return(
-                        <Redirect to="/home" />
+                        <Redirect to={history.location.pathname+"#/home"} />
                       )
                     }
                     return(
                         <Jobs box={this.state.box} coinbase={this.state.coinbase} space={this.state.space} />
                     )
                   }} />
-                  <Route path="/comments" render={() => {
+                  <Route path={history.location.pathname+"#/comments"} render={() => {
                     if(!this.state.coinbase){
                       return(
                         <div>
@@ -366,7 +368,7 @@ class App extends Component {
                     }
                     if(!this.state.space){
                       return(
-                        <Redirect to="/home" />
+                        <Redirect to={history.location.pathname+"#/home"} />
                       );
                     }
 
@@ -399,17 +401,17 @@ class App extends Component {
 
                     );
                   }} />
-                  <Route path="/loginNoWeb3" render={() => {
+                  <Route path={history.location.pathname+"#/loginNoWeb3"} render={() => {
                     return(
                       <center style={{paddingTop: '50px'}}>
                          <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or login with <a href="#auth_login" onClick={this.login}>authereum</a></p>
                       </center>
                     )
                   }} />
-                  <Route path="/login" render={() => {
+                  <Route path={history.location.pathname+"#/login"} render={() => {
                     if(!this.state.hasWeb3){
                       return(
-                        <Redirect to="/loginNoWeb3" />
+                        <Redirect to={history.location.pathname+"#/loginNoWeb3"} />
                       );
                     }
 
@@ -421,10 +423,10 @@ class App extends Component {
                       </Row>
                     )
                   }} />
-                  <Route path="/logout" render={() => {
+                  <Route path={history.location.pathname+"#/logout"} render={() => {
                     if(!this.state.space){
                       return(
-                        <Redirect to="/home" />
+                        <Redirect to={history.location.pathname+"#/home"} />
                       );
                     }
                     return(
@@ -434,7 +436,7 @@ class App extends Component {
 
                   <Route render={() => {
                     return(
-                      <Redirect to="/home" />
+                      <Redirect to={history.location.pathname+"#/home"} />
                     );
                   }} />
             </Switch>
