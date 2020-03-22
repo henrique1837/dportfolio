@@ -5,6 +5,7 @@ import $ from 'jquery';
 import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
         Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';
 //import * as Box from '3box';
+import {withRouter} from 'react-router-dom';
 import EditProfile from '3box-profile-edit-react';
 import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
@@ -35,6 +36,10 @@ class UserPage extends Component {
     this.setChannel = this.setChannel.bind(this);
   }
   componentDidMount = async function(){
+    console.log(this.props);
+    await this.setState({
+      user_address: this.props.match.params.addr
+    })
     await this.setItems();
     if(this.props.box){
       await this.setChannel();
@@ -44,36 +49,36 @@ class UserPage extends Component {
   setChannel = async function(){
     const space = await this.props.box.openSpace(AppName);
     await space.syncDone;
-    this.setState({
+    await this.setState({
       space: space,
       coinbase: this.props.coinbase
     });
-    console.log("contacts_"+this.props.profile.address)
+    console.log("contacts_"+this.state.user_address)
     console.log(this.props.coinbase)
-    const isContact = await space.private.get("contact_"+this.props.profile.address);
+    const isContact = await space.private.get("contact_"+this.state.user_address);
     console.log(isContact);
     if(!isContact){
-      const thread = await space.joinThread("contacts_"+this.props.profile.address,{firstModerator:this.props.profile.address});
+      const thread = await space.joinThread("contacts_"+this.state.user_address,{firstModerator:this.state.user_address});
       const postId = await thread.post(this.props.coinbase);
-      await space.private.set("contact_"+this.props.profile.address,postId);
+      await space.private.set("contact_"+this.state.user_address,postId);
     }
-    const userProfile = await Box.getSpace(this.props.profile.address,AppName);
+    const userProfile = await Box.getSpace(this.state.user_address,AppName);
     const threadAddressByUser = userProfile['contactThread_'+this.props.coinbase];
     console.log(threadAddressByUser);
     if(threadAddressByUser){
-      const confidentialThreadNameByUser = "contact_"+this.props.profile.address+"_"+this.props.coinbase;
-      await space.public.set('contactThread_'+this.props.profile.address,threadAddressByUser);
+      const confidentialThreadNameByUser = "contact_"+this.state.user_address+"_"+this.props.coinbase;
+      await space.public.set('contactThread_'+this.state.user_address,threadAddressByUser);
       const thread = await space.joinThreadByAddress(threadAddressByUser)
       //console.log(await thread.getPosts());
       await space.syncDone;
       this.setState({
         confidentialThreadName: confidentialThreadNameByUser,
-        threadAdmin: this.props.profile.address,
+        threadAdmin: this.state.user_address,
         threadAddress: thread.address
       });
     } else {
-      const confidentialThreadName = "contact_"+this.props.coinbase+"_"+this.props.profile.address;
-      let threadAddress = await space.public.get('contactThread_'+this.props.profile.address);
+      const confidentialThreadName = "contact_"+this.props.coinbase+"_"+this.state.user_address;
+      let threadAddress = await space.public.get('contactThread_'+this.state.user_address);
       console.log(threadAddress)
       if(!threadAddress){
         const thread = await space.createConfidentialThread(confidentialThreadName);
@@ -81,12 +86,12 @@ class UserPage extends Component {
         const members = await thread.listMembers();
 
         if(members.length == 0){
-          await thread.addMember(this.props.profile.address);
+          await thread.addMember(this.state.user_address);
           console.log("member added");
         }
         threadAddress = thread.address
 
-        await space.public.set('contactThread_'+this.props.profile.address,threadAddress);
+        await space.public.set('contactThread_'+this.state.user_address,threadAddress);
 
       }
 
@@ -100,7 +105,14 @@ class UserPage extends Component {
     return
   }
   setItems = async function(){
-    const posts = await Box.getThread(AppName,"items_"+this.props.profile.address,this.props.profile.address,true);
+    let profile = this.props.profile;
+    if(!profile){
+      profile = await Box.getSpace(this.state.user_address,AppName);
+    }
+    await this.setState({
+      profile: profile
+    });
+    const posts = await Box.getThread(AppName,"items_"+this.state.user_address,this.state.user_address,true);
     const items = [];
     for(const post of posts){
       const item = post.message;
@@ -120,25 +132,25 @@ class UserPage extends Component {
   addContact = async function(){
     const space = await this.props.box.openSpace(AppName);
     await space.syncDone;
-    console.log("contacts_"+this.props.profile.address)
-    await space.private.remove("contactAdded_"+this.props.profile.address);
-    const isContactAdded = await space.private.get("contactAdded_"+this.props.profile.address);
+    console.log("contacts_"+this.state.user_address)
+    await space.private.remove("contactAdded_"+this.state.user_address);
+    const isContactAdded = await space.private.get("contactAdded_"+this.state.user_address);
     console.log(isContactAdded)
     console.log("contactsAdded_"+this.props.coinbase);
     if(!isContactAdded){
       const thread = await space.joinThread("contactsAdded_"+this.props.coinbase,{firstModerator:this.props.coinbase});
-      const postId = await thread.post(this.props.profile.address);
-      await space.private.set("contactAdded_"+this.props.profile.address,postId);
+      const postId = await thread.post(this.state.user_address);
+      await space.private.set("contactAdded_"+this.state.user_address,postId);
     }
     alert('saved')
     return
   }
 
   render(){
-    const profile = this.props.profile
-    console.log(this.state);
-    const items = this.state.items
-    if(this.state.items){
+    if(this.state.profile && this.state.items){
+      const profile = this.state.profile
+      console.log(this.state);
+      const items = this.state.items
       if(this.state.confidentialThreadName){
 
         return(
@@ -267,4 +279,4 @@ class UserPage extends Component {
   }
 }
 
-export default UserPage;
+export default withRouter(UserPage);

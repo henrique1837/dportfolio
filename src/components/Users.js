@@ -5,6 +5,9 @@ import $ from 'jquery';
 import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
         Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';
 //import * as Box from '3box';
+import {Link} from 'react-router-dom';
+
+
 import EditProfile from '3box-profile-edit-react';
 import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
@@ -29,7 +32,6 @@ class Users extends Component {
 
   constructor(props){
     super(props);
-    this.renderUserPage = this.renderUserPage.bind(this);
     this.filterUsers = this.filterUsers.bind(this);
     this.filterPosts = this.filterPosts.bind(this);
   }
@@ -89,18 +91,6 @@ class Users extends Component {
     return(postsFiltered);
   }
 
-  renderUserPage = async(profile) => {
-    const removed = ReactDOM.unmountComponentAtNode(document.getElementById("userPage"))
-
-    console.log(profile);
-
-    ReactDOM.render(
-      <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} />,
-      document.getElementById('userPage')
-    );
-
-    return
-  };
 
   filterUsers = async function(){
     try{
@@ -117,7 +107,7 @@ class Users extends Component {
       console.log(values)
       console.log(users)
       for(var i=users.length-1;i>=0;i--){
-        const user = users[i];
+        const user = users[i].message;
         console.log(user)
         const techs = user.techs;
         const allTrue = [];
@@ -185,7 +175,7 @@ class Users extends Component {
           </Form.Group>
         </Row>
         <Row>
-          <Col lg={4} style={{height: '500px',overflowY:'scroll'}}>
+
         {
           this.state.posts.map(function(post){
             const profile = post.message;
@@ -197,38 +187,42 @@ class Users extends Component {
                                     <p>Name: {profile.name}</p>
                                     <p>Description: {profile.description}</p>
                                     <p>Techs: {profile.techs}</p>
-                                  </div>
+                            </div>
             }
             return(
 
 
-                <div>
-                    <Row className={"div_profile div_"+profile.address}>
-                    <Col lg={12}>
-                      <ProfileHover
-                        address={profile.address}
-                        orientation="bottom"
-                        noCoverImg
-                      />
-                    </Col>
-                      <Col lg={12}>
-                      {div_profile}
-                      <Button variant="primary" href={"#user_"+profile.address} onClick={()=>{ that.renderUserPage(profile) }}>Portfolio</Button>
-                      </Col>
-                    <hr/>
-                    </Row>
 
-                </div>
+                    <Col className={"div_profile div_"+profile.address}
+                         lg={4}
+                         style={{
+                           display:'flex',
+                           flexDirection:'column',
+                           justifyContent:'space-between',
+                           paddingBottom: '100px'
+                         }}>
+                        <div>
+                            <ProfileHover
+                              address={profile.address}
+                              orientation="bottom"
+                              noCoverImg
+                            />
+                        </div>
+
+                        <div>
+                            {div_profile}
+                        </div>
+                        <div>
+                          <Link to={"/user/"+profile.address} style={{all: 'unset'}}>
+                            <Button variant="primary">Portfolio</Button>
+                          </Link>
+                        </div>
+                    </Col>
+
+
             )
           })
         }
-          </Col>
-          <Col lg={8} id='userPage' >
-
-
-            {this.state.userPage}
-
-          </Col>
         </Row>
 
 

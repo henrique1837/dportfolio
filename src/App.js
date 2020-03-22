@@ -24,6 +24,7 @@ import Menu from './components/Menu.js';
 import Profile from './components/Profile.js';
 import Portfolio from './components/Portfolio.js';
 import Users from './components/Users.js';
+import UserPage from './components/UserPage.js';
 import Jobs from './components/Jobs.js';
 import "./App.css";
 import "./assets/scss/argon-dashboard-react.scss";
@@ -60,7 +61,7 @@ class App extends Component {
     this.chatBox = this.chatBox.bind(this);
   }
   componentDidMount = async () => {
-    console.log(history)
+
     if(window.ethereum){
       this.setState({
         hasWeb3:true
@@ -208,7 +209,7 @@ class App extends Component {
   renderRedirect = () => {
     if (this.state.redirect) {
       return(
-        <Redirect to={history.location.pathname+'#/home'} />
+        <Redirect to={'/home'} />
       );
     }
   }
@@ -286,21 +287,21 @@ class App extends Component {
             </Alert>
 
             <Switch>
-                  <Route path={history.location.pathname+"#/home"} component={Home} />
-                  <Route path={history.location.pathname+"#/profile"} render={() => {
+                  <Route path={"/home"} component={Home} />
+                  <Route path={"/profile"} render={() => {
                     if(!this.state.space){
                       return(
-                        <Redirect to={history.location.pathname+"#/home"} />
+                        <Redirect to={"/home"} />
                       )
                     }
                     return(
                       <Profile box={this.state.box} space={this.state.space} coinbase={this.state.coinbase} />
                     )
                   }} />
-                  <Route path={history.location.pathname+"#/portfolio"} render={() => {
+                  <Route path={"/portfolio"} render={() => {
                     if(!this.state.space){
                       return(
-                        <Redirect to={history.location.pathname+"#/home"} />
+                        <Redirect to={"/home"} />
                       )
                     }
                     return(
@@ -313,13 +314,21 @@ class App extends Component {
                            />
                     )
                   }} />
-                  <Route path={history.location.pathname+"#/users"} render={() => {
+                  <Route path={"/users"} render={() => {
 
                     return(
                       <Users box={this.state.box} space={this.state.space} coinbase={this.state.coinbase} />
                     )
                     }} />
-                  <Route path={history.location.pathname+"#/jobs"} render={() => {
+                  <Route path={"/user/:addr"} render={(props) => {
+
+                      return(
+                        <UserPage box={this.state.box}
+                                  coinbase={this.state.coinbase}
+                                  {...props} />
+                      )
+                  }} />
+                  <Route path={"/jobs"} render={() => {
                     if(!this.state.coinbase ){
                       return(
                         <Jobs/>
@@ -327,14 +336,14 @@ class App extends Component {
                     }
                     if(!this.state.space){
                       return(
-                        <Redirect to={history.location.pathname+"#/home"} />
+                        <Redirect to={"/home"} />
                       )
                     }
                     return(
                         <Jobs box={this.state.box} coinbase={this.state.coinbase} space={this.state.space} />
                     )
                   }} />
-                  <Route path={history.location.pathname+"#/comments"} render={() => {
+                  <Route path={"/comments"} render={() => {
                     if(!this.state.coinbase){
                       return(
                         <div>
@@ -368,7 +377,7 @@ class App extends Component {
                     }
                     if(!this.state.space){
                       return(
-                        <Redirect to={history.location.pathname+"#/home"} />
+                        <Redirect to={"/home"} />
                       );
                     }
 
@@ -401,17 +410,17 @@ class App extends Component {
 
                     );
                   }} />
-                  <Route path={history.location.pathname+"#/loginNoWeb3"} render={() => {
+                  <Route path={"/loginNoWeb3"} render={() => {
                     return(
                       <center style={{paddingTop: '50px'}}>
                          <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or login with <a href="#auth_login" onClick={this.login}>authereum</a></p>
                       </center>
                     )
                   }} />
-                  <Route path={history.location.pathname+"#/login"} render={() => {
+                  <Route path={"/login"} render={() => {
                     if(!this.state.hasWeb3){
                       return(
-                        <Redirect to={history.location.pathname+"#/loginNoWeb3"} />
+                        <Redirect to={"/loginNoWeb3"} />
                       );
                     }
 
@@ -423,10 +432,10 @@ class App extends Component {
                       </Row>
                     )
                   }} />
-                  <Route path={history.location.pathname+"#/logout"} render={() => {
+                  <Route path={"/logout"} render={() => {
                     if(!this.state.space){
                       return(
-                        <Redirect to={history.location.pathname+"#/home"} />
+                        <Redirect to={"/home"} />
                       );
                     }
                     return(
@@ -436,7 +445,7 @@ class App extends Component {
 
                   <Route render={() => {
                     return(
-                      <Redirect to={history.location.pathname+"#/home"} />
+                      <Redirect to={"/home"} />
                     );
                   }} />
             </Switch>
