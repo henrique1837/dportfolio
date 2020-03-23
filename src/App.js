@@ -6,14 +6,13 @@ import $ from 'jquery';
 import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
         Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Link,
   Route,
   Switch,
   Redirect,
   withRouter
 } from 'react-router-dom';
-import { createBrowserHistory } from "history";
 import EditProfile from '3box-profile-edit-react';
 import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
@@ -34,7 +33,6 @@ const Config = require('./config.js');
 const AppName = Config.AppName
 const usersRegistered = Config.usersRegistered
 const admin = Config.admin
-const history = createBrowserHistory()
 
 
 class App extends Component {
@@ -271,13 +269,12 @@ class App extends Component {
 
     return (
       <div>
-        <Router history={history}>
+        <Router>
           {this.renderRedirect()}
           <Menu box={this.state.box}
                 space={this.state.space}
                 hasWeb3={this.state.hasWeb3}
-                doingLogin={this.state.doingLogin}
-                base_url = {history.location.pathname} />
+                doingLogin={this.state.doingLogin} />
 
           <Container className="themed-container" fluid={true}>
 

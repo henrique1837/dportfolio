@@ -64,7 +64,7 @@ class Profile extends Component {
   getContacts = async function(){
     const coinbase = this.state.coinbase;
     const threadContacts = await this.state.space.joinThread("contactsAdded_"+coinbase,{firstModerator:coinbase})
-    this.setState({
+    await this.setState({
       threadContacts: threadContacts,
       space: this.props.space
     })
@@ -83,7 +83,7 @@ class Profile extends Component {
     const coinbase = this.state.coinbase
     console.log("contacts_"+coinbase)
     const threadViews = await this.state.space.joinThread("contacts_"+coinbase,{firstModerator:coinbase});
-    this.setState({
+    await this.setState({
       threadViews: threadViews
     })
     const views = await threadViews.getPosts();
