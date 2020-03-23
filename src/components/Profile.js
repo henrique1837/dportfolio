@@ -6,6 +6,7 @@ import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
         Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';
 //import getWeb3 from "./components/getWeb3.js";
 //import * as Box from '3box';
+import {Link} from 'react-router-dom';
 import EditProfile from '3box-profile-edit-react';
 import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
@@ -253,40 +254,66 @@ class Profile extends Component {
             </Tab>
             <Tab eventKey="messages" title="Views" style={{paddingTop:'10px'}}>
               <Row>
-                <Col lg={4} style={{height: '500px',overflowY:'scroll'}}>
+                
                   {
                     this.state.views.map(function(post){
                       const addr = post.message
                       return(
-                        <Row>
-                          <Col lg={8} >
-                            <ProfileHover
-                              address={addr}
-                              orientation="bottom"
-                              noCoverImg
-                            />
-                          </Col>
-                          <Col lg={4}>
-                            <Button variant="primary" onClick={()=>{that.chatPage(addr)}}>Messages</Button>
-                          </Col>
-                        </Row>
+                        <Col lg={4}
+                             style={{
+                               display:'flex',
+                               flexDirection:'column',
+                               justifyContent:'space-between',
+                               paddingBottom: '100px'
+                             }}>
+                            <div>
+                                <ProfileHover
+                                  address={addr}
+                                  orientation="bottom"
+                                  noCoverImg
+                                />
+                            </div>
+                            <div>
+                              <Link to={"/user/"+addr} style={{all: 'unset'}}>
+                                <Button variant="primary">Portfolio</Button>
+                              </Link>
+                            </div>
+                        </Col>
                       );
                     })
                   }
-                </Col>
-                <Col lg={8} id='chatPage'>
-
-                </Col>
               </Row>
             </Tab>
             <Tab eventKey="contacts" title="Contacts" style={{paddingTop:'10px'}}>
               <Row>
-                <Col lg={4} style={{height: '500px',overflowY:'scroll'}}>
+                {/*<Col lg={4} style={{height: '500px',overflowY:'scroll'}}>*/}
                   {
                     this.state.contacts.map(function(post){
                       const addr = post.message
                       console.log(addr);
                       return(
+                        <Col lg={4}
+                             style={{
+                               display:'flex',
+                               flexDirection:'column',
+                               justifyContent:'space-between',
+                               paddingBottom: '100px'
+                             }}>
+                            <div>
+                                <ProfileHover
+                                  address={addr}
+                                  orientation="bottom"
+                                  noCoverImg
+                                />
+                            </div>
+                            <div>
+                              <Link to={"/user/"+addr} style={{all: 'unset'}}>
+                                <Button variant="primary">Portfolio</Button>
+                              </Link>
+                            </div>
+                        </Col>
+                      )
+                      /*return(
                         <Row>
                           <Col lg={8} >
                             <ProfileHover
@@ -296,16 +323,15 @@ class Profile extends Component {
                             />
                           </Col>
                           <Col lg={4}>
-                            <Button variant="primary" onClick={()=>{that.contactPage(addr)}}>Messages</Button>
+                            <Link to={"/user/"+addr} style={{all: 'unset'}}>
+                              <Button variant="primary">Messages</Button>
+                            </Link>
                           </Col>
                         </Row>
-                      );
+                      );*/
                     })
                   }
-                </Col>
-                <Col lg={8} id='contactPage'>
-
-                </Col>
+                {/*</Col>*/}
               </Row>
             </Tab>
           </Tabs>
