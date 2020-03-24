@@ -6,6 +6,8 @@ import $ from 'jquery';
 import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
         Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';//import getWeb3 from "./components/getWeb3.js";
 //import * as Box from '3box';
+import {Link} from 'react-router-dom';
+
 import EditProfile from '3box-profile-edit-react';
 import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
@@ -193,7 +195,7 @@ class Jobs extends Component {
             </Form.Group>
           </Row>
           <Row>
-            <Col lg={4} style={{height: '500px',overflowY:'scroll'}}>
+
               {
                 this.state.posts.map(function(post){
                   const postId = post.postId;
@@ -209,35 +211,31 @@ class Jobs extends Component {
                                         </div>
                   }
                   return(
-
-
-                      <div>
-                          <Row className={"div_job div_"+postId}>
-                          <Col lg={12}>
+                        <Col className={"div_job div_"+postId}
+                              lg={4}
+                              style={{
+                                display:'flex',
+                                flexDirection:'column',
+                                justifyContent:'space-between',
+                                paddingBottom: '100px'
+                              }}>
+                          <div>
                             <ProfileHover
                               address={from.address}
                               orientation="bottom"
                               noCoverImg
                             />
-                          </Col>
-                            <Col lg={12}>
+                          </div>
+                          <Col lg={12}>
                             {div_job}
-                            <Button variant="primary" href={"#user_"+from.address} onClick={()=>{ that.renderUserPage(from) }}>Contact</Button>
-                            </Col>
-                          <hr/>
-                          </Row>
-
-                      </div>
+                            <Link to={"/user/"+from.address} style={{all: 'unset'}}>
+                              <Button variant="primary">Contact</Button>
+                            </Link>
+                          </Col>
+                        </Col>
                   )
                 })
               }
-            </Col>
-            <Col lg={8} id='userPage' >
-
-
-              {this.state.userPage}
-
-            </Col>
           </Row>
         </div>
 
