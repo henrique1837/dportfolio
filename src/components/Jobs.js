@@ -53,7 +53,7 @@ class Jobs extends Component {
       });
       return
     }
-    await this.state.space.syncDone;
+    //await this.state.space.syncDone;
     const thread = await this.state.space.joinThread(jobsThread,{firstModerator:admin,members: false});
     await this.setState({
       thread: thread

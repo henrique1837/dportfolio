@@ -133,7 +133,7 @@ class UserPage extends Component {
     const space = await this.props.box.openSpace(AppName);
     await space.syncDone;
     console.log("contacts_"+this.state.user_address)
-    await space.private.remove("contactAdded_"+this.state.user_address);
+    
     const isContactAdded = await space.private.get("contactAdded_"+this.state.user_address);
     console.log(isContactAdded)
     console.log("contactsAdded_"+this.props.coinbase);
