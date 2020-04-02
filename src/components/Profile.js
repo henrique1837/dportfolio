@@ -100,6 +100,7 @@ class Profile extends Component {
   profileSaved = async function() {
     await this.props.space.syncDone;
     const profile = await this.state.space.public.all();
+    console.log(profile)
     const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
     let oldPostId = await this.state.space.private.get('registration');
     if(oldPostId){
@@ -254,7 +255,7 @@ class Profile extends Component {
             </Tab>
             <Tab eventKey="messages" title="Views" style={{paddingTop:'10px'}}>
               <Row>
-                
+
                   {
                     this.state.views.map(function(post){
                       const addr = post.message

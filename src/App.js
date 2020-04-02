@@ -25,8 +25,8 @@ import Portfolio from './components/Portfolio.js';
 import Users from './components/Users.js';
 import UserPage from './components/UserPage.js';
 import Jobs from './components/Jobs.js';
-import "./App.css";
 import "./assets/scss/argon-dashboard-react.scss";
+import "./App.css";
 
 const Box = require('3box');
 const Config = require('./config.js');
