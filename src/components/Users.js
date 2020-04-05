@@ -51,6 +51,7 @@ class Users extends Component {
       });
       return;
     }
+    
     const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin,members: false});
     await this.setState({
       thread: thread

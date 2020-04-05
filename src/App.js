@@ -177,16 +177,22 @@ class App extends Component {
     console.log(profile)
     const thread = await space.joinThread(usersRegistered,{firstModerator:admin,members: false});
     console.log(thread)
+    /*
     let oldPostId = await space.private.get('registration');
     console.log(oldPostId)
     if(oldPostId){
-      await thread.deletePost(oldPostId);
+      try{
+        thread.deletePost(oldPostId);
+      } catch(err){
+        console.log(err)
+      }
     } else {
       await space.public.set('address',coinbase);
     }
+    */
     const postId = await thread.post(profile);
     console.log(postId)
-    await space.private.set('registration',postId);
+    //await space.private.set('registration',postId);
 
     $("#alert_info").hide();
     this.setRedirect();
@@ -243,7 +249,7 @@ class App extends Component {
           <Container className="themed-container" fluid={true}>
 
             <Alert variant="default" style={{textAlign: "center"}}>
-              <h4>Loading dapp ...</h4>
+              <h2 style={{color: 'white'}}>Loading dapp ...</h2>
               <div id="loading_status"></div>
 
             </Alert>
