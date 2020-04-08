@@ -42,47 +42,49 @@ class UserPage extends Component {
     })
     await this.setItems();
     if(this.props.box){
+      await this.setState({
+        box: this.props.box,
+        space: this.props.space,
+        coinbase: this.props.coinbase
+      });
       await this.setChannel();
     }
 
   }
   setChannel = async function(){
-    const space = await this.props.box.openSpace(AppName);
-    await space.syncDone;
-    await this.setState({
-      space: space,
-      coinbase: this.props.coinbase
-    });
+
+    await this.state.space.syncDone;
+    const space = this.state.space;
     console.log("contacts_"+this.state.user_address)
-    console.log(this.props.coinbase)
+    console.log(this.state.coinbase)
     const isContact = await space.private.get("contact_"+this.state.user_address);
     console.log(isContact);
     if(!isContact){
       const thread = await space.joinThread("contacts_"+this.state.user_address,{firstModerator:this.state.user_address});
-      const postId = await thread.post(this.props.coinbase);
+      const postId = await thread.post(this.state.coinbase);
       await space.private.set("contact_"+this.state.user_address,postId);
     }
     const userProfile = await Box.getSpace(this.state.user_address,AppName);
-    const threadAddressByUser = userProfile['contactThread_'+this.props.coinbase];
+    const threadAddressByUser = userProfile['contactThread_'+this.state.coinbase];
     console.log(threadAddressByUser);
     if(threadAddressByUser){
-      const confidentialThreadNameByUser = "contact_"+this.state.user_address+"_"+this.props.coinbase;
+      const confidentialThreadNameByUser = "contact_"+this.state.user_address+"_"+this.state.coinbase;
       await space.public.set('contactThread_'+this.state.user_address,threadAddressByUser);
       const thread = await space.joinThreadByAddress(threadAddressByUser)
       //console.log(await thread.getPosts());
       await space.syncDone;
-      this.setState({
+      await this.setState({
         confidentialThreadName: confidentialThreadNameByUser,
         threadAdmin: this.state.user_address,
         threadAddress: thread.address
       });
     } else {
-      const confidentialThreadName = "contact_"+this.props.coinbase+"_"+this.state.user_address;
+      const confidentialThreadName = "contact_"+this.state.coinbase+"_"+this.state.user_address;
       let threadAddress = await space.public.get('contactThread_'+this.state.user_address);
       console.log(threadAddress)
       if(!threadAddress){
         const thread = await space.createConfidentialThread(confidentialThreadName);
-        //const thread = await space.joinThread(confidentialThreadName,{firstModerator:this.props.coinbase,members: true});
+        //const thread = await space.joinThread(confidentialThreadName,{firstModerator:this.state.coinbase,members: true});
         const members = await thread.listMembers();
 
         if(members.length == 0){
@@ -96,16 +98,16 @@ class UserPage extends Component {
       }
 
 
-      this.setState({
+      await this.setState({
         confidentialThreadName: confidentialThreadName,
-        threadAdmin: this.props.coinbase,
+        threadAdmin: this.state.coinbase,
         threadAddress: threadAddress
       });
     }
     return
   }
   setItems = async function(){
-    let profile = this.props.profile;
+    let profile = this.state.profile;
     if(!profile){
       profile = await Box.getSpace(this.state.user_address,AppName);
     }
@@ -130,19 +132,22 @@ class UserPage extends Component {
     return
   }
   addContact = async function(){
-    const space = await this.props.box.openSpace(AppName);
+    const space = await this.state.space;
     await space.syncDone;
     console.log("contacts_"+this.state.user_address)
-    
+
     const isContactAdded = await space.private.get("contactAdded_"+this.state.user_address);
     console.log(isContactAdded)
-    console.log("contactsAdded_"+this.props.coinbase);
+    console.log("contactsAdded_"+this.state.coinbase);
     if(!isContactAdded){
-      const thread = await space.joinThread("contactsAdded_"+this.props.coinbase,{firstModerator:this.props.coinbase});
+      const thread = await space.joinThread("contactsAdded_"+this.states.coinbase,{firstModerator:this.state.coinbase});
       const postId = await thread.post(this.state.user_address);
       await space.private.set("contactAdded_"+this.state.user_address,postId);
+      alert('saved')
+    } else {
+      alert('contact already saved')
     }
-    alert('saved')
+    await space.syncDone;
     return
   }
 
@@ -157,62 +162,62 @@ class UserPage extends Component {
           <div>
                 <Tabs defaultActiveKey="portfolio" className="nav-fill flex-column flex-md-row">
                   <Tab eventKey="portfolio" title="Portfolio" style={{paddingTop:'10px'}}>
-                    <h5>{profile.name} portfolio</h5>
-                    {
-                      items.map(function(item){
-                        if(!item.img){
-                          return(
-                            <div>
-                              <hr />
-                              <div>
-                                <p>Name: {item.name}</p>
-                                <p>Description: {item.description}</p>
-                                <p>URI: {item.uri}</p>
-                              </div>
-                            </div>
-                          )
+                    <div>
+                      <Row style={{paddingTop:'20px'}}>
+                        <ProfileHover
+                          address={profile.address}
+                          orientation="bottom"
+                          noCoverImg
+                        />
+                      </Row>
+                      <Row style={{paddingTop:'40px'}}>
+                        <h5>Portfolio</h5>
+                      </Row>
+                      <Row style={{paddingTop:'20px'}}>
+
+
+                        {
+                          items.map(function(item){
+                            if(!item.img){
+                              return(
+                                <Col lg={4}
+                                     style={{
+                                       display:'flex',
+                                       flexDirection:'column',
+                                       justifyContent:'space-between',
+                                       paddingBottom: '100px'
+                                     }}>
+                                    <p>Name: {item.name}</p>
+                                    <p>Description: {item.description}</p>
+                                    <p>URI: {item.uri}</p>
+                                </Col>
+                              )
+                            }
+                            return(
+                              <Col lg={4}
+                                   style={{
+                                     display:'flex',
+                                     flexDirection:'column',
+                                     justifyContent:'space-between',
+                                     paddingBottom: '100px'
+                                   }}>
+                                  <p>Name: {item.name}</p>
+                                  <p>Description: {item.description}</p>
+                                  <p>URI: {item.uri}</p>
+                                  <p><img style={{maxWidth: '400px'}} src={item.img}/></p>
+                              </Col>
+                            )
+                          })
                         }
-                        return(
-                          <div>
-                            <hr />
-                            <div>
-                              <p>Name: {item.name}</p>
-                              <p>Description: {item.description}</p>
-                              <p>URI: {item.uri}</p>
-                              <p><img style={{maxWidth: '400px'}} src={item.img}/></p>
-                            </div>
-                          </div>
-                        )
-                      })
-                    }
-                    <Button variant="primary" onClick={this.addContact}>Add contact</Button>
-                  </Tab>
-                  <Tab eventKey="privMessage" title="Private message" style={{paddingTop:'10px'}}>
-                    <h5>Private message</h5>
-                    <PrivateChat threadAddress={this.state.threadAddress} space={this.state.space} coinbase={this.state.coinbase} />
-                    {/*
-                    <ThreeBoxComments
-                                          // required
-                                          spaceName={AppName}
-                                          threadName={this.state.confidentialThreadName}
-                                          adminEthAddr={this.state.threadAdmin}
-
-
-                                          // Required props for context A) & B)
-                                          box={this.props.box}
-                                          currentUserAddr={this.props.coinbase}
-
-                                          // Required prop for context B)
-                                          //loginFunction={handleLogin}
-
-                                          // Required prop for context C)
-                                          //ethereum={ethereum}
-                                          // optional
-                                          members={true}
-
-                    />
-                    */}
-
+                      </Row>
+                      <Row>
+                        <Button variant="primary" onClick={this.addContact}>Add contact</Button>
+                      </Row>
+                     </div>
+                    </Tab>
+                    <Tab eventKey="privMessage" title="Private message" style={{paddingTop:'10px'}}>
+                      <h5>Private message</h5>
+                      <PrivateChat threadAddress={this.state.threadAddress} space={this.state.space} coinbase={this.state.coinbase} />
 
 
                   </Tab>
@@ -249,23 +254,54 @@ class UserPage extends Component {
       }
       return(
         <div>
-               <h5>{profile.name} portfolio</h5>
-               {
-                 items.map(function(item){
-                   return(
-                     <div>
-                       <hr />
-                       <div>
-                         <p>Name: {item.name}</p>
-                         <p>Description: {item.description}</p>
-                         <p>URI: <a href={item.uri} target="_blank">{item.uri}</a></p>
-                         <p><img style={{maxWidth: '300px'}} src={item.img}/></p>
-                       </div>
-                     </div>
-                   )
-                 })
-               }
-               </div>
+          <Row style={{paddingTop:'20px'}}>
+            <ProfileHover
+              address={profile.address}
+              orientation="bottom"
+              noCoverImg
+            />
+          </Row>
+          <Row>
+            <h5>Portfolio</h5>
+          </Row>
+          <Row style={{paddingTop:'20px'}}>
+
+
+            {
+              items.map(function(item){
+                if(!item.img){
+                  return(
+                    <Col lg={4}
+                         style={{
+                           display:'flex',
+                           flexDirection:'column',
+                           justifyContent:'space-between',
+                           paddingBottom: '100px'
+                         }}>
+                        <p>Name: {item.name}</p>
+                        <p>Description: {item.description}</p>
+                        <p>URI: {item.uri}</p>
+                    </Col>
+                  )
+                }
+                return(
+                  <Col lg={4}
+                       style={{
+                         display:'flex',
+                         flexDirection:'column',
+                         justifyContent:'space-between',
+                         paddingBottom: '100px'
+                       }}>
+                      <p>Name: {item.name}</p>
+                      <p>Description: {item.description}</p>
+                      <p>URI: {item.uri}</p>
+                      <p><img style={{maxWidth: '400px'}} src={item.img}/></p>
+                  </Col>
+                )
+              })
+            }
+          </Row>
+         </div>
       )
     }
     return(

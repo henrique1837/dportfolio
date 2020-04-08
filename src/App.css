@@ -20,7 +20,23 @@
 .App-link {
   color: #09d3ac;
 }
-
+#root{
+  width: 100%
+}
+footer {
+    padding: 50px;
+    color: white;
+    background-color: #5e72e4;
+}
+footer a {
+  color: #000000
+}
+footer a:hover {
+  color: grey
+}
+ #sc-launcher {
+   height: 0px;
+ }
 @media (max-width: 991px){
   .navbar-collapse {
       position: relative;

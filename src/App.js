@@ -324,9 +324,19 @@ class App extends Component {
                     )
                     }} />
                   <Route path={"/user/:addr"} render={(props) => {
-
+                      if(this.state.doingLogin && !this.state.space){
+                        return(
+                          <Redirect to={"/home"} />
+                        )
+                      }
+                      if(!this.state.space && !this.state.doingLogin){
+                        return(
+                          <UserPage {...props} />
+                        )
+                      }
                       return(
                         <UserPage box={this.state.box}
+                                  space={this.state.space}
                                   coinbase={this.state.coinbase}
                                   {...props} />
                       )
@@ -458,7 +468,7 @@ class App extends Component {
         {
           this.chatBox()
         }
-        <footer style={{marginTop: '50px'}}>
+        <footer>
                   <Row>
                     <Col lg={4}>
                       <p>Proudly done using <a href="https://3box.com" target='_blank' title='3Box'>3Box</a></p>

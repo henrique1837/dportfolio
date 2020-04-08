@@ -66,8 +66,7 @@ class Profile extends Component {
     const coinbase = this.state.coinbase;
     const threadContacts = await this.state.space.joinThread("contactsAdded_"+coinbase,{firstModerator:coinbase})
     await this.setState({
-      threadContacts: threadContacts,
-      space: this.props.space
+      threadContacts: threadContacts
     })
     const contacts = await this.state.threadContacts.getPosts();
     console.log(contacts)

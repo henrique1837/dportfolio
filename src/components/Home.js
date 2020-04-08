@@ -30,6 +30,7 @@ class Home extends Component {
 
                  </Card.Text>
                 <Button variant='primary' onClick={()=>{
+                  window.scrollTo(0, 0);
                   this.setState({
                     tutorial: false
                   });
@@ -90,6 +91,7 @@ class Home extends Component {
                       <Card.Title>How to use it?</Card.Title>
                       <Card.Text>Step by step on how to use DecentralizedPortfolio</Card.Text>
                       <Button variant="primary" onClick={()=>{
+                        window.scrollTo(0, 0);
                         this.setState({
                           tutorial: true
                         });

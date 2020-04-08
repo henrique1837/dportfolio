@@ -127,6 +127,7 @@ class Portfolio extends Component {
             <Tab eventKey="itemsadded" title="Items">
               <div>
                 <h4>Items added</h4>
+                <Row>
                 {
 
                   this.state.posts.map(function(post){
@@ -134,28 +135,43 @@ class Portfolio extends Component {
                     const postId = post.postId;
                     if(item.img){
                       return(
-                        <div>
+                        <Col
+                          lg={4}
+                          style={{
+                            display:'flex',
+                            flexDirection:'column',
+                            justifyContent:'space-between',
+                            paddingBottom: '100px'
+                          }}>
                           <hr/>
                           <p>Name: {item.name}</p>
                           <p>Description: {item.description}</p>
                           <p>URI: <a href={item.uri} target="_blank">{item.uri}</a></p>
                           <p><img src={item.img} style={{maxWidth: '300px'}} /></p>
                           <Button onClick={()=>{ that.removeItem(postId)}} type="primary">Remove Item</Button>
-                        </div>
+                        </Col>
                       )
                     }
                     return(
-                      <div>
+                      <Col
+                        lg={4}
+                        style={{
+                          display:'flex',
+                          flexDirection:'column',
+                          justifyContent:'space-between',
+                          paddingBottom: '100px'
+                        }}>
                         <hr/>
                         <p>Name: {item.name}</p>
                         <p>Description: {item.description}</p>
                         <p>URI: <a href={item.uri} target="_blank">{item.uri}</a></p>
                         <Button onClick={()=>{ that.removeItem(postId)}} type="primary">Remove Item</Button>
-                      </div>
+                      </Col>
                     )
 
                   })
                 }
+                </Row>
               </div>
             </Tab>
             <Tab eventKey="addItem" title="Add Item">

@@ -39,6 +39,7 @@ class PrivateChat extends Component {
       thread: thread,
       space: this.props.space
     })
+    await this.state.syncDone;
     const posts = await this.state.thread.getPosts();
     this.setState({posts});
     console.log(posts)
