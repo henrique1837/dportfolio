@@ -25,6 +25,7 @@
 }
 footer {
     padding: 50px;
+    margin-top: 50px;
     color: white;
     background-color: #5e72e4;
 }
@@ -36,6 +37,9 @@ footer a:hover {
 }
  #sc-launcher {
    height: 0px;
+ }
+ .popupChat{
+   position: fixed;
  }
 @media (max-width: 991px){
   .navbar-collapse {
