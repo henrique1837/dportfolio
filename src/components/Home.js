@@ -46,6 +46,16 @@ class Home extends Component {
             <Card.Header as="h3">Welcome to decentralized portfolio</Card.Header>
             <Card.Body>
               <Row>
+                <Col lg={12}>
+                  <Card>
+                    <Card.Body>
+                      <Card.Title>Mount your decentralized portfolio</Card.Title>
+                      <Card.Text>Start mounting your career or artist portfolio now. You can import data from others websites and keep data with yourself to use it in the way you want.</Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+              <Row>
                 <Col sm={4}>
                   <Card>
                     {/*<Card.Img variant="top" src="./imgs/ipfs.png" />*/}
@@ -99,7 +109,23 @@ class Home extends Component {
                     </Card.Body>
                   </Card>
                 </Col>
+                {/*
+                <Col sm={6}>
+                  <Card>
 
+                    <Card.Body>
+                      <Card.Title>Import data from github,linkedin and more</Card.Title>
+                      <Card.Text>How to import your data from some websites</Card.Text>
+                      <Button variant="primary" onClick={()=>{
+                        window.scrollTo(0, 0);
+                        this.setState({
+                          tutorial: true
+                        });
+                      }}>Tutorial</Button>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                */}
               </Row>
             </Card.Body>
             </Card>

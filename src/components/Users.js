@@ -51,7 +51,7 @@ class Users extends Component {
       });
       return;
     }
-    
+
     const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin,members: false});
     await this.setState({
       thread: thread
@@ -182,14 +182,14 @@ class Users extends Component {
             const profile = post.message;
             console.log(profile)
             let div_profile = <div></div>
-            if(profile.name && profile.description){
+            //if(profile.name && profile.description){
               div_profile = <div>
                                     <p><small>Decentralized portfolio profile</small></p>
                                     <p>Name: {profile.name}</p>
                                     <p>Description: {profile.description}</p>
                                     <p>Techs: {profile.techs}</p>
                             </div>
-            }
+            //}
             return(
 
 

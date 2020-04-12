@@ -25,6 +25,7 @@ class Profile extends Component {
     box: null,
     space: null,
     coinbase: null,
+    web3:null,
     threadContacts: null,
     threadViews: null,
     page: <div></div>,
@@ -33,24 +34,34 @@ class Profile extends Component {
         inputType: 'text',
         key: 'techs', // the key used to save the value
         field: 'Techs' // how to display the key in the UI
+      },
+      { // for a field with a text input
+        inputType: 'text',
+        key: 'gitcoin', // the key used to save the value
+        field: 'Gitcoin' // how to display the key in the UI
+      },
+      { // for a field with a text input
+        inputType: 'text',
+        key: 'pinterest', // the key used to save the value
+        field: 'Pinterest' // how to display the key in the UI
       }
     ]
   }
   constructor(props){
     super(props)
     this.profileSaved = this.profileSaved.bind(this);
-    this.chatPage = this.chatPage.bind(this);
-    this.contactPage = this.contactPage.bind(this);
 
     this.getContacts = this.getContacts.bind(this);
     this.getViews = this.getViews.bind(this);
+
   }
 
   componentDidMount = async function(){
     await this.setState({
       box: this.props.box,
       space: this.props.space,
-      coinbase: this.props.coinbase
+      coinbase: this.props.coinbase,
+      web3: this.props.web3
     });
     console.log(this.state)
     await this.state.space.syncDone;
@@ -105,103 +116,22 @@ class Profile extends Component {
     if(oldPostId){
       await thread.deletePost(oldPostId);
     }
-    const postId = await thread.post(profile);
+    const postProfile = {
+      name: profile.name,
+      emoji: profile.emoji,
+      description: profile.description,
+      techs: profile.techs,
+      address: profile.address ,
+      pinterest: profile.pinterest,
+      github: profile.github,
+    }
+    const postId = await thread.post(postProfile);
     await this.state.space.private.set('registration',postId);
     alert("saved");
   };
-  chatPage = async function(addr){
-    ReactDOM.unmountComponentAtNode(document.getElementById("contactPage"));
-    ReactDOM.render(
-        <div></div>,
-        document.getElementById('contactPage')
-    );
-    await this.props.space.syncDone;
-    const removed = ReactDOM.unmountComponentAtNode(document.getElementById("chatPage"));
-    ReactDOM.render(
-        <center>
-          <Spinner animation="border" role="status">
-            <span className="sr-only">Loading...</span>
-          </Spinner>
-          <p>Loading ...</p>
-        </center>,
-        document.getElementById('chatPage')
-    );
-    //const space = await this.props.box.openSpace(AppName);
-    const isContact = await this.state.space.private.get("contact_"+addr);
-    console.log(isContact)
-    if(!isContact){
-        const thread = await this.state.space.joinThread("contacts_"+addr,{firstModerator:addr});
-        const postId = await thread.post(this.state.space.address);
-        await this.state.space.private.set("contact_"+addr,postId);
-    }
-    const profile = await Box.getSpace(addr,AppName);
-    console.log(profile);
-    const threadName = 'contactThread_'+this.state.coinbase;
-    const threadAddress =  profile[threadName];
-    console.log(threadAddress);
-    await this.state.space.syncDone;
-    if(threadAddress){
-      const thread = await this.state.space.joinThreadByAddress(threadAddress);
-      await this.props.space.syncDone;
-      ReactDOM.render(
-        <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} />,
-        document.getElementById('chatPage')
-      );
-      return
-    }
 
 
-    ReactDOM.render(
-        <p>No messages to you</p>,
-        document.getElementById('chatPage')
-    );
-    return
 
-
-  }
-
-
-  contactPage = async function(addr){
-    ReactDOM.unmountComponentAtNode(document.getElementById("chatPage"));
-    ReactDOM.render(
-        <div></div>,
-        document.getElementById('chatPage')
-    );
-    const removed = ReactDOM.unmountComponentAtNode(document.getElementById("contactPage"));
-    ReactDOM.render(
-        <center>
-          <Spinner animation="border" role="status">
-            <span className="sr-only">Loading...</span>
-          </Spinner>
-          <p>Loading ...</p>
-        </center>,
-        document.getElementById('contactPage')
-    );
-    const space = await this.props.box.openSpace(AppName);
-    const isContact = await this.state.space.private.get("contactAdded_"+addr);
-    console.log(isContact)
-    if(!isContact){
-        const thread = await this.state.space.joinThread("contacts_"+addr,{firstModerator:addr});
-        const postId = await thread.post(this.state.space.address);
-        await this.state.space.private.set("contact_"+addr,postId);
-    }
-    let thread = await this.state.space.joinThread("contact_"+this.state.coinbase+"_"+addr,{firstModerator:this.state.coinbase,members:true,ghost: false});
-    await this.state.space.syncDone;
-    let members = await thread.listMembers();
-    let posts = await thread.getPosts();
-    console.log(members)
-    console.log(posts)
-    console.log(members.length)
-
-    const itens = [];
-    const profile = await Box.getSpace(addr, AppName);
-    ReactDOM.render(
-
-        <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} />,
-        document.getElementById('contactPage')
-    )
-    return
-  }
   render() {
     if(!this.state.loaded){
       return(
@@ -229,6 +159,7 @@ class Profile extends Component {
                       customFields={this.state.fields}
                       redirectFn={this.profileSaved}
                   />
+
             </Tab>
             <Tab eventKey="comments" title="Comments" style={{paddingTop:'10px'}}>
               <ThreeBoxComments

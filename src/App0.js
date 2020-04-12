@@ -160,6 +160,7 @@ class App extends Component {
       </div>,
       document.getElementById("loading_status")
     );
+    $("#alert_info").show();
     const space = await box.openSpace(AppName);
 
     ReactDOM.render(
@@ -173,6 +174,27 @@ class App extends Component {
     );
     await space.syncDone;
     const profile = await space.public.all();
+    console.log(profile)
+    const thread = await space.joinThread(usersRegistered,{firstModerator:admin,members: false});
+    console.log(thread)
+    /*
+    let oldPostId = await space.private.get('registration');
+    console.log(oldPostId)
+    if(oldPostId){
+      try{
+        thread.deletePost(oldPostId);
+      } catch(err){
+        console.log(err)
+      }
+    } else {
+      await space.public.set('address',coinbase);
+    }
+    */
+    const postId = await thread.post(profile);
+    console.log(postId)
+    //await space.private.set('registration',postId);
+
+    $("#alert_info").hide();
     this.setRedirect();
     this.setState({
       profile: profile,
@@ -226,8 +248,7 @@ class App extends Component {
           </Navbar>
           <Container className="themed-container" fluid={true}>
 
-            <Alert variant="default" style={{textAlign: "center",
-                                             marginTop:'20px'}}>
+            <Alert variant="default" style={{textAlign: "center"}}>
               <h2 style={{color: 'white'}}>Loading dapp ...</h2>
               <div id="loading_status"></div>
 
@@ -263,6 +284,10 @@ class App extends Component {
 
           <Container className="themed-container" fluid={true}>
 
+           <Alert variant="default" style={{textAlign: "center",display:"none"}} id='alert_info'>
+                <h4>Loading dapp ...</h4>
+                <div id="loading_status"></div>
+            </Alert>
 
             <Switch>
                   <Route path={"/home"} component={Home} />

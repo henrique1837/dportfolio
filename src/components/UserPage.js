@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import Web3 from "web3";
 import $ from 'jquery';
 import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
-        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';
+        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner,ListGroup} from 'react-bootstrap';
 //import * as Box from '3box';
 import {withRouter} from 'react-router-dom';
 import EditProfile from '3box-profile-edit-react';
@@ -115,19 +115,8 @@ class UserPage extends Component {
       profile: profile
     });
     const posts = await Box.getThread(AppName,"items_"+this.state.user_address,this.state.user_address,true);
-    const items = [];
-    for(const post of posts){
-      const item = post.message;
-      console.log(item)
-      items.push({
-          name: item.name,
-          description: item.description,
-          uri: item.uri,
-          img: item.img
-      });
-    }
-    this.setState({
-      items: items
+    await this.setState({
+      items: posts
     });
     return
   }
@@ -152,67 +141,169 @@ class UserPage extends Component {
   }
 
   render(){
+    const that = this;
     if(this.state.profile && this.state.items){
       const profile = this.state.profile
       console.log(this.state);
       const items = this.state.items
+      const socialProfiles = [];
+
+      if(profile.pinterest){
+        socialProfiles.push({
+          name: "Pinterest",
+          profile: profile.pinterest.replace(/.*pinterest.com/,'').replace('/','').replace('/',''),
+          uri: profile.pinterest
+        })
+      }
+
+
       if(this.state.confidentialThreadName){
+
+
 
         return(
           <div>
                 <Tabs defaultActiveKey="portfolio" className="nav-fill flex-column flex-md-row">
                   <Tab eventKey="portfolio" title="Portfolio" style={{paddingTop:'10px'}}>
                     <div>
-                      <Row style={{paddingTop:'20px'}}>
+                      <div style={{paddingTop:'20px'}}>
                         <ProfileHover
                           address={profile.address}
                           orientation="bottom"
                           noCoverImg
                         />
-                      </Row>
-                      <Row style={{paddingTop:'40px'}}>
-                        <h5>Portfolio</h5>
-                      </Row>
-                      <Row style={{paddingTop:'20px'}}>
-
-
+                      </div>
+                      <div style={{paddingTop:'40px'}}>
+                        <h5>Decentralized portfolio profile</h5>
+                        <p>Name: {profile.name}</p>
+                        <p>Description: {profile.description}</p>
+                        <p>Techs: {profile.techs}</p>
                         {
-                          items.map(function(item){
-                            if(!item.img){
-                              return(
-                                <Col lg={4}
-                                     style={{
-                                       display:'flex',
-                                       flexDirection:'column',
-                                       justifyContent:'space-between',
-                                       paddingBottom: '100px'
-                                     }}>
-                                    <p>Name: {item.name}</p>
-                                    <p>Description: {item.description}</p>
-                                    <p>URI: {item.uri}</p>
-                                </Col>
-                              )
-                            }
+                          socialProfiles.map(function(item){
                             return(
-                              <Col lg={4}
-                                   style={{
-                                     display:'flex',
-                                     flexDirection:'column',
-                                     justifyContent:'space-between',
-                                     paddingBottom: '100px'
-                                   }}>
-                                  <p>Name: {item.name}</p>
-                                  <p>Description: {item.description}</p>
-                                  <p>URI: {item.uri}</p>
-                                  <p><img style={{maxWidth: '400px'}} src={item.img}/></p>
-                              </Col>
+                              <p>{item.name}: <a href={item.uri} href='_blank'>{item.profile}</a></p>
                             )
                           })
                         }
-                      </Row>
-                      <Row>
+                      </div>
+                      <div style={{paddingTop:'40px'}}>
+                        <h5>Portfolio</h5>
+                      </div>
+                      <div style={{paddingTop:'20px'}}>
+
+
+                      <h5>Education</h5>
+                      <ListGroup>
+                      {
+
+                        this.state.items.map(function(post){
+                          const item = post.message;
+                          const postId = post.postId;
+                          if(item.type === 0){
+                            return(
+                              <ListGroup.Item>
+                                <Row>
+                                  <Col lg={4}>
+                                    <h5>{item.school_name}</h5>
+                                    <h6>{item.course}</h6>
+                                    <p><small>From {item.start_date} to {item.end_date}</small></p>
+                                    <p><a href={item.uri} target="_blank">{item.uri}</a></p>
+                                  </Col>
+                                  <Col lg={8}>
+                                    <p>{item.description}</p>
+                                  </Col>
+                                </Row>
+
+                              </ListGroup.Item>
+                            )
+                          }
+
+                        })
+                      }
+                      </ListGroup>
+                      <h5>Projects</h5>
+                      <ListGroup>
+                      {
+                        this.state.items.map(function(post){
+                          const item = post.message;
+                          const postId = post.postId;
+                          if(item.type === 1){
+                            return(
+                              <ListGroup.Item>
+                                <Row>
+                                  <Col lg={4}>
+                                    <h5>{item.title}</h5>
+                                    <p><small>From {item.start_date} to {item.end_date}</small></p>
+                                    <p><a href={item.uri} target="_blank">{item.uri}</a></p>
+                                  </Col>
+                                  <Col lg={8}>
+                                    <p>{item.description}</p>
+                                  </Col>
+                                </Row>
+                              </ListGroup.Item>
+                            )
+                          }
+
+                        })
+                      }
+                      </ListGroup>
+                      <h5>Experience</h5>
+                      <ListGroup>
+                      {
+                        this.state.items.map(function(post){
+                          const item = post.message;
+                          const postId = post.postId;
+                          if(item.type === 2){
+                            return(
+                              <ListGroup.Item>
+                                <Row>
+                                  <Col lg={4}>
+                                    <h5>{item.company}</h5>
+                                    <h6>{item.title}</h6>
+                                    <p><small>From {item.start_date} to {item.end_date}</small></p>
+                                    <p><small>{item.location}</small></p>
+                                  </Col>
+                                  <Col lg={8}>
+                                    <p>{item.description}</p>
+                                  </Col>
+                                </Row>
+                              </ListGroup.Item>
+                            )
+                          }
+
+                        })
+                      }
+                      </ListGroup>
+                      <h5>Publications</h5>
+                      <ListGroup>
+                      {
+                        this.state.items.map(function(post){
+                          const item = post.message;
+                          const postId = post.postId;
+                          if(item.type === 3){
+                            return(
+                              <ListGroup.Item>
+                                <Row>
+                                  <Col lg={4}>
+                                    <h5>{item.name}</h5>
+                                    <p><small>Published on {item.date}</small></p>
+                                    <p><small><a href={item.uri} target='_blank'>{item.uri}</a></small></p>
+                                  </Col>
+                                  <Col lg={8}>
+                                    <p>{item.description}</p>
+                                  </Col>
+                                </Row>
+                              </ListGroup.Item>
+                            )
+                          }
+
+                        })
+                      }
+                      </ListGroup>
+                      </div>
+                      <div>
                         <Button variant="primary" onClick={this.addContact}>Add contact</Button>
-                      </Row>
+                      </div>
                      </div>
                     </Tab>
                     <Tab eventKey="privMessage" title="Private message" style={{paddingTop:'10px'}}>
@@ -254,53 +345,141 @@ class UserPage extends Component {
       }
       return(
         <div>
-          <Row style={{paddingTop:'20px'}}>
+          <div style={{paddingTop:'20px'}}>
             <ProfileHover
               address={profile.address}
               orientation="bottom"
               noCoverImg
             />
-          </Row>
-          <Row>
-            <h5>Portfolio</h5>
-          </Row>
-          <Row style={{paddingTop:'20px'}}>
-
-
+          </div>
+          <div style={{paddingTop:'40px'}}>
+            <h5>Decentralized portfolio profile</h5>
+            <p>Name: {profile.name}</p>
+            <p>Description: {profile.description}</p>
+            <p>Techs: {profile.techs}</p>
             {
-              items.map(function(item){
-                if(!item.img){
-                  return(
-                    <Col lg={4}
-                         style={{
-                           display:'flex',
-                           flexDirection:'column',
-                           justifyContent:'space-between',
-                           paddingBottom: '100px'
-                         }}>
-                        <p>Name: {item.name}</p>
-                        <p>Description: {item.description}</p>
-                        <p>URI: {item.uri}</p>
-                    </Col>
-                  )
-                }
+              socialProfiles.map(function(item){
                 return(
-                  <Col lg={4}
-                       style={{
-                         display:'flex',
-                         flexDirection:'column',
-                         justifyContent:'space-between',
-                         paddingBottom: '100px'
-                       }}>
-                      <p>Name: {item.name}</p>
-                      <p>Description: {item.description}</p>
-                      <p>URI: {item.uri}</p>
-                      <p><img style={{maxWidth: '400px'}} src={item.img}/></p>
-                  </Col>
+                  <p>{item.name}: <a href={item.uri} href='_blank'>{item.profile}</a></p>
                 )
               })
             }
-          </Row>
+          </div>
+          <div style={{paddingTop:'40px'}}>
+            <h5>Portfolio</h5>
+          </div>
+          <div style={{paddingTop:'20px'}}>
+
+
+          <h5>Education</h5>
+          <ListGroup>
+          {
+
+            this.state.items.map(function(post){
+              const item = post.message;
+              const postId = post.postId;
+              if(item.type === 0){
+                return(
+                  <ListGroup.Item>
+                    <Row>
+                      <Col lg={4}>
+                        <h5>{item.school_name}</h5>
+                        <h6>{item.course}</h6>
+                        <p><small>From {item.start_date} to {item.end_date}</small></p>
+                        <p><a href={item.uri} target="_blank">{item.uri}</a></p>
+                      </Col>
+                      <Col lg={8}>
+                        <p>{item.description}</p>
+                      </Col>
+                    </Row>
+
+                  </ListGroup.Item>
+                )
+              }
+
+            })
+          }
+          </ListGroup>
+          <h5>Projects</h5>
+          <ListGroup>
+          {
+            this.state.items.map(function(post){
+              const item = post.message;
+              const postId = post.postId;
+              if(item.type === 1){
+                return(
+                  <ListGroup.Item>
+                    <Row>
+                      <Col lg={4}>
+                        <h5>{item.title}</h5>
+                        <p><small>From {item.start_date} to {item.end_date}</small></p>
+                        <p><a href={item.uri} target="_blank">{item.uri}</a></p>
+                      </Col>
+                      <Col lg={8}>
+                        <p>{item.description}</p>
+                      </Col>
+                    </Row>
+                  </ListGroup.Item>
+                )
+              }
+
+            })
+          }
+          </ListGroup>
+          <h5>Experience</h5>
+          <ListGroup>
+          {
+            this.state.items.map(function(post){
+              const item = post.message;
+              const postId = post.postId;
+              if(item.type === 2){
+                return(
+                  <ListGroup.Item>
+                    <Row>
+                      <Col lg={4}>
+                        <h5>{item.company}</h5>
+                        <h6>{item.title}</h6>
+                        <p><small>From {item.start_date} to {item.end_date}</small></p>
+                        <p><small>{item.location}</small></p>
+                      </Col>
+                      <Col lg={8}>
+                        <p>{item.description}</p>
+                      </Col>
+                    </Row>
+                  </ListGroup.Item>
+                )
+              }
+
+            })
+          }
+          </ListGroup>
+          <h5>Publications</h5>
+          <ListGroup>
+          {
+            this.state.items.map(function(post){
+              const item = post.message;
+              const postId = post.postId;
+              if(item.type === 3){
+                return(
+                  <ListGroup.Item>
+                    <Row>
+                      <Col lg={4}>
+                        <h5>{item.name}</h5>
+                        <p><small>Published on {item.date}</small></p>
+                        <p><small><a href={item.uri} target='_blank'>{item.uri}</a></small></p>
+                      </Col>
+                      <Col lg={8}>
+                        <p>{item.description}</p>
+                      </Col>
+                    </Row>
+                  </ListGroup.Item>
+                )
+              }
+
+            })
+          }
+          </ListGroup>
+          </div>
          </div>
       )
     }
