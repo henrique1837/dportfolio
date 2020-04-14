@@ -228,14 +228,16 @@ class App extends Component {
                   hasWeb3={this.state.hasWeb3}
                   doingLogin={this.state.doingLogin} />
           </Router>
-          <Container className="themed-container" fluid={true}>
+          <Container className="themed-container" fluid={false}>
             <Alert color="info" style={{textAlign: "center",
                                   marginTop:'20px'}}>
                 <h2 style={{color: 'white'}}>Loading dapp ...</h2>
                 <div id="loading_status"></div>
             </Alert>
           </Container>
-          <Footer style={{maeginTop: '20px'}}/>
+          <Container fluid={false}>
+            <Footer style={{maeginTop: '20px'}}/>
+          </Container>
         </div>
       );
     }
@@ -249,7 +251,7 @@ class App extends Component {
                 hasWeb3={this.state.hasWeb3}
                 doingLogin={this.state.doingLogin} />
 
-          <Container className="themed-container" fluid={true}>
+          <Container className="themed-container" fluid={false}>
 
 
             <Switch>
@@ -439,7 +441,9 @@ class App extends Component {
           this.chatBox()
 
         }
-        <Footer style={{maeginTop: '20px'}}/>
+        <Container fluid={false}>
+          <Footer style={{maeginTop: '20px'}}/>
+        </Container>
       </div>
     );
 
