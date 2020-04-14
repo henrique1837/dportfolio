@@ -2,8 +2,17 @@ import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from "web3";
 import $ from 'jquery';
-import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
-        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';
+import {
+  Button,
+  FormGroup,
+  Input,
+  Label,
+  Container,
+  Row,
+  Col,
+  Card,
+  Spinner
+} from 'reactstrap';
 //import * as Box from '3box';
 import {Link} from 'react-router-dom';
 
@@ -156,10 +165,8 @@ class Users extends Component {
     const that = this;
     if(!this.state.posts){
       return(
-        <center>
-          <Spinner animation="border" role="status">
-            <span className="sr-only">Loading...</span>
-          </Spinner>
+        <center style={{paddingTop:'40px'}}>
+          <Spinner color="primary" />
           <p>Loading ...</p>
         </center>
       );
@@ -170,10 +177,10 @@ class Users extends Component {
           <h4>Users</h4>
         </Row>
         <Row>
-          <Form.Group>
-            <Form.Label>Techs</Form.Label>
-            <Form.Control placeholder="Techs" id='input_filter' onChange={this.filterUsers}/>
-          </Form.Group>
+          <FormGroup>
+            <Label>Techs</Label>
+            <Input type="text" className="form-control-alternative" placeholder="Techs" id='input_filter' onChange={this.filterUsers}/>
+          </FormGroup>
         </Row>
         <Row>
 
@@ -215,7 +222,7 @@ class Users extends Component {
                         </div>
                         <div>
                           <Link to={"/user/"+profile.address} style={{all: 'unset'}}>
-                            <Button variant="primary">Portfolio</Button>
+                            <Button color="primary">Portfolio</Button>
                           </Link>
                         </div>
                     </Col>

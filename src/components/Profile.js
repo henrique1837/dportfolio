@@ -2,17 +2,28 @@ import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from "web3";
 import $ from 'jquery';
-import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
-        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';
+import {
+  Button,
+  Card,
+  CardBody,
+  NavItem,
+  NavLink,
+  Nav,
+  TabContent,
+  TabPane,
+  Container,
+  Row,
+  Col,
+  Spinner
+} from 'reactstrap';
 //import getWeb3 from "./components/getWeb3.js";
 //import * as Box from '3box';
 import {Link} from 'react-router-dom';
 import EditProfile from '3box-profile-edit-react';
-import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
 import UserPage from './UserPage.js';
-
+import classnames from "classnames";
 const Box = require('3box');
 
 const Config = require('../config.js');
@@ -31,7 +42,7 @@ class Profile extends Component {
     web3:null,
     threadContacts: null,
     threadViews: null,
-    page: <div></div>,
+    tabs: "Profile",
     fields: [
       { // for a field with a text input
         inputType: 'text',
@@ -139,142 +150,216 @@ class Profile extends Component {
     alert("saved");
   };
 
+  toggleNavs = (e,tab) => {
+    e.preventDefault();
+    this.setState({
+      tabs: tab
+    });
+  };
 
 
   render() {
     if(!this.state.loaded){
       return(
-        <center>
-          <Spinner animation="border" role="status">
-            <span className="sr-only">Loading...</span>
-          </Spinner>
+        <center style={{paddingTop:'40px'}}>
+          <Spinner color="primary" />
           <p>Loading ...</p>
         </center>
       )
     }
     const that = this;
     return(
-        <Tabs defaultActiveKey="editProfile">
 
+      <div>
+        <div className="nav-wrapper">
+          <Nav
+            className="nav-fill flex-column flex-md-row"
+            id="tabs-icons-text"
+            pills
+            role="tablist"
+          >
+            <NavItem>
+              <NavLink
+                aria-selected={this.state.tabs === 'Profile'}
+                className={classnames("mb-sm-3 mb-md-0", {
+                  active: this.state.tabs === 'Profile'
+                })}
+                onClick={e => this.toggleNavs(e, 'Profile')}
+                href="#Profile"
+                role="tab"
+              >
+                <i className="ni ni-cloud-upload-96 mr-2" />
+                Profile
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                aria-selected={this.state.tabs === 'Views'}
+                className={classnames("mb-sm-3 mb-md-0", {
+                  active: this.state.tabs === 'Views'
+                })}
+                onClick={e => this.toggleNavs(e,'Views')}
+                href="#Views"
+                role="tab"
+              >
+                <i className="ni ni-bell-55 mr-2" />
+                Views
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                aria-selected={this.state.tabs === 'Contacts'}
+                className={classnames("mb-sm-3 mb-md-0", {
+                  active: this.state.tabs === 'Contacts'
+                })}
+                onClick={e => this.toggleNavs(e,'Contacts')}
+                href="#Contacts"
+                role="tab"
+              >
+                <i className="ni ni-calendar-grid-58 mr-2" />
+                Contacts
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                aria-selected={this.state.tabs === 'Comments'}
+                className={classnames("mb-sm-3 mb-md-0", {
+                  active: this.state.tabs === 'Comments'
+                })}
+                onClick={e => this.toggleNavs(e,'Comments')}
+                href="#Comments"
+                role="tab"
+              >
+                <i className="ni ni-calendar-grid-58 mr-2" />
+                Comments
+              </NavLink>
+            </NavItem>
+          </Nav>
+        </div>
+        <Card className="shadow">
+          <CardBody>
+            <TabContent activeTab={this.state.tabs}>
+              <TabPane tabId="Profile">
+                <EditProfile
+                        // required
+                        box={this.state.box}
+                        space={this.state.space}
+                        currentUserAddr={this.state.coinbase}
 
-            <Tab eventKey="editProfile" title="Edit Profile" style={{paddingTop:'10px'}}>
-              <EditProfile
-                      // required
-                      box={this.state.box}
-                      space={this.state.space}
-                      currentUserAddr={this.state.coinbase}
+                        // optional
+                        customFields={this.state.fields}
+                        redirectFn={this.profileSaved}
+                    />
+              </TabPane>
+              <TabPane tabId="Views">
+                <Row>
 
-                      // optional
-                      customFields={this.state.fields}
-                      redirectFn={this.profileSaved}
-                  />
-
-            </Tab>
-            <Tab eventKey="comments" title="Comments" style={{paddingTop:'10px'}}>
-              <ThreeBoxComments
-                                    // required
-                                    spaceName={AppName}
-                                    threadName={"job_offers_"+this.state.coinbase}
-                                    adminEthAddr={this.state.coinbase}
-
-
-                                    // Required props for context A) & B)
-                                    box={this.state.box}
-                                    currentUserAddr={this.state.coinbase}
-
-                                    // Required prop for context B)
-                                    //loginFunction={handleLogin}
-
-                                    // Required prop for context C)
-                                    //ethereum={ethereum}
-
-                                    // optional
-                                    members={false}
-              />
-            </Tab>
-            <Tab eventKey="messages" title="Views" style={{paddingTop:'10px'}}>
-              <Row>
-
-                  {
-                    this.state.views.map(function(post){
-                      const addr = post.message
-                      return(
-                        <Col lg={4}
-                             style={{
-                               display:'flex',
-                               flexDirection:'column',
-                               justifyContent:'space-between',
-                               paddingBottom: '100px'
-                             }}>
-                            <div>
-                                <ProfileHover
-                                  address={addr}
-                                  orientation="bottom"
-                                  noCoverImg
-                                />
-                            </div>
-                            <div>
-                              <Link to={"/user/"+addr} style={{all: 'unset'}}>
-                                <Button variant="primary">Portfolio</Button>
-                              </Link>
-                            </div>
-                        </Col>
-                      );
-                    })
-                  }
-              </Row>
-            </Tab>
-            <Tab eventKey="contacts" title="Contacts" style={{paddingTop:'10px'}}>
-              <Row>
-                {/*<Col lg={4} style={{height: '500px',overflowY:'scroll'}}>*/}
-                  {
-                    this.state.contacts.map(function(post){
-                      const addr = post.message
-                      console.log(addr);
-                      return(
-                        <Col lg={4}
-                             style={{
-                               display:'flex',
-                               flexDirection:'column',
-                               justifyContent:'space-between',
-                               paddingBottom: '100px'
-                             }}>
-                            <div>
-                                <ProfileHover
-                                  address={addr}
-                                  orientation="bottom"
-                                  noCoverImg
-                                />
-                            </div>
-                            <div>
-                              <Link to={"/user/"+addr} style={{all: 'unset'}}>
-                                <Button variant="primary">Portfolio</Button>
-                              </Link>
-                            </div>
-                        </Col>
-                      )
-                      /*return(
-                        <Row>
-                          <Col lg={8} >
-                            <ProfileHover
-                              address={addr}
-                              orientation="bottom"
-                              noCoverImg
-                            />
+                    {
+                      this.state.views.map(function(post){
+                        const addr = post.message
+                        return(
+                          <Col lg={4}
+                               style={{
+                                 display:'flex',
+                                 flexDirection:'column',
+                                 justifyContent:'space-between',
+                                 paddingBottom: '100px'
+                               }}>
+                              <div>
+                                  <ProfileHover
+                                    address={addr}
+                                    orientation="bottom"
+                                    noCoverImg
+                                  />
+                              </div>
+                              <div>
+                                <Link to={"/user/"+addr} style={{all: 'unset'}}>
+                                  <Button variant="primary">Portfolio</Button>
+                                </Link>
+                              </div>
                           </Col>
-                          <Col lg={4}>
-                            <Link to={"/user/"+addr} style={{all: 'unset'}}>
-                              <Button variant="primary">Messages</Button>
-                            </Link>
+                        );
+                      })
+                    }
+                </Row>
+              </TabPane>
+              <TabPane tabId="Contacts">
+                <Row>
+                  {/*<Col lg={4} style={{height: '500px',overflowY:'scroll'}}>*/}
+                    {
+                      this.state.contacts.map(function(post){
+                        const addr = post.message
+                        console.log(addr);
+                        return(
+                          <Col lg={4}
+                               style={{
+                                 display:'flex',
+                                 flexDirection:'column',
+                                 justifyContent:'space-between',
+                                 paddingBottom: '100px'
+                               }}>
+                              <div>
+                                  <ProfileHover
+                                    address={addr}
+                                    orientation="bottom"
+                                    noCoverImg
+                                  />
+                              </div>
+                              <div>
+                                <Link to={"/user/"+addr} style={{all: 'unset'}}>
+                                  <Button variant="primary">Portfolio</Button>
+                                </Link>
+                              </div>
                           </Col>
-                        </Row>
-                      );*/
-                    })
-                  }
-                {/*</Col>*/}
-              </Row>
-            </Tab>
-          </Tabs>
+                        )
+                        /*return(
+                          <Row>
+                            <Col lg={8} >
+                              <ProfileHover
+                                address={addr}
+                                orientation="bottom"
+                                noCoverImg
+                              />
+                            </Col>
+                            <Col lg={4}>
+                              <Link to={"/user/"+addr} style={{all: 'unset'}}>
+                                <Button variant="primary">Messages</Button>
+                              </Link>
+                            </Col>
+                          </Row>
+                        );*/
+                      })
+                    }
+                  {/*</Col>*/}
+                </Row>
+              </TabPane>
+              <TabPane tabId="Comments">
+                <ThreeBoxComments
+                                      // required
+                                      spaceName={AppName}
+                                      threadName={"job_offers_"+this.state.coinbase}
+                                      adminEthAddr={this.state.coinbase}
+
+
+                                      // Required props for context A) & B)
+                                      box={this.state.box}
+                                      currentUserAddr={this.state.coinbase}
+
+                                      // Required prop for context B)
+                                      //loginFunction={handleLogin}
+
+                                      // Required prop for context C)
+                                      //ethereum={ethereum}
+
+                                      // optional
+                                      members={false}
+                />
+              </TabPane>
+            </TabContent>
+          </CardBody>
+        </Card>
+      </div>
+
       );
 
 

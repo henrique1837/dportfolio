@@ -2,8 +2,19 @@ import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from "web3";
 import $ from 'jquery';
-import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
-        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';//import getWeb3 from "./components/getWeb3.js";
+import {
+  Button,
+  Container,
+  Row,
+  Col,
+  Spinner,
+  FormGroup,
+  Input,
+  InputGroup,
+  InputGroupText,
+  InputGroupAddon,
+  Label
+} from 'reactstrap';//import getWeb3 from "./components/getWeb3.js";
 //import * as Box from '3box';
 import EditProfile from '3box-profile-edit-react';
 import ChatBox from '3box-chatbox-react';
@@ -118,22 +129,32 @@ class PrivateChat extends Component {
                   }
                 </div>
                 <div>
-                  <Form>
-                    <Form.Group>
-                      <Form.Label>Message</Form.Label>
-                      <Form.Control placeholder="Message" id='input_msg'/>
-                      <Button onClick={this.addMsg}>Send</Button>
-                    </Form.Group>
-                  </Form>
+                  <FormGroup>
+                    <InputGroup className="input-group-alternative mb-4">
+                    <Label>Message</Label>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="ni ni-zoom-split-in" />
+                        </InputGroupText>
+                      </InputGroupAddon>
+
+                      <Input
+                        className="form-control-alternative"
+                        placeholder="Message"
+                        type="text"
+                        id='input_msg'
+                      />
+                    </InputGroup>
+                    <Button onClick={this.addMsg}>Send</Button>
+                  </FormGroup>
+
                 </div>
         </div>
       )
     }
     return(
-      <center>
-        <Spinner animation="border" role="status">
-          <span className="sr-only">Loading...</span>
-        </Spinner>
+      <center style={{paddingTop:'40px'}}>
+        <Spinner color="primary" />
         <p>Loading ...</p>
       </center>
     )

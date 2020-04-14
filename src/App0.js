@@ -3,15 +3,8 @@ import ReactDOM from 'react-dom';
 import Web3 from "web3";
 import Authereum from 'authereum'
 import $ from 'jquery';
-import {
-  Button,
-  Container,
-  Row,
-  Col,
-  Alert,
-  Card,
-  Modal,
-  Spinner} from 'reactstrap';
+import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
+        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';
 import {
   HashRouter as Router,
   Link,
@@ -27,13 +20,11 @@ import ProfileHover from 'profile-hover';
 
 import Home from './components/Home.js';
 import Menu from './components/Menu.js';
-import Footer from './components/Footers/AdminFooter.js'
 import Profile from './components/Profile.js';
 import Portfolio from './components/Portfolio.js';
 import Users from './components/Users.js';
 import UserPage from './components/UserPage.js';
 import Jobs from './components/Jobs.js';
-import "./assets/plugins/nucleo/css/nucleo.css";
 import "./assets/scss/argon-dashboard-react.scss";
 import "./App.css";
 
@@ -93,7 +84,7 @@ class App extends Component {
         await provider.enable()
       }
 
-      await this.setState({
+      this.setState({
         doingLogin: true
       });
 
@@ -102,7 +93,9 @@ class App extends Component {
       console.log(coinbase);
       ReactDOM.render(
         <div>
-          <Spinner color="secondary" />
+          <Spinner animation="border" role="status">
+            <span className="sr-only">Loading...</span>
+          </Spinner>
           <p>Aprove access to your 3Box account</p>
         </div>,
         document.getElementById("loading_status")
@@ -111,7 +104,9 @@ class App extends Component {
       //const space = await box.openSpace(AppName);
       ReactDOM.render(
         <div>
-          <Spinner color="secondary" />
+          <Spinner animation="border" role="status">
+            <span className="sr-only">Loading...</span>
+          </Spinner>
           <p>Syncing your profile</p>
         </div>,
         document.getElementById("loading_status")
@@ -158,7 +153,9 @@ class App extends Component {
 
     ReactDOM.render(
       <div>
-      <Spinner color="secondary" />
+      <Spinner animation="border" role="status">
+        <span className="sr-only">Loading...</span>
+      </Spinner>
       <p>Aprove access to open your Decentralized Portfolio Space</p>
       </div>,
       document.getElementById("loading_status")
@@ -167,7 +164,9 @@ class App extends Component {
 
     ReactDOM.render(
       <div>
-      <Spinner color="secondary" />
+      <Spinner animation="border" role="status">
+        <span className="sr-only">Loading...</span>
+      </Spinner>
       <p>Opening your profile</p>
       </div>,
       document.getElementById("loading_status")
@@ -222,20 +221,34 @@ class App extends Component {
     if(this.state.doingLogin){
       return(
         <div>
-          <Router>
-            <Menu box={null}
-                  space={null}
-                  hasWeb3={this.state.hasWeb3}
-                  doingLogin={this.state.doingLogin} />
-          </Router>
+          <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark" >
+            <Navbar.Brand href="#home">Decentralized Portfolio</Navbar.Brand>
+            <Navbar.Toggle />
+          </Navbar>
           <Container className="themed-container" fluid={true}>
-            <Alert color="info" style={{textAlign: "center",
-                                  marginTop:'20px'}}>
-                <h2 style={{color: 'white'}}>Loading dapp ...</h2>
-                <div id="loading_status"></div>
+
+            <Alert variant="default" style={{textAlign: "center",
+                                             marginTop:'20px'}}>
+              <h2 style={{color: 'white'}}>Loading dapp ...</h2>
+              <div id="loading_status"></div>
+
             </Alert>
           </Container>
-          <Footer style={{maeginTop: '20px'}}/>
+          <footer style={{marginTop: '20px'}}>
+                    <Row>
+                      <Col lg={4}>
+                        <p>Proudly done using <a href="https://3box.com" target='_blank' title='3Box'>3Box</a></p>
+                      </Col>
+                      <Col lg={4}>
+                        <p>Support by using <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or donating</p>
+                      </Col>
+                      <Col lg={4}>
+                        <p>Use a private,fast and secure browser</p>
+                        <p>Earn rewards in BAT token while browsing</p>
+                        <p>Install <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a></p>
+                      </Col>
+                    </Row>
+          </footer>
         </div>
       );
     }
@@ -254,7 +267,6 @@ class App extends Component {
 
             <Switch>
                   <Route path={"/home"} component={Home} />
-
                   <Route path={"/profile"} render={() => {
                     if(!this.state.space){
                       return(
@@ -268,7 +280,6 @@ class App extends Component {
                                coinbase={this.state.coinbase} />
                     )
                   }} />
-
                   <Route path={"/portfolio"} render={() => {
                     if(!this.state.space){
                       return(
@@ -285,7 +296,6 @@ class App extends Component {
                            />
                     )
                   }} />
-
                   <Route path={"/users"} render={() => {
 
                     return(
@@ -310,7 +320,6 @@ class App extends Component {
                                   {...props} />
                       )
                   }} />
-
                   <Route path={"/jobs"} render={() => {
                     if(!this.state.coinbase ){
                       return(
@@ -437,9 +446,22 @@ class App extends Component {
         </Router>
         {
           this.chatBox()
-
         }
-        <Footer style={{maeginTop: '20px'}}/>
+        <footer>
+                  <Row>
+                    <Col lg={4}>
+                      <p>Proudly done using <a href="https://3box.com" target='_blank' title='3Box'>3Box</a></p>
+                    </Col>
+                    <Col lg={4}>
+                      <p>Support by using <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or donating</p>
+                    </Col>
+                    <Col lg={4}>
+                      <p>Use a private,fast and secure browser</p>
+                      <p>Earn rewards in BAT token while browsing</p>
+                      <p>Install <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a></p>
+                    </Col>
+                  </Row>
+         </footer>
       </div>
     );
 

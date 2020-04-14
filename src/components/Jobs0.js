@@ -3,24 +3,8 @@ import ReactDOM from 'react-dom';
 import Web3 from "web3";
 import $ from 'jquery';
 
-import {
-  Button,
-  Form,
-  Card,
-  CardBody,
-  Label,
-  FormGroup,
-  TabContent,
-  TabPane,
-  Container,
-  Row,
-  Col,
-  Spinner,
-  Input,
-  NavItem,
-  NavLink,
-  Nav
-} from 'reactstrap';
+import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
+        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner} from 'react-bootstrap';//import getWeb3 from "./components/getWeb3.js";
 //import * as Box from '3box';
 import {Link} from 'react-router-dom';
 
@@ -29,7 +13,6 @@ import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
 import UserPage from './UserPage.js';
-import classnames from "classnames";
 
 const Box = require('3box');
 
@@ -46,7 +29,7 @@ class Jobs extends Component {
     posts: null,
     box: null,
     coinbase: null,
-    tabs: 'Jobs'
+    userPage: <div></div>
   }
 
   constructor(props){
@@ -182,12 +165,6 @@ class Jobs extends Component {
     }
 
   };
-  toggleNavs = (e,tab) => {
-    e.preventDefault();
-    this.setState({
-      tabs: tab
-    });
-  };
   render(){
     const that = this;
     console.log(this.state)
@@ -212,10 +189,10 @@ class Jobs extends Component {
             <h4>Jobs offers</h4>
           </Row>
           <Row>
-            <FormGroup>
-              <Label>Techs</Label>
-              <Input className="form-control-alternative" type="text" placeholder="Techs" id='input_filter' onChange={this.filterJobs}/>
-            </FormGroup>
+            <Form.Group>
+              <Form.Label>Techs</Form.Label>
+              <Form.Control placeholder="Techs" id='input_filter' onChange={this.filterJobs}/>
+            </Form.Group>
           </Row>
           <Row>
 
@@ -269,93 +246,51 @@ class Jobs extends Component {
     }
     return(
       <div>
-        <div className="nav-wrapper">
-          <Nav
-            className="nav-fill flex-column flex-md-row"
-            id="tabs-icons-text"
-            pills
-            role="tablist"
-          >
-            <NavItem>
-              <NavLink
-                aria-selected={this.state.tabs === 'Jobs'}
-                className={classnames("mb-sm-6 mb-md-0", {
-                  active: this.state.tabs === 'Jobs'
-                })}
-                onClick={e => this.toggleNavs(e, 'Jobs')}
-                href="#Jobs"
-                role="tab"
-              >
-                <i className="ni ni-cloud-upload-96 mr-2" />
-                Jobs
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink
-                aria-selected={this.state.tabs === 'AddJob'}
-                className={classnames("mb-sm-6 mb-md-0", {
-                  active: this.state.tabs === 'AddJob'
-                })}
-                onClick={e => this.toggleNavs(e,'AddJob')}
-                href="#AddJob"
-                role="tab"
-              >
-                <i className="ni ni-bell-55 mr-2" />
-                Add job
-              </NavLink>
-            </NavItem>
-          </Nav>
-        </div>
-        <Card className="shadow">
-          <CardBody>
-            <TabContent activeTab={this.state.tabs}>
-              <TabPane tabId="Jobs">
-                {jobs_offer}
-              </TabPane>
-
-              <TabPane tabId="AddJob">
-                <div>
-                  <FormGroup>
-                      <Label>Name</Label>
-                      <Input className="form-control-alternative" type="text" placeholder="Name" id='item_name'/>
-                  </FormGroup>
-                  <FormGroup>
-                      <Label>Description</Label>
-                      <Input className="form-control-alternative" type="text" placeholder="Description" id='item_description'/>
-                  </FormGroup>
-                  <FormGroup>
-                      <Label>Techs</Label>
-                      <Input className="form-control-alternative" type="text" placeholder="Techs" id='item_techs'/>
-                  </FormGroup>
-                  <Button onClick={this.addItem} variant="primary">Add item</Button>
-                  <hr/>
-                  <h4>Jobs posted by you</h4>
-                  {
-                    this.state.posts.map(function(post){
-                      const postId = post.postId;
-                      const job = post.message;
-                      const from = job.from;
-                      if(from.address==that.state.coinbase){
-                        return(
-                          <div>
-                            <p><small>Job description</small></p>
-                            <p>Name: {job.name}</p>
-                            <p>Description: {job.description}</p>
-                            <p>Techs: {job.techs}</p>
-                            <Button onClick={()=>{that.removeItem(postId)}}>Remove</Button>
-                            <hr/>
-                          </div>
-                        )
-                      }
-                    })
-                  }
-                </div>
-              </TabPane>
-
-            </TabContent>
-          </CardBody>
-        </Card>
-
+      <Tabs defaultActiveKey="jobs_open" className="nav-fill flex-column flex-md-row">
+        <Tab eventKey="jobs_open" title="Jobs open">
+          {jobs_offer}
+        </Tab>
+        <Tab eventKey="addJob" title="Add Job">
+          <div>
+            <Form>
+              <Form.Group>
+                <Form.Label>Name</Form.Label>
+                <Form.Control placeholder="Name" id='item_name'/>
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Description</Form.Label>
+                <Form.Control placeholder="Description" id='item_description'/>
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Techs</Form.Label>
+                <Form.Control placeholder="Techs" id='item_techs'/>
+              </Form.Group>
+            </Form>
+            <Button onClick={this.addItem} variant="primary">Add item</Button>
+            <hr/>
+            <h4>Jobs posted by you</h4>
+            {
+              this.state.posts.map(function(post){
+                const postId = post.postId;
+                const job = post.message;
+                const from = job.from;
+                if(from.address==that.state.coinbase){
+                  return(
+                    <div>
+                      <p><small>Job description</small></p>
+                      <p>Name: {job.name}</p>
+                      <p>Description: {job.description}</p>
+                      <p>Techs: {job.techs}</p>
+                      <Button onClick={()=>{that.removeItem(postId)}}>Remove</Button>
+                      <hr/>
+                    </div>
+                  )
+                }
+              })
+            }
+          </div>
+        </Tab>
+      </Tabs>
 
 
 

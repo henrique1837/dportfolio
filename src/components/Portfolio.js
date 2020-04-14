@@ -2,10 +2,31 @@ import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from "web3";
 import $ from 'jquery';
-import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
-        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner,ListGroup} from 'react-bootstrap';
+import {
+  Button,
+  Card,
+  CardBody,
+  NavItem,
+  NavLink,
+  Nav,
+  TabContent,
+  TabPane,
+  Container,
+  Row,
+  Col,
+  FormGroup,
+  Label,
+  Input,
+  InputGroup,
+  InputGroupText,
+  InputGroupAddon,
+  ListGroupItem,
+  ListGroup,
+  Spinner
+} from 'reactstrap';
 import ReactFileReader from 'react-file-reader';
 import Papa from 'papaparse';
+import classnames from "classnames";
 //import getWeb3 from "./components/getWeb3.js";
 //import * as Box from '3box';
 import EditProfile from '3box-profile-edit-react';
@@ -37,6 +58,7 @@ class Portfolio extends Component {
     publications:[],
     images: [],
     videos: [],
+    tabs: "Items"
   }
 
   constructor(props){
@@ -425,7 +447,12 @@ class Portfolio extends Component {
     }
 
   }
-
+  toggleNavs = (e,tab) => {
+    e.preventDefault();
+    this.setState({
+      tabs: tab
+    });
+  };
   render(){
     const that = this;
     if(this.state.profile){
@@ -438,507 +465,546 @@ class Portfolio extends Component {
             <p>Description: {this.state.profile.description}</p>
           </div>
           <hr/>
-          <Tabs defaultActiveKey="itemsadded" className="nav-fill flex-column flex-md-row">
-            <Tab eventKey="itemsadded" title="Items">
-              <div>
-                <h4>Items added</h4>
-                <h5>Education</h5>
-                <ListGroup>
-                {
+          <div className="nav-wrapper">
+            <Nav
+              className="nav-fill flex-column flex-md-row"
+              id="tabs-icons-text"
+              pills
+              role="tablist"
+            >
+              <NavItem>
+                <NavLink
+                  aria-selected={this.state.tabs === 'Items'}
+                  className={classnames("mb-sm-6 mb-md-0", {
+                    active: this.state.tabs === 'Items'
+                  })}
+                  onClick={e => this.toggleNavs(e, 'Items')}
+                  href="#Items"
+                  role="tab"
+                >
+                  <i className="ni ni-cloud-upload-96 mr-2" />
+                  Items
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink
+                  aria-selected={this.state.tabs === 'AddItem'}
+                  className={classnames("mb-sm-6 mb-md-0", {
+                    active: this.state.tabs === 'AddItem'
+                  })}
+                  onClick={e => this.toggleNavs(e,'AddItem')}
+                  href="#AddItem"
+                  role="tab"
+                >
+                  <i className="ni ni-bell-55 mr-2" />
+                  Add item
+                </NavLink>
+              </NavItem>
+            </Nav>
+          </div>
+          <Card className="shadow">
+            <CardBody>
+              <TabContent activeTab={this.state.tabs}>
+                <TabPane tabId="Items">
+                  <div>
+                    <h4>Items added</h4>
+                    <h5>Education</h5>
+                    <ListGroup>
+                    {
 
-                  this.state.posts.map(function(post){
-                    const item = post.message;
-                    const postId = post.postId;
-                    if(item.type === 0){
-                      return(
-                        <ListGroup.Item>
-                          <Row>
-                            <Col lg={4}>
-                              <h5>{item.school_name}</h5>
-                              <h6>{item.course}</h6>
-                              <p><small>From {item.start_date} to {item.end_date}</small></p>
-                              <p><a href={item.uri} target="_blank">{item.uri}</a></p>
-                            </Col>
-                            <Col lg={6}>
-                              <p>{item.description}</p>
-                            </Col>
-                            <Col lg={2}>
-                              <Button onClick={()=>{ that.removeItem(postId)}} variant="danger">Remove Item</Button>
-                            </Col>
-                          </Row>
+                      this.state.posts.map(function(post){
+                        const item = post.message;
+                        const postId = post.postId;
+                        if(item.type === 0){
+                          return(
+                            <ListGroupItem>
+                              <Row>
+                                <Col lg={4}>
+                                  <h5>{item.school_name}</h5>
+                                  <h6>{item.course}</h6>
+                                  <p><small>From {item.start_date} to {item.end_date}</small></p>
+                                  <p><a href={item.uri} target="_blank">{item.uri}</a></p>
+                                </Col>
+                                <Col lg={6}>
+                                  <p>{item.description}</p>
+                                </Col>
+                                <Col lg={2}>
+                                  <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
+                                </Col>
+                              </Row>
 
-                        </ListGroup.Item>
-                      )
+                            </ListGroupItem>
+                          )
+                        }
+
+                      })
                     }
+                    </ListGroup>
+                    <h5>Projects</h5>
+                    <ListGroup>
+                    {
+                      this.state.posts.map(function(post){
+                        const item = post.message;
+                        const postId = post.postId;
+                        if(item.type === 1){
+                          return(
+                            <ListGroupItem>
+                              <Row>
+                                <Col lg={4}>
+                                  <h5>{item.title}</h5>
+                                  <p><small>From {item.start_date} to {item.end_date}</small></p>
+                                  <p><a href={item.uri} target="_blank">{item.uri}</a></p>
+                                </Col>
+                                <Col lg={6}>
+                                  <p>{item.description}</p>
+                                </Col>
+                                <Col lg={2}>
+                                  <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
+                                </Col>
+                              </Row>
+                            </ListGroupItem>
+                          )
+                        }
 
-                  })
-                }
-                </ListGroup>
-                <h5>Projects</h5>
-                <ListGroup>
-                {
-                  this.state.posts.map(function(post){
-                    const item = post.message;
-                    const postId = post.postId;
-                    if(item.type === 1){
-                      return(
-                        <ListGroup.Item>
-                          <Row>
-                            <Col lg={4}>
-                              <h5>{item.title}</h5>
-                              <p><small>From {item.start_date} to {item.end_date}</small></p>
-                              <p><a href={item.uri} target="_blank">{item.uri}</a></p>
-                            </Col>
-                            <Col lg={6}>
-                              <p>{item.description}</p>
-                            </Col>
-                            <Col lg={2}>
-                              <Button onClick={()=>{ that.removeItem(postId)}} variant="danger">Remove Item</Button>
-                            </Col>
-                          </Row>
-                        </ListGroup.Item>
-                      )
+                      })
                     }
+                    </ListGroup>
+                    <h5>Experience</h5>
+                    <ListGroup>
+                    {
+                      this.state.posts.map(function(post){
+                        const item = post.message;
+                        const postId = post.postId;
+                        if(item.type === 2){
+                          return(
+                            <ListGroupItem>
+                              <Row>
+                                <Col lg={4}>
+                                  <h5>{item.company}</h5>
+                                  <h6>{item.title}</h6>
+                                  <p><small>From {item.start_date} to {item.end_date}</small></p>
+                                  <p><small>{item.location}</small></p>
+                                </Col>
+                                <Col lg={6}>
+                                  <p>{item.description}</p>
+                                </Col>
+                                <Col lg={2}>
+                                  <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
+                                </Col>
+                              </Row>
+                            </ListGroupItem>
+                          )
+                        }
 
-                  })
-                }
-                </ListGroup>
-                <h5>Experience</h5>
-                <ListGroup>
-                {
-                  this.state.posts.map(function(post){
-                    const item = post.message;
-                    const postId = post.postId;
-                    if(item.type === 2){
-                      return(
-                        <ListGroup.Item>
-                          <Row>
-                            <Col lg={4}>
-                              <h5>{item.company}</h5>
-                              <h6>{item.title}</h6>
-                              <p><small>From {item.start_date} to {item.end_date}</small></p>
-                              <p><small>{item.location}</small></p>
-                            </Col>
-                            <Col lg={6}>
-                              <p>{item.description}</p>
-                            </Col>
-                            <Col lg={2}>
-                              <Button onClick={()=>{ that.removeItem(postId)}} variant="danger">Remove Item</Button>
-                            </Col>
-                          </Row>
-                        </ListGroup.Item>
-                      )
+                      })
                     }
+                    </ListGroup>
+                    <h5>Publications</h5>
+                    <ListGroup>
+                    {
+                      this.state.posts.map(function(post){
+                        const item = post.message;
+                        const postId = post.postId;
+                        if(item.type === 3){
+                          return(
+                            <ListGroupItem>
+                              <Row>
+                                <Col lg={4}>
+                                  <h5>{item.name}</h5>
+                                  <p><small>Published on {item.date}</small></p>
+                                  <p><small><a href={item.uri} target='_blank'>{item.uri}</a></small></p>
+                                </Col>
+                                <Col lg={6}>
+                                  <p>{item.description}</p>
+                                </Col>
+                                <Col lg={2}>
+                                  <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
+                                </Col>
+                              </Row>
+                            </ListGroupItem>
+                          )
+                        }
 
-                  })
-                }
-                </ListGroup>
-                <h5>Publications</h5>
-                <ListGroup>
-                {
-                  this.state.posts.map(function(post){
-                    const item = post.message;
-                    const postId = post.postId;
-                    if(item.type === 3){
-                      return(
-                        <ListGroup.Item>
-                          <Row>
-                            <Col lg={4}>
-                              <h5>{item.name}</h5>
-                              <p><small>Published on {item.date}</small></p>
-                              <p><small><a href={item.uri} target='_blank'>{item.uri}</a></small></p>
-                            </Col>
-                            <Col lg={6}>
-                              <p>{item.description}</p>
-                            </Col>
-                            <Col lg={2}>
-                              <Button onClick={()=>{ that.removeItem(postId)}} variant="danger">Remove Item</Button>
-                            </Col>
-                          </Row>
-                        </ListGroup.Item>
-                      )
+                      })
                     }
+                    </ListGroup>
+                    <h5>Images</h5>
+                    <Row>
+                    {
+                      this.state.posts.map(function(post){
+                        const item = post.message;
+                        const postId = post.postId;
+                        if(item.type === 4){
+                          return(
+                            <Col
+                              lg={4}
+                              style={{
+                                display:'flex',
+                                flexDirection:'column',
+                                justifyContent:'space-between',
+                                paddingBottom: '100px'
+                              }}>
+                              <Card>
+                                <Card.Body>
+                                  <center>
+                                    <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
+                                  </center>
+                                  <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
+                                </Card.Body>
+                              </Card>
+                            </Col>
+                          )
+                        }
 
-                  })
-                }
-                </ListGroup>
-                <h5>Images</h5>
-                <Row>
-                {
-                  this.state.posts.map(function(post){
-                    const item = post.message;
-                    const postId = post.postId;
-                    if(item.type === 4){
-                      return(
-                        <Col
-                          lg={4}
-                          style={{
-                            display:'flex',
-                            flexDirection:'column',
-                            justifyContent:'space-between',
-                            paddingBottom: '100px'
-                          }}>
-                          <Card>
-                            <Card.Body>
-                              <center>
-                                <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
-                              </center>
-                              <Button onClick={()=>{ that.removeItem(postId)}} variant="danger">Remove Item</Button>
-                            </Card.Body>
-                          </Card>
-                        </Col>
-                      )
+                      })
                     }
+                    </Row>
+                    <h5>Videos</h5>
+                    <Row>
+                    {
+                      this.state.posts.map(function(post){
+                        const item = post.message;
+                        const postId = post.postId;
 
-                  })
-                }
-                </Row>
-                <h5>Videos</h5>
-                <Row>
-                {
-                  this.state.posts.map(function(post){
-                    const item = post.message;
-                    const postId = post.postId;
+                        if(item.type === 5){
+                          const uri = `https://www.youtube.com/embed/${item.uri.split('http://www.youtube.com/watch?v=',1)[1]}`;
+                          return(
+                            <Col
+                              lg={4}
+                              style={{
+                                display:'flex',
+                                flexDirection:'column',
+                                justifyContent:'space-between',
+                                paddingBottom: '100px'
+                              }}>
+                              <Card>
+                                <Card.Body>
+                                  <center>
+                                    <iframe src={uri} style={{width:'100%'}}
+                                        frameborder="0"
+                                        allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen>
+                                    </iframe>
+                                  </center>
+                                  <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
+                                </Card.Body>
+                              </Card>
+                            </Col>
+                          )
+                        }
 
-                    if(item.type === 5){
-                      const uri = `https://www.youtube.com/embed/${item.uri.split('http://www.youtube.com/watch?v=',1)[1]}`;
-                      return(
-                        <Col
-                          lg={4}
-                          style={{
-                            display:'flex',
-                            flexDirection:'column',
-                            justifyContent:'space-between',
-                            paddingBottom: '100px'
-                          }}>
-                          <Card>
-                            <Card.Body>
-                              <center>
-                                <iframe src={uri} style={{width:'100%'}}
-                                    frameborder="0"
-                                    allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                                </iframe>
-                              </center>
-                              <Button onClick={()=>{ that.removeItem(postId)}} variant="danger">Remove Item</Button>
-                            </Card.Body>
-                          </Card>
-                        </Col>
-                      )
+                      })
                     }
-
-                  })
-                }
-                </Row>
-              </div>
-            </Tab>
-            <Tab eventKey="addItem" title="Add Item">
-              <div>
-                <div style={{paddingTop:'40px'}}>
-                  <h4>Education</h4>
-                  <p><small>Optional: Import education data from linkedin (Education.csv)</small></p>
-                  <ReactFileReader handleFiles={this.educationUpload} fileTypes={'.csv'}>
-                      <Button variant="primary">Upload</Button>
-                  </ReactFileReader>
-                  <Form.Group>
-                      <Form.Label>School Name</Form.Label>
-                      <Form.Control placeholder="Name" id='education_school'/>
-                  </Form.Group>
-                  <Form.Group>
-                      <Form.Label>Course</Form.Label>
-                      <Form.Control placeholder="Description" id='education_course'/>
-                  </Form.Group>
-                  <Form.Group>
-                      <Form.Label>Description</Form.Label>
-                      <Form.Control placeholder="Description" id='education_description'/>
-                  </Form.Group>
-                  <Form.Group>
-                      <Form.Label>Uri</Form.Label>
-                      <Form.Control placeholder="Uri" id='education_uri'/>
-                  </Form.Group>
-                  <Button onClick={()=>{that.addItem(0)}} variant="primary">Add item</Button>
-                  <h5>Education items</h5>
-                  <ListGroup>
-                  {
-                    this.state.education.map(function(item){
-                      return(
-                        <ListGroup.Item>
-                          <div>
-                            <Row>
-                              <Col lg={6}>
-                                <h5>{item.school_name}</h5>
-                                <h6>{item.course}</h6>
-                                <p><a href={item.uri} target='_blank'>{item.uri}</a></p>
-                                <p><small>From {item.start_date} to {item.end_date}</small></p>
-                              </Col>
-                              <Col lg={6}>
-                                <p>
-                                {
-                                  item.description
-                                }
-                                </p>
-                              </Col>
-                            </Row>
-                          </div>
-                        </ListGroup.Item>
-                      )
-                    })
-                  }
-                  </ListGroup>
-                  <Button onClick={()=>{that.saveItem(0)}} variant="primary">Save</Button>
-                  <Button onClick={()=>{this.clear(0)}} variant="danger">Clear</Button>
-                </div>
-                <div style={{paddingTop:'40px'}}>
-                  <h4>Projects</h4>
-                  <p><small>Optional: Import projects data from linkedin (Projects.csv) or from Github (repositories_*.json)</small></p>
-                  <ReactFileReader handleFiles={this.projectsUpload} fileTypes={'.csv'}>
-                      <Button variant="primary">Upload from Linkedin file</Button>
-                  </ReactFileReader>
-                  <ReactFileReader handleFiles={this.projectsUploadGit} fileTypes={'.json'}>
-                      <Button variant="primary">Upload from Github file</Button>
-                  </ReactFileReader>
-                  <Form.Group>
-                      <Form.Label>Title</Form.Label>
-                      <Form.Control placeholder="Title" id='project_title'/>
-                  </Form.Group>
-                  <Form.Group>
-                      <Form.Label>Description</Form.Label>
-                      <Form.Control placeholder="Description" id='project_description'/>
-                  </Form.Group>
-                  <Form.Group>
-                      <Form.Label>Uri</Form.Label>
-                      <Form.Control placeholder="Uri" id='project_uri'/>
-                  </Form.Group>
-                  <Button onClick={()=>{that.addItem(1)}} variant="primary">Add item</Button>
-                  <ListGroup>
-                  {
-                    this.state.projects.map(function(item){
-                      return(
-                        <ListGroup.Item>
-                          <div>
-                            <Row>
-                              <Col lg={6}>
-                                <h5>{item.title}</h5>
-                                <p><a href={item.uri} target='_blank'>{item.uri}</a></p>
-                                <p><small>From {item.start_date} to {item.end_date}</small></p>
-                              </Col>
-                              <Col lg={6}>
-                                <p>
-                                {
-                                  item.description
-                                }
-                                </p>
-                              </Col>
-                            </Row>
-                          </div>
-                        </ListGroup.Item>
-                      )
-                    })
-                  }
-                  </ListGroup>
-                  <Button onClick={()=>{that.saveItem(1)}} variant="primary">Save</Button>
-                  <Button onClick={()=>{that.clear(1)}} variant="danger">Clear</Button>
-                </div>
-                <div style={{paddingTop:'40px'}}>
-                  <h4>Experience</h4>
-                  <p><small>Optional: Import projects data from linkedin (Positions.csv)</small></p>
-                  <ReactFileReader handleFiles={this.experienceUpload} fileTypes={'Positions.csv'}>
-                      <Button variant="primary">Upload</Button>
-                  </ReactFileReader>
-                  <Form.Group>
-                      <Form.Label>Company</Form.Label>
-                      <Form.Control placeholder="Title" id='experience_company'/>
-                  </Form.Group>
-                  <Form.Group>
-                      <Form.Label>Title</Form.Label>
-                      <Form.Control placeholder="Title" id='experience_title'/>
-                  </Form.Group>
-                  <Form.Group>
-                      <Form.Label>Description</Form.Label>
-                      <Form.Control placeholder="Description" id='experience_description'/>
-                  </Form.Group>
-                  <Form.Group>
-                      <Form.Label>Location</Form.Label>
-                      <Form.Control placeholder="Uri" id='experience_location'/>
-                  </Form.Group>
-                  <Button onClick={()=>{that.addItem(2)}} variant="primary">Add item</Button>
-                  <ListGroup>
-                  {
-                    this.state.experience.map(function(item){
-                      return(
-                        <ListGroup.Item>
-                          <div>
-                            <Row>
-                              <Col lg={6}>
-                                <h5>{item.company}</h5>
-                                <h6>{item.title}</h6>
-                                <p><small>{item.location}</small></p>
-                                <p><small>From {item.start_date} to {item.end_date}</small></p>
-                              </Col>
-                              <Col lg={6}>
-                                <p>
-                                {
-                                  item.description
-                                }
-                                </p>
-                              </Col>
-                            </Row>
-                          </div>
-                        </ListGroup.Item>
-                      )
-                    })
-                  }
-                  </ListGroup>
-                  <Button onClick={()=>{that.saveItem(2)}} variant="primary">Save</Button>
-                  <Button onClick={()=>{that.clear(2)}} variant="danger">Clear</Button>
-                </div>
-                <div style={{paddingTop:'40px'}}>
-                  <h4>Publications</h4>
-                  <p><small>Optional: Import publications data from linkedin (Publications.csv)</small></p>
-                  <ReactFileReader handleFiles={this.publicationUpload} fileTypes={'.csv'}>
-                      <Button variant="primary">Upload</Button>
-                  </ReactFileReader>
-                  <Form.Group>
-                      <Form.Label>Name</Form.Label>
-                      <Form.Control placeholder="Name" id='publication_name'/>
-                  </Form.Group>
-                  <Form.Group>
-                      <Form.Label>Publication date</Form.Label>
-                      <Form.Control placeholder="Publication date" id='publication_date'/>
-                  </Form.Group>
-                  <Form.Group>
-                      <Form.Label>Description</Form.Label>
-                      <Form.Control placeholder="Description" id='publication_description'/>
-                  </Form.Group>
-                  <Form.Group>
-                      <Form.Label>Uri</Form.Label>
-                      <Form.Control placeholder="Uri" id='publication_uri'/>
-                  </Form.Group>
-                  <Button onClick={()=>{that.addItem(3)}} variant="primary">Add item</Button>
-                  <ListGroup>
-                  {
-                    this.state.publications.map(function(item){
-                      return(
-                        <ListGroup.Item>
-                          <div>
-                            <Row>
-                              <Col lg={6}>
-                                <h5>{item.name}</h5>
-                                <p><small>Published on {item.date}</small></p>
-                                <p><small><a href={item.uri} target='_blank'>{item.uri}</a></small></p>
-                              </Col>
-                              <Col lg={6}>
-                                <p>
-                                {
-                                  item.description
-                                }
-                                </p>
-                              </Col>
-                            </Row>
-                          </div>
-                        </ListGroup.Item>
-                      )
-                    })
-                  }
-                  </ListGroup>
-                  <Button onClick={()=>{that.saveItem(3)}} variant="primary">Save</Button>
-                  <Button onClick={()=>{that.clear(3)}} variant="danger">Clear</Button>
-                </div>
-                <div style={{paddingTop:'40px'}}>
-                  <h4>Images</h4>
-                  <p><small>Optional: Import images data from instagram</small></p>
-                  <Button variant="primary" onClick={this.scrapInstagram}>Get from Instagram</Button>
-                  <Form.Group>
-                      <Form.Label>Image</Form.Label>
-                      <ReactFileReader fileTypes={'.jpg .png .jpeg'}>
-                          <Button variant="primary">Upload file</Button>
+                    </Row>
+                  </div>
+                </TabPane>
+                <TabPane tabId="AddItem">
+                  <div>
+                    <div style={{paddingTop:'40px'}}>
+                      <h4>Education</h4>
+                      <p><small>Optional: Import education data from linkedin (Education.csv)</small></p>
+                      <ReactFileReader handleFiles={this.educationUpload} fileTypes={'.csv'}>
+                          <Button color="primary">Upload</Button>
                       </ReactFileReader>
-                  </Form.Group>
+                      <FormGroup>
+                          <Label>School Name</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Name" id='education_school'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Course</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Description" id='education_course'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Description</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Description" id='education_description'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Uri</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Uri" id='education_uri'/>
+                      </FormGroup>
+                      <Button onClick={()=>{that.addItem(0)}} color="primary">Add item</Button>
+                      <h5>Education items</h5>
+                      <ListGroup>
+                      {
+                        this.state.education.map(function(item){
+                          return(
+                            <ListGroupItem>
+                              <div>
+                                <Row>
+                                  <Col lg={6}>
+                                    <h5>{item.school_name}</h5>
+                                    <h6>{item.course}</h6>
+                                    <p><a href={item.uri} target='_blank'>{item.uri}</a></p>
+                                    <p><small>From {item.start_date} to {item.end_date}</small></p>
+                                  </Col>
+                                  <Col lg={6}>
+                                    <p>
+                                    {
+                                      item.description
+                                    }
+                                    </p>
+                                  </Col>
+                                </Row>
+                              </div>
+                            </ListGroupItem>
+                          )
+                        })
+                      }
+                      </ListGroup>
+                      <Button onClick={()=>{that.saveItem(0)}} color="primary">Save</Button>
+                      <Button onClick={()=>{this.clear(0)}} color="danger">Clear</Button>
+                    </div>
+                    <div style={{paddingTop:'40px'}}>
+                      <h4>Projects</h4>
+                      <p><small>Optional: Import projects data from linkedin (Projects.csv) or from Github (repositories_*.json)</small></p>
+                      <ReactFileReader handleFiles={this.projectsUpload} fileTypes={'.csv'}>
+                          <Button color="primary">Upload from Linkedin file</Button>
+                      </ReactFileReader>
+                      <ReactFileReader handleFiles={this.projectsUploadGit} fileTypes={'.json'}>
+                          <Button color="primary">Upload from Github file</Button>
+                      </ReactFileReader>
+                      <FormGroup>
+                          <Label>Title</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Title" id='project_title'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Description</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Description" id='project_description'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Uri</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Uri" id='project_uri'/>
+                      </FormGroup>
+                      <Button onClick={()=>{that.addItem(1)}} color="primary">Add item</Button>
+                      <ListGroup>
+                      {
+                        this.state.projects.map(function(item){
+                          return(
+                            <ListGroupItem>
+                              <div>
+                                <Row>
+                                  <Col lg={6}>
+                                    <h5>{item.title}</h5>
+                                    <p><a href={item.uri} target='_blank'>{item.uri}</a></p>
+                                    <p><small>From {item.start_date} to {item.end_date}</small></p>
+                                  </Col>
+                                  <Col lg={6}>
+                                    <p>
+                                    {
+                                      item.description
+                                    }
+                                    </p>
+                                  </Col>
+                                </Row>
+                              </div>
+                            </ListGroupItem>
+                          )
+                        })
+                      }
+                      </ListGroup>
+                      <Button onClick={()=>{that.saveItem(1)}} color="primary">Save</Button>
+                      <Button onClick={()=>{that.clear(1)}} color="danger">Clear</Button>
+                    </div>
+                    <div style={{paddingTop:'40px'}}>
+                      <h4>Experience</h4>
+                      <p><small>Optional: Import projects data from linkedin (Positions.csv)</small></p>
+                      <ReactFileReader handleFiles={this.experienceUpload} fileTypes={'Positions.csv'}>
+                          <Button color="primary">Upload</Button>
+                      </ReactFileReader>
+                      <FormGroup>
+                          <Label>Company</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Title" id='experience_company'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Title</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Title" id='experience_title'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Description</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Description" id='experience_description'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Location</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Uri" id='experience_location'/>
+                      </FormGroup>
+                      <Button onClick={()=>{that.addItem(2)}} color="primary">Add item</Button>
+                      <ListGroup>
+                      {
+                        this.state.experience.map(function(item){
+                          return(
+                            <ListGroupItem>
+                              <div>
+                                <Row>
+                                  <Col lg={6}>
+                                    <h5>{item.company}</h5>
+                                    <h6>{item.title}</h6>
+                                    <p><small>{item.location}</small></p>
+                                    <p><small>From {item.start_date} to {item.end_date}</small></p>
+                                  </Col>
+                                  <Col lg={6}>
+                                    <p>
+                                    {
+                                      item.description
+                                    }
+                                    </p>
+                                  </Col>
+                                </Row>
+                              </div>
+                            </ListGroupItem>
+                          )
+                        })
+                      }
+                      </ListGroup>
+                      <Button onClick={()=>{that.saveItem(2)}} color="primary">Save</Button>
+                      <Button onClick={()=>{that.clear(2)}} color="danger">Clear</Button>
+                    </div>
+                    <div style={{paddingTop:'40px'}}>
+                      <h4>Publications</h4>
+                      <p><small>Optional: Import publications data from linkedin (Publications.csv)</small></p>
+                      <ReactFileReader handleFiles={this.publicationUpload} fileTypes={'.csv'}>
+                          <Button color="primary">Upload</Button>
+                      </ReactFileReader>
+                      <FormGroup>
+                          <Label>Name</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Name" id='publication_name'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Publication date</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Publication date" id='publication_date'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Description</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Description" id='publication_description'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Uri</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Uri" id='publication_uri'/>
+                      </FormGroup>
+                      <Button onClick={()=>{that.addItem(3)}} color="primary">Add item</Button>
+                      <ListGroup>
+                      {
+                        this.state.publications.map(function(item){
+                          return(
+                            <ListGroupItem>
+                              <div>
+                                <Row>
+                                  <Col lg={6}>
+                                    <h5>{item.name}</h5>
+                                    <p><small>Published on {item.date}</small></p>
+                                    <p><small><a href={item.uri} target='_blank'>{item.uri}</a></small></p>
+                                  </Col>
+                                  <Col lg={6}>
+                                    <p>
+                                    {
+                                      item.description
+                                    }
+                                    </p>
+                                  </Col>
+                                </Row>
+                              </div>
+                            </ListGroupItem>
+                          )
+                        })
+                      }
+                      </ListGroup>
+                      <Button onClick={()=>{that.saveItem(3)}} color="primary">Save</Button>
+                      <Button onClick={()=>{that.clear(3)}} color="danger">Clear</Button>
+                    </div>
+                    <div style={{paddingTop:'40px'}}>
+                      <h4>Images</h4>
+                      <p><small>Optional: Import images data from instagram</small></p>
+                      <Button color="primary" onClick={this.scrapInstagram}>Get from Instagram</Button>
+                      <FormGroup>
+                          <Label>Image</Label>
+                          <ReactFileReader fileTypes={'.jpg .png .jpeg'}>
+                              <Button color="primary">Upload file</Button>
+                          </ReactFileReader>
+                      </FormGroup>
 
-                  <Form.Group>
-                      <Form.Label>Description</Form.Label>
-                      <Form.Control placeholder="Description" id='publication_description'/>
-                  </Form.Group>
-                  <Form.Group>
-                      <Form.Label>Uri</Form.Label>
-                      <Form.Control placeholder="Uri" id='publication_uri'/>
-                  </Form.Group>
-                  <Button onClick={()=>{that.addItem(4)}} variant="primary">Add item</Button>
-                  <Row>
-                  {
-                    this.state.images.map(function(item){
-                      return(
-                        <Col
-                          lg={4}
-                          style={{
-                            display:'flex',
-                            flexDirection:'column',
-                            justifyContent:'space-between',
-                            paddingBottom: '100px'
-                          }}>
-                          <Card>
-                            <Card.Body>
-                              <center>
-                                <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
-                              </center>
-                            </Card.Body>
-                          </Card>
-                        </Col>
-                      )
-                    })
-                  }
-                  </Row>
-                  <Button onClick={()=>{that.saveItem(4)}} variant="primary">Save</Button>
-                  <Button onClick={()=>{that.clear(4)}} variant="danger">Clear</Button>
-                </div>
-                <div style={{paddingTop:'40px'}}>
-                  <h4>Videos</h4>
-                  <p><small>Optional: Import videos data from youtube channel</small></p>
-                  <Button variant="primary" onClick={this.scrapYoutube}>Get from Youtube</Button>
+                      <FormGroup>
+                          <Label>Description</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Description" id='publication_description'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Uri</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Uri" id='publication_uri'/>
+                      </FormGroup>
+                      <Button onClick={()=>{that.addItem(4)}} color="primary">Add item</Button>
+                      <Row>
+                      {
+                        this.state.images.map(function(item){
+                          return(
+                            <Col
+                              lg={4}
+                              style={{
+                                display:'flex',
+                                flexDirection:'column',
+                                justifyContent:'space-between',
+                                paddingBottom: '100px'
+                              }}>
+                              <Card>
+                                <Card.Body>
+                                  <center>
+                                    <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
+                                  </center>
+                                </Card.Body>
+                              </Card>
+                            </Col>
+                          )
+                        })
+                      }
+                      </Row>
+                      <Button onClick={()=>{that.saveItem(4)}} color="primary">Save</Button>
+                      <Button onClick={()=>{that.clear(4)}} color="danger">Clear</Button>
+                    </div>
+                    <div style={{paddingTop:'40px'}}>
+                      <h4>Videos</h4>
+                      <p><small>Optional: Import videos data from youtube channel</small></p>
+                      <Button color="primary" onClick={this.scrapYoutube}>Get from Youtube</Button>
 
-                  <Row>
-                  {
-                    this.state.videos.map(function(item){
-                      const uri = `https://www.youtube.com/embed/${item.uri.split('http://www.youtube.com/watch?v=',1)[1]}`
-                      return(
-                        <Col
-                          lg={4}
-                          style={{
-                            display:'flex',
-                            flexDirection:'column',
-                            justifyContent:'space-between',
-                            paddingBottom: '100px'
-                          }}>
-                          <Card>
-                            <Card.Body>
-                              <center>
-                                <iframe src={uri} style={{width:'100%'}}
-                                    frameborder="0"
-                                    allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                                </iframe>
-                              </center>
-                            </Card.Body>
-                          </Card>
-                        </Col>
-                      )
-                    })
-                  }
-                  </Row>
-                  <Button onClick={()=>{that.saveItem(5)}} variant="primary">Save</Button>
-                  <Button onClick={()=>{that.clear(5)}} variant="danger">Clear</Button>
-                </div>
-              </div>
-            </Tab>
-          </Tabs>
+                      <Row>
+                      {
+                        this.state.videos.map(function(item){
+                          const uri = `https://www.youtube.com/embed/${item.uri.split('http://www.youtube.com/watch?v=',1)[1]}`
+                          return(
+                            <Col
+                              lg={4}
+                              style={{
+                                display:'flex',
+                                flexDirection:'column',
+                                justifyContent:'space-between',
+                                paddingBottom: '100px'
+                              }}>
+                              <Card>
+                                <Card.Body>
+                                  <center>
+                                    <iframe src={uri} style={{width:'100%'}}
+                                        frameborder="0"
+                                        allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen>
+                                    </iframe>
+                                  </center>
+                                </Card.Body>
+                              </Card>
+                            </Col>
+                          )
+                        })
+                      }
+                      </Row>
+                      <Button onClick={()=>{that.saveItem(5)}} color="primary">Save</Button>
+                      <Button onClick={()=>{that.clear(5)}} color="danger">Clear</Button>
+                    </div>
+                  </div>
+                </TabPane>
+              </TabContent>
+            </CardBody>
+          </Card>
         </div>
       )
     }
     return(
-      <center>
-        <Spinner animation="border" role="status">
-          <span className="sr-only">Loading...</span>
-        </Spinner>
+      <center style={{paddingTop:'40px'}}>
+        <Spinner color="primary" />
         <p>Loading ...</p>
       </center>
     )

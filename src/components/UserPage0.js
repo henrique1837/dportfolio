@@ -2,28 +2,12 @@ import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from "web3";
 import $ from 'jquery';
-import {
-  Button,
-  Form,
-  Card,
-  CardBody,
-  NavItem,
-  NavLink,
-  Nav,
-  TabContent,
-  TabPane,
-  Container,
-  Row,
-  Col,
-  Spinner,
-  ListGroup,
-  ListGroupItem,
-  ListGroupItemHeading,
-  ListGroupItemText
-} from 'reactstrap';
+import {Button,Form,Table,Tabs,Tab,Container,Row,Col,
+        Alert,Nav,Navbar,Card,Modal,Collapse,Spinner,ListGroup} from 'react-bootstrap';
 //import * as Box from '3box';
 import {withRouter} from 'react-router-dom';
-import classnames from "classnames";
+import EditProfile from '3box-profile-edit-react';
+import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
 import PrivateChat from './PrivateChat.js'
@@ -44,7 +28,6 @@ class UserPage extends Component {
     items: null,
     space: null,
     coinbase: null,
-    tabs:"Portfolio"
   }
   constructor(props){
     super(props);
@@ -156,12 +139,7 @@ class UserPage extends Component {
     await space.syncDone;
     return
   }
-  toggleNavs = (e,tab) => {
-    e.preventDefault();
-    this.setState({
-      tabs: tab
-    });
-  };
+
   render(){
     const that = this;
     if(this.state.profile && this.state.items){
@@ -185,210 +163,159 @@ class UserPage extends Component {
 
         return(
           <div>
-              <div className="nav-wrapper">
-                <Nav
-                  className="nav-fill flex-column flex-md-row"
-                  id="tabs-icons-text"
-                  pills
-                  role="tablist"
-                >
-                  <NavItem>
-                    <NavLink
-                      aria-selected={this.state.tabs === 'Portfolio'}
-                      className={classnames("mb-sm-3 mb-md-0", {
-                        active: this.state.tabs === 'Portfolio'
-                      })}
-                      onClick={e => this.toggleNavs(e, 'Portfolio')}
-                      href="#Portfolio"
-                      role="tab"
-                    >
-                      <i className="ni ni-cloud-upload-96 mr-2" />
-                      Portfolio
-                    </NavLink>
-                  </NavItem>
-                  <NavItem>
-                    <NavLink
-                      aria-selected={this.state.tabs === 'privMessage'}
-                      className={classnames("mb-sm-3 mb-md-0", {
-                        active: this.state.tabs === 'privMessage'
-                      })}
-                      onClick={e => this.toggleNavs(e,'privMessage')}
-                      href="#privMessage"
-                      role="tab"
-                    >
-                      <i className="ni ni-bell-55 mr-2" />
-                      Private message
-                    </NavLink>
-                  </NavItem>
-                  <NavItem>
-                    <NavLink
-                      aria-selected={this.state.tabs === 'Comments'}
-                      className={classnames("mb-sm-3 mb-md-0", {
-                        active: this.state.tabs === 'Comments'
-                      })}
-                      onClick={e => this.toggleNavs(e,'Comments')}
-                      href="#Comments"
-                      role="tab"
-                    >
-                      <i className="ni ni-calendar-grid-58 mr-2" />
-                      Comments
-                    </NavLink>
-                  </NavItem>
-                </Nav>
-              </div>
-              <Card className="shadow">
-                <CardBody>
-                  <TabContent activeTab={this.state.tabs}>
-                    <TabPane tabId="Portfolio">
-                      <div>
-                        <div style={{paddingTop:'20px'}}>
-                          <ProfileHover
-                            address={profile.address}
-                            orientation="bottom"
-                            noCoverImg
-                          />
-                        </div>
-                        <div style={{paddingTop:'40px'}}>
-                          <h5>Decentralized portfolio profile</h5>
-                          <p>Name: {profile.name}</p>
-                          <p>Description: {profile.description}</p>
-                          <p>Techs: {profile.techs}</p>
-                          {
-                            socialProfiles.map(function(item){
-                              return(
-                                <p>{item.name}: <a href={item.uri} href='_blank'>{item.profile}</a></p>
-                              )
-                            })
+                <Tabs defaultActiveKey="portfolio" className="nav-fill flex-column flex-md-row">
+                  <Tab eventKey="portfolio" title="Portfolio" style={{paddingTop:'10px'}}>
+                    <div>
+                      <div style={{paddingTop:'20px'}}>
+                        <ProfileHover
+                          address={profile.address}
+                          orientation="bottom"
+                          noCoverImg
+                        />
+                      </div>
+                      <div style={{paddingTop:'40px'}}>
+                        <h5>Decentralized portfolio profile</h5>
+                        <p>Name: {profile.name}</p>
+                        <p>Description: {profile.description}</p>
+                        <p>Techs: {profile.techs}</p>
+                        {
+                          socialProfiles.map(function(item){
+                            return(
+                              <p>{item.name}: <a href={item.uri} href='_blank'>{item.profile}</a></p>
+                            )
+                          })
+                        }
+                      </div>
+                      <div style={{paddingTop:'40px'}}>
+                        <h5>Portfolio</h5>
+                      </div>
+                      <div style={{paddingTop:'20px'}}>
+
+
+                      <h5>Education</h5>
+                      <ListGroup>
+                      {
+
+                        this.state.items.map(function(post){
+                          const item = post.message;
+                          const postId = post.postId;
+                          if(item.type === 0){
+                            return(
+                              <ListGroup.Item>
+                                <Row>
+                                  <Col lg={4}>
+                                    <h5>{item.school_name}</h5>
+                                    <h6>{item.course}</h6>
+                                    <p><small>From {item.start_date} to {item.end_date}</small></p>
+                                    <p><a href={item.uri} target="_blank">{item.uri}</a></p>
+                                  </Col>
+                                  <Col lg={8}>
+                                    <p>{item.description}</p>
+                                  </Col>
+                                </Row>
+
+                              </ListGroup.Item>
+                            )
                           }
-                        </div>
-                        <div style={{paddingTop:'40px'}}>
-                          <h5>Portfolio</h5>
-                        </div>
-                        <div style={{paddingTop:'20px'}}>
 
+                        })
+                      }
+                      </ListGroup>
+                      <h5>Projects</h5>
+                      <ListGroup>
+                      {
+                        this.state.items.map(function(post){
+                          const item = post.message;
+                          const postId = post.postId;
+                          if(item.type === 1){
+                            return(
+                              <ListGroup.Item>
+                                <Row>
+                                  <Col lg={4}>
+                                    <h5>{item.title}</h5>
+                                    <p><small>From {item.start_date} to {item.end_date}</small></p>
+                                    <p><a href={item.uri} target="_blank">{item.uri}</a></p>
+                                  </Col>
+                                  <Col lg={8}>
+                                    <p>{item.description}</p>
+                                  </Col>
+                                </Row>
+                              </ListGroup.Item>
+                            )
+                          }
 
-                        <h5>Education</h5>
-                        <ListGroup>
-                        {
+                        })
+                      }
+                      </ListGroup>
+                      <h5>Experience</h5>
+                      <ListGroup>
+                      {
+                        this.state.items.map(function(post){
+                          const item = post.message;
+                          const postId = post.postId;
+                          if(item.type === 2){
+                            return(
+                              <ListGroup.Item>
+                                <Row>
+                                  <Col lg={4}>
+                                    <h5>{item.company}</h5>
+                                    <h6>{item.title}</h6>
+                                    <p><small>From {item.start_date} to {item.end_date}</small></p>
+                                    <p><small>{item.location}</small></p>
+                                  </Col>
+                                  <Col lg={8}>
+                                    <p>{item.description}</p>
+                                  </Col>
+                                </Row>
+                              </ListGroup.Item>
+                            )
+                          }
 
-                          this.state.items.map(function(post){
-                            const item = post.message;
-                            const postId = post.postId;
-                            if(item.type === 0){
-                              return(
-                                <ListGroupItem>
-                                  <Row>
-                                    <Col lg={4}>
-                                      <h5>{item.school_name}</h5>
-                                      <h6>{item.course}</h6>
-                                      <p><small>From {item.start_date} to {item.end_date}</small></p>
-                                      <p><a href={item.uri} target="_blank">{item.uri}</a></p>
-                                    </Col>
-                                    <Col lg={8}>
-                                      <p>{item.description}</p>
-                                    </Col>
-                                  </Row>
+                        })
+                      }
+                      </ListGroup>
+                      <h5>Publications</h5>
+                      <ListGroup>
+                      {
+                        this.state.items.map(function(post){
+                          const item = post.message;
+                          const postId = post.postId;
+                          if(item.type === 3){
+                            return(
+                              <ListGroup.Item>
+                                <Row>
+                                  <Col lg={4}>
+                                    <h5>{item.name}</h5>
+                                    <p><small>Published on {item.date}</small></p>
+                                    <p><small><a href={item.uri} target='_blank'>{item.uri}</a></small></p>
+                                  </Col>
+                                  <Col lg={8}>
+                                    <p>{item.description}</p>
+                                  </Col>
+                                </Row>
+                              </ListGroup.Item>
+                            )
+                          }
 
-                                </ListGroupItem>
-                              )
-                            }
-
-                          })
-                        }
-                        </ListGroup>
-                        <h5>Projects</h5>
-                        <ListGroup>
-                        {
-                          this.state.items.map(function(post){
-                            const item = post.message;
-                            const postId = post.postId;
-                            if(item.type === 1){
-                              return(
-                                <ListGroupItem>
-                                  <Row>
-                                    <Col lg={4}>
-                                      <h5>{item.title}</h5>
-                                      <p><small>From {item.start_date} to {item.end_date}</small></p>
-                                      <p><a href={item.uri} target="_blank">{item.uri}</a></p>
-                                    </Col>
-                                    <Col lg={8}>
-                                      <p>{item.description}</p>
-                                    </Col>
-                                  </Row>
-                                </ListGroupItem>
-                              )
-                            }
-
-                          })
-                        }
-                        </ListGroup>
-                        <h5>Experience</h5>
-                        <ListGroup>
-                        {
-                          this.state.items.map(function(post){
-                            const item = post.message;
-                            const postId = post.postId;
-                            if(item.type === 2){
-                              return(
-                                <ListGroupItem>
-                                  <Row>
-                                    <Col lg={4}>
-                                      <h5>{item.company}</h5>
-                                      <h6>{item.title}</h6>
-                                      <p><small>From {item.start_date} to {item.end_date}</small></p>
-                                      <p><small>{item.location}</small></p>
-                                    </Col>
-                                    <Col lg={8}>
-                                      <p>{item.description}</p>
-                                    </Col>
-                                  </Row>
-                                </ListGroupItem>
-                              )
-                            }
-
-                          })
-                        }
-                        </ListGroup>
-                        <h5>Publications</h5>
-                        <ListGroup>
-                        {
-                          this.state.items.map(function(post){
-                            const item = post.message;
-                            const postId = post.postId;
-                            if(item.type === 3){
-                              return(
-                                <ListGroupItem>
-                                  <Row>
-                                    <Col lg={4}>
-                                      <h5>{item.name}</h5>
-                                      <p><small>Published on {item.date}</small></p>
-                                      <p><small><a href={item.uri} target='_blank'>{item.uri}</a></small></p>
-                                    </Col>
-                                    <Col lg={8}>
-                                      <p>{item.description}</p>
-                                    </Col>
-                                  </Row>
-                                </ListGroupItem>
-                              )
-                            }
-
-                          })
-                        }
-                        </ListGroup>
-                        </div>
-                        <div>
-                          <Button variant="primary" onClick={this.addContact}>Add contact</Button>
-                        </div>
-                       </div>
-                    </TabPane>
-                    <TabPane tabId="privMessage">
+                        })
+                      }
+                      </ListGroup>
+                      </div>
+                      <div>
+                        <Button variant="primary" onClick={this.addContact}>Add contact</Button>
+                      </div>
+                     </div>
+                    </Tab>
+                    <Tab eventKey="privMessage" title="Private message" style={{paddingTop:'10px'}}>
                       <h5>Private message</h5>
                       <PrivateChat threadAddress={this.state.threadAddress} space={this.state.space} coinbase={this.state.coinbase} />
-                    </TabPane>
-                    <TabPane tabId="Comments">
-                      <h5>Comments</h5>
 
-                      <ThreeBoxComments
+
+                  </Tab>
+                  <Tab eventKey="comments" title="Comments" style={{paddingTop:'10px'}}>
+                    <h5>Comments</h5>
+
+                    <ThreeBoxComments
                                           // required
                                           spaceName={AppName}
                                           threadName={"job_offers_"+profile.address}
@@ -396,8 +323,8 @@ class UserPage extends Component {
 
 
                                           // Required props for context A) & B)
-                                          box={this.state.box}
-                                          currentUserAddr={this.state.coinbase}
+                                          box={this.props.box}
+                                          currentUserAddr={this.props.coinbase}
 
                                           // Required prop for context B)
                                           //loginFunction={handleLogin}
@@ -408,11 +335,11 @@ class UserPage extends Component {
                                           // optional
                                           members={false}
                     />
-                    </TabPane>
 
-                  </TabContent>
-                </CardBody>
-              </Card>
+
+
+                  </Tab>
+                </Tabs>
           </div>
         )
       }
@@ -453,7 +380,7 @@ class UserPage extends Component {
               const postId = post.postId;
               if(item.type === 0){
                 return(
-                  <ListGroupItem>
+                  <ListGroup.Item>
                     <Row>
                       <Col lg={4}>
                         <h5>{item.school_name}</h5>
@@ -466,7 +393,7 @@ class UserPage extends Component {
                       </Col>
                     </Row>
 
-                  </ListGroupItem>
+                  </ListGroup.Item>
                 )
               }
 
@@ -481,7 +408,7 @@ class UserPage extends Component {
               const postId = post.postId;
               if(item.type === 1){
                 return(
-                  <ListGroupItem>
+                  <ListGroup.Item>
                     <Row>
                       <Col lg={4}>
                         <h5>{item.title}</h5>
@@ -492,7 +419,7 @@ class UserPage extends Component {
                         <p>{item.description}</p>
                       </Col>
                     </Row>
-                  </ListGroupItem>
+                  </ListGroup.Item>
                 )
               }
 
@@ -507,7 +434,7 @@ class UserPage extends Component {
               const postId = post.postId;
               if(item.type === 2){
                 return(
-                  <ListGroupItem>
+                  <ListGroup.Item>
                     <Row>
                       <Col lg={4}>
                         <h5>{item.company}</h5>
@@ -519,7 +446,7 @@ class UserPage extends Component {
                         <p>{item.description}</p>
                       </Col>
                     </Row>
-                  </ListGroupItem>
+                  </ListGroup.Item>
                 )
               }
 
@@ -534,7 +461,7 @@ class UserPage extends Component {
               const postId = post.postId;
               if(item.type === 3){
                 return(
-                  <ListGroupItem>
+                  <ListGroup.Item>
                     <Row>
                       <Col lg={4}>
                         <h5>{item.name}</h5>
@@ -545,7 +472,7 @@ class UserPage extends Component {
                         <p>{item.description}</p>
                       </Col>
                     </Row>
-                  </ListGroupItem>
+                  </ListGroup.Item>
                 )
               }
 
@@ -587,8 +514,10 @@ class UserPage extends Component {
       )
     }
     return(
-      <center style={{paddingTop:'40px'}}>
-        <Spinner color="primary" />
+      <center>
+        <Spinner animation="border" role="status">
+          <span className="sr-only">Loading...</span>
+        </Spinner>
         <p>Loading ...</p>
       </center>
     )
