@@ -20,6 +20,9 @@ const AppName = Config.AppName
 const admin = Config.admin
 
 
+const axios = require('axios');
+const cheerio = require('cheerio');
+
 
 class Portfolio extends Component {
   state = {
@@ -32,6 +35,8 @@ class Portfolio extends Component {
     projects: [],
     experience: [],
     publications:[],
+    images: [],
+    videos: [],
   }
 
   constructor(props){
@@ -41,6 +46,9 @@ class Portfolio extends Component {
     this.removeItem = this.removeItem.bind(this);
 
     this.clear = this.clear.bind(this);
+
+    this.scrapInstagram = this.scrapInstagram.bind(this);
+    this.scrapYoutube = this.scrapYoutube.bind(this);
   }
 
 
@@ -119,23 +127,32 @@ class Portfolio extends Component {
   };
 
   saveItem = async function(type){
-    if(type === 0){
-      for(const edu of this.state.education){
-        await this.state.thread.post(edu)
-      }
-    } else if(type === 1){
-      for(const project of this.state.projects){
-        await this.state.thread.post(project)
-      }
-    } else if(type === 2){
-     for(const experience of this.state.experience){
-       await this.state.thread.post(experience)
+      if(type === 0){
+        for(const edu of this.state.education){
+          await this.state.thread.post(edu)
+        }
+      } else if(type === 1){
+        for(const project of this.state.projects){
+          await this.state.thread.post(project)
+        }
+      } else if(type === 2){
+       for(const experience of this.state.experience){
+         await this.state.thread.post(experience)
+       }
+     } else if(type === 3){
+       for(const pub of this.state.publications){
+         await this.state.thread.post(pub)
+       }
+     } else if(type === 4){
+       for(const img of this.state.images){
+         await this.state.thread.post(img)
+       }
+     } else if(type === 5){
+       for(const vid of this.state.videos){
+         await this.state.thread.post(vid)
+       }
      }
-   } else if(type === 3){
-     for(const pub of this.state.publications){
-       await this.state.thread.post(pub)
-     }
-   }
+
     this.clear(type)
     alert('Items saved');
     return
@@ -311,6 +328,75 @@ class Portfolio extends Component {
       console.log(err)
     }
   }
+  scrapInstagram = async function(){
+    try {
+      const username = this.state.profile.instagram;
+      console.log(username)
+      if(!username){
+        return
+      }
+      const url = `https://www.instagram.com/${username}/` ;
+      const response = await axios.get(url);
+      const dom = cheerio.load(response.data)
+      let script = dom('script').eq(4).html();
+      /* Traverse through the JSON of instagram response */
+      let { entry_data: { ProfilePage : {[0] : { graphql : {user} }} } } = JSON.parse(/window\._sharedData = (.+);/g.exec(script)[1]);
+
+      /* Output the data */
+      console.log(user.edge_owner_to_timeline_media.edges);
+      for(const post of user.edge_owner_to_timeline_media.edges){
+        console.log(post.node)
+        const item = {
+          description: post.node.accessibility_caption,
+          uri:post.node.display_url,
+          type:4
+        }
+        await this.state.images.push(item);
+        await this.forceUpdate();
+      }
+    } catch(err){
+      console.log(err)
+    }
+  }
+  scrapYoutube = async function(){
+    try {
+      const channel = this.state.profile.youtube;
+      console.log(channel)
+      if(!channel){
+        return
+      }
+      let url = channel;
+      if(!url.includes('https://www.youtube.com/channel/')){
+        url = `https://www.youtube.com/channel/${channel}`
+      } else {
+        //url = url.split('https://www.youtube.com')[1];
+        url = channel;
+      }
+      console.log(url)
+      const config = {
+        headers: {
+          'access-control-allow-origin': '*'
+        }
+      }
+      //url = 'https://cors-anywhere.herokuapp.com/https://www.youtube.com/channel/UCeMbEZBp1OedIZwKqq8h2lQ'
+      const response = await axios.get(url,config);
+      const dom = cheerio.load(response.data)
+      const script = dom('script').eq(10).html();
+      console.log(script)
+      const items = JSON.parse(script).itemListElement[0].item.itemListElement
+
+      for(const post of items){
+        const item = {
+          uri:post.url,
+          type:5
+        }
+        await this.state.videos.push(item);
+        await this.forceUpdate();
+      }
+    } catch(err){
+      console.log(err)
+    }
+  }
   clear = async function(type){
     if(type === 0) {
       await this.setState({
@@ -319,6 +405,22 @@ class Portfolio extends Component {
     } else if(type === 1){
       await this.setState({
         projects: []
+      });
+    }  else if(type === 2){
+      await this.setState({
+        experience: []
+      });
+    }  else if(type === 3){
+      await this.setState({
+        publications: []
+      });
+    }  else if(type === 4){
+      await this.setState({
+        images: []
+      });
+    }  else if(type === 5){
+      await this.setState({
+        videos: []
       });
     }
 
@@ -460,6 +562,74 @@ class Portfolio extends Component {
                   })
                 }
                 </ListGroup>
+                <h5>Images</h5>
+                <Row>
+                {
+                  this.state.posts.map(function(post){
+                    const item = post.message;
+                    const postId = post.postId;
+                    if(item.type === 4){
+                      return(
+                        <Col
+                          lg={4}
+                          style={{
+                            display:'flex',
+                            flexDirection:'column',
+                            justifyContent:'space-between',
+                            paddingBottom: '100px'
+                          }}>
+                          <Card>
+                            <Card.Body>
+                              <center>
+                                <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
+                              </center>
+                              <Button onClick={()=>{ that.removeItem(postId)}} variant="danger">Remove Item</Button>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      )
+                    }
+
+                  })
+                }
+                </Row>
+                <h5>Videos</h5>
+                <Row>
+                {
+                  this.state.posts.map(function(post){
+                    const item = post.message;
+                    const postId = post.postId;
+
+                    if(item.type === 5){
+                      const uri = `https://www.youtube.com/embed/${item.uri.split('http://www.youtube.com/watch?v=',1)[1]}`;
+                      return(
+                        <Col
+                          lg={4}
+                          style={{
+                            display:'flex',
+                            flexDirection:'column',
+                            justifyContent:'space-between',
+                            paddingBottom: '100px'
+                          }}>
+                          <Card>
+                            <Card.Body>
+                              <center>
+                                <iframe src={uri} style={{width:'100%'}}
+                                    frameborder="0"
+                                    allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen>
+                                </iframe>
+                              </center>
+                              <Button onClick={()=>{ that.removeItem(postId)}} variant="danger">Remove Item</Button>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      )
+                    }
+
+                  })
+                }
+                </Row>
               </div>
             </Tab>
             <Tab eventKey="addItem" title="Add Item">
@@ -673,6 +843,90 @@ class Portfolio extends Component {
                   </ListGroup>
                   <Button onClick={()=>{that.saveItem(3)}} variant="primary">Save</Button>
                   <Button onClick={()=>{that.clear(3)}} variant="danger">Clear</Button>
+                </div>
+                <div style={{paddingTop:'40px'}}>
+                  <h4>Images</h4>
+                  <p><small>Optional: Import images data from instagram</small></p>
+                  <Button variant="primary" onClick={this.scrapInstagram}>Get from Instagram</Button>
+                  <Form.Group>
+                      <Form.Label>Image</Form.Label>
+                      <ReactFileReader fileTypes={'.jpg .png .jpeg'}>
+                          <Button variant="primary">Upload file</Button>
+                      </ReactFileReader>
+                  </Form.Group>
+
+                  <Form.Group>
+                      <Form.Label>Description</Form.Label>
+                      <Form.Control placeholder="Description" id='publication_description'/>
+                  </Form.Group>
+                  <Form.Group>
+                      <Form.Label>Uri</Form.Label>
+                      <Form.Control placeholder="Uri" id='publication_uri'/>
+                  </Form.Group>
+                  <Button onClick={()=>{that.addItem(4)}} variant="primary">Add item</Button>
+                  <Row>
+                  {
+                    this.state.images.map(function(item){
+                      return(
+                        <Col
+                          lg={4}
+                          style={{
+                            display:'flex',
+                            flexDirection:'column',
+                            justifyContent:'space-between',
+                            paddingBottom: '100px'
+                          }}>
+                          <Card>
+                            <Card.Body>
+                              <center>
+                                <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
+                              </center>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      )
+                    })
+                  }
+                  </Row>
+                  <Button onClick={()=>{that.saveItem(4)}} variant="primary">Save</Button>
+                  <Button onClick={()=>{that.clear(4)}} variant="danger">Clear</Button>
+                </div>
+                <div style={{paddingTop:'40px'}}>
+                  <h4>Videos</h4>
+                  <p><small>Optional: Import videos data from youtube channel</small></p>
+                  <Button variant="primary" onClick={this.scrapYoutube}>Get from Youtube</Button>
+
+                  <Row>
+                  {
+                    this.state.videos.map(function(item){
+                      const uri = `https://www.youtube.com/embed/${item.uri.split('http://www.youtube.com/watch?v=',1)[1]}`
+                      return(
+                        <Col
+                          lg={4}
+                          style={{
+                            display:'flex',
+                            flexDirection:'column',
+                            justifyContent:'space-between',
+                            paddingBottom: '100px'
+                          }}>
+                          <Card>
+                            <Card.Body>
+                              <center>
+                                <iframe src={uri} style={{width:'100%'}}
+                                    frameborder="0"
+                                    allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen>
+                                </iframe>
+                              </center>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      )
+                    })
+                  }
+                  </Row>
+                  <Button onClick={()=>{that.saveItem(5)}} variant="primary">Save</Button>
+                  <Button onClick={()=>{that.clear(5)}} variant="danger">Clear</Button>
                 </div>
               </div>
             </Tab>

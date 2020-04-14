@@ -479,6 +479,36 @@ class UserPage extends Component {
             })
           }
           </ListGroup>
+          <h5>Images</h5>
+          <Row>
+          {
+            this.state.items.map(function(post){
+              const item = post.message;
+              const postId = post.postId;
+              if(item.type === 4){
+                return(
+                  <Col
+                    lg={4}
+                    style={{
+                      display:'flex',
+                      flexDirection:'column',
+                      justifyContent:'space-between',
+                      paddingBottom: '100px'
+                    }}>
+                    <Card>
+                      <Card.Body>
+                        <center>
+                          <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
+                        </center>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                )
+              }
+
+            })
+          }
+          </Row>
           </div>
          </div>
       )

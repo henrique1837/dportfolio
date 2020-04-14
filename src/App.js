@@ -173,6 +173,7 @@ class App extends Component {
     );
     await space.syncDone;
     const profile = await space.public.all();
+    await space.public.set('address',this.state.coinbase);
     this.setRedirect();
     this.setState({
       profile: profile,

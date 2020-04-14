@@ -20,6 +20,9 @@ const AppName = Config.AppName
 const usersRegistered = Config.usersRegistered
 const admin = Config.admin
 
+const axios = require('axios');
+const cheerio = require('cheerio');
+
 class Profile extends Component {
   state = {
     box: null,
@@ -44,6 +47,11 @@ class Profile extends Component {
         inputType: 'text',
         key: 'pinterest', // the key used to save the value
         field: 'Pinterest' // how to display the key in the UI
+      },
+      { // for a field with a text input
+        inputType: 'text',
+        key: 'instagram', // the key used to save the value
+        field: 'Instagram' // how to display the key in the UI
       }
     ]
   }
@@ -124,6 +132,7 @@ class Profile extends Component {
       address: profile.address ,
       pinterest: profile.pinterest,
       github: profile.github,
+      instagram: profile.instagram
     }
     const postId = await thread.post(postProfile);
     await this.state.space.private.set('registration',postId);

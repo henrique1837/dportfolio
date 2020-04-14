@@ -82,7 +82,7 @@ class Users extends Component {
         const post = posts[i];
         const profile = post.message;
 
-        if(!added.includes(profile.address)){
+        if(!added.includes(profile.address) && profile.address){
           added.push(profile.address)
           postsFiltered.push(post);
           this.state.users.push(post);
