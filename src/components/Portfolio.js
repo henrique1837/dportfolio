@@ -75,7 +75,11 @@ class Portfolio extends Component {
 
 
   componentDidMount = async ()  => {
+    if(!this.props.space){
+      return
+    }
     await this.props.space.syncDone;
+    const profile = await this.props.space.public.all();
     const thread = await this.props.space.joinThread("items_"+this.props.coinbase,{firstModerator:this.props.coinbase,members: true});
     await this.setState({
       thread: thread
@@ -88,8 +92,9 @@ class Portfolio extends Component {
        await this.setState({posts});
      });
      await this.setState({
-       profile: this.props.profile
+       profile: profile
      });
+     return
   };
   addItem = async function(type){
     // Education item //
@@ -357,8 +362,18 @@ class Portfolio extends Component {
       if(!username){
         return
       }
-      const url = `https://www.instagram.com/${username}/` ;
-      const response = await axios.get(url);
+      let url
+      if(username.includes('https://www.instagram.com')){
+        url = username
+      } else {
+        url  = `https://www.instagram.com/${username}/` ;
+      }
+      const config = {
+        headers: {
+          'access-control-allow-origin': '*'
+        }
+      }
+      const response = await axios.get(url,config);
       const dom = cheerio.load(response.data)
       let script = dom('script').eq(4).html();
       /* Traverse through the JSON of instagram response */
@@ -645,12 +660,12 @@ class Portfolio extends Component {
                                 paddingBottom: '100px'
                               }}>
                               <Card>
-                                <Card.Body>
+                                <CardBody>
                                   <center>
                                     <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
                                   </center>
                                   <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
-                                </Card.Body>
+                                </CardBody>
                               </Card>
                             </Col>
                           )
@@ -678,7 +693,7 @@ class Portfolio extends Component {
                                 paddingBottom: '100px'
                               }}>
                               <Card>
-                                <Card.Body>
+                                <CardBody>
                                   <center>
                                     <iframe src={uri} style={{width:'100%'}}
                                         frameborder="0"
@@ -687,7 +702,7 @@ class Portfolio extends Component {
                                     </iframe>
                                   </center>
                                   <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
-                                </Card.Body>
+                                </CardBody>
                               </Card>
                             </Col>
                           )
@@ -923,11 +938,11 @@ class Portfolio extends Component {
 
                       <FormGroup>
                           <Label>Description</Label>
-                          <Input className="form-control-alternative" type="text" placeholder="Description" id='publication_description'/>
+                          <Input className="form-control-alternative" type="text" placeholder="Description" id='image_description'/>
                       </FormGroup>
                       <FormGroup>
                           <Label>Uri</Label>
-                          <Input className="form-control-alternative" type="text" placeholder="Uri" id='publication_uri'/>
+                          <Input className="form-control-alternative" type="text" placeholder="Uri" id='image_uri'/>
                       </FormGroup>
                       <Button onClick={()=>{that.addItem(4)}} color="primary">Add item</Button>
                       <Row>
@@ -943,11 +958,11 @@ class Portfolio extends Component {
                                 paddingBottom: '100px'
                               }}>
                               <Card>
-                                <Card.Body>
+                                <CardBody>
                                   <center>
                                     <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
                                   </center>
-                                </Card.Body>
+                                </CardBody>
                               </Card>
                             </Col>
                           )
@@ -976,7 +991,7 @@ class Portfolio extends Component {
                                 paddingBottom: '100px'
                               }}>
                               <Card>
-                                <Card.Body>
+                                <CardBody>
                                   <center>
                                     <iframe src={uri} style={{width:'100%'}}
                                         frameborder="0"
@@ -984,7 +999,7 @@ class Portfolio extends Component {
                                         allowfullscreen>
                                     </iframe>
                                   </center>
-                                </Card.Body>
+                                </CardBody>
                               </Card>
                             </Col>
                           )

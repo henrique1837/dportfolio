@@ -283,7 +283,6 @@ class App extends Component {
                                  coinbase = {this.state.coinbase}
                                  box = {this.state.box}
                                  space = {this.state.space}
-                                 profile = {this.state.profile}
                            />
                     )
                   }} />
