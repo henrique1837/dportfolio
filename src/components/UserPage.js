@@ -375,6 +375,93 @@ class UserPage extends Component {
                           })
                         }
                         </ListGroup>
+                        <h5>Images</h5>
+                        <Row>
+                        {
+                          this.state.items.map(function(post){
+                            const item = post.message;
+                            const postId = post.postId;
+                            if(item.type === 4){
+                              return(
+                                <Col
+                                  lg={4}
+                                  style={{
+                                    display:'flex',
+                                    flexDirection:'column',
+                                    justifyContent:'space-between',
+                                    paddingBottom: '100px'
+                                  }}>
+                                  <Card>
+                                    <Card.Body>
+                                      <center>
+                                        <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
+                                      </center>
+                                    </Card.Body>
+                                  </Card>
+                                </Col>
+                              )
+                            }
+
+                          })
+                        }
+                        </Row>
+                        <h5>Videos</h5>
+                        <Row>
+                        {
+                          this.state.items.map(function(post){
+                            const item = post.message;
+                            const postId = post.postId;
+
+                            if(item.type === 5){
+                              if(item.source === 'youtube'){
+                                const uri = `https://www.youtube.com/embed/${item.uri}`
+                                return(
+                                  <Col
+                                    lg={4}
+                                    style={{
+                                      display:'flex',
+                                      flexDirection:'column',
+                                      justifyContent:'space-between',
+                                      paddingBottom: '100px'
+                                    }}>
+                                    <Card>
+                                      <CardBody>
+                                        <center>
+                                          <iframe src={uri} style={{width:'100%'}}
+                                              frameborder="0"
+                                              allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+                                              allowfullscreen>
+                                          </iframe>
+                                        </center>
+                                      </CardBody>
+                                    </Card>
+                                  </Col>
+                                )
+                              }
+                              return(
+                                <Col
+                                  lg={4}
+                                  style={{
+                                    display:'flex',
+                                    flexDirection:'column',
+                                    justifyContent:'space-between',
+                                    paddingBottom: '100px'
+                                  }}>
+                                  <Card>
+                                    <CardBody>
+                                      <center>
+                                        <video src={item.uri} style={{width:'100%'}} controls/>
+                                      </center>
+                                    </CardBody>
+
+                                  </Card>
+                                </Col>
+                              )
+                            }
+
+                          })
+                        }
+                        </Row>
                         </div>
                         <div>
                           <Button variant="primary" onClick={this.addContact}>Add contact</Button>
@@ -574,6 +661,63 @@ class UserPage extends Component {
                           <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
                         </center>
                       </Card.Body>
+                    </Card>
+                  </Col>
+                )
+              }
+
+            })
+          }
+          </Row>
+          <h5>Videos</h5>
+          <Row>
+          {
+            this.state.items.map(function(post){
+              const item = post.message;
+              const postId = post.postId;
+
+              if(item.type === 5){
+                if(item.source === 'youtube'){
+                  const uri = `https://www.youtube.com/embed/${item.uri}`
+                  return(
+                    <Col
+                      lg={4}
+                      style={{
+                        display:'flex',
+                        flexDirection:'column',
+                        justifyContent:'space-between',
+                        paddingBottom: '100px'
+                      }}>
+                      <Card>
+                        <CardBody>
+                          <center>
+                            <iframe src={uri} style={{width:'100%'}}
+                                frameborder="0"
+                                allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                            </iframe>
+                          </center>
+                        </CardBody>
+                      </Card>
+                    </Col>
+                  )
+                }
+                return(
+                  <Col
+                    lg={4}
+                    style={{
+                      display:'flex',
+                      flexDirection:'column',
+                      justifyContent:'space-between',
+                      paddingBottom: '100px'
+                    }}>
+                    <Card>
+                      <CardBody>
+                        <center>
+                          <video src={item.uri} style={{width:'100%'}} controls/>
+                        </center>
+                      </CardBody>
+
                     </Card>
                   </Col>
                 )

@@ -70,7 +70,6 @@ class Portfolio extends Component {
     this.clear = this.clear.bind(this);
 
     this.scrapInstagram = this.scrapInstagram.bind(this);
-    this.scrapYoutube = this.scrapYoutube.bind(this);
   }
 
 
@@ -154,29 +153,45 @@ class Portfolio extends Component {
   };
 
   saveItem = async function(type){
+      const items = [];
+      for(const post of this.state.posts){
+        items.push(post.message)
+      }
       if(type === 0){
         for(const edu of this.state.education){
-          await this.state.thread.post(edu)
+          if(!items.includes(edu)){
+            await this.state.thread.post(edu)
+          }
         }
       } else if(type === 1){
         for(const project of this.state.projects){
-          await this.state.thread.post(project)
+          if(!items.includes(project)){
+            await this.state.thread.post(project)
+          }
         }
       } else if(type === 2){
        for(const experience of this.state.experience){
-         await this.state.thread.post(experience)
+         if(!items.includes(experience)){
+           await this.state.thread.post(experience)
+         }
        }
      } else if(type === 3){
        for(const pub of this.state.publications){
-         await this.state.thread.post(pub)
+         if(!items.includes(pub)){
+           await this.state.thread.post(pub)
+         }
        }
      } else if(type === 4){
        for(const img of this.state.images){
-         await this.state.thread.post(img)
+         if(!items.includes(img)){
+           await this.state.thread.post(img)
+         }
        }
      } else if(type === 5){
        for(const vid of this.state.videos){
-         await this.state.thread.post(vid)
+         if(!items.includes(vid)){
+           await this.state.thread.post(vid)
+         }
        }
      }
 
@@ -355,6 +370,113 @@ class Portfolio extends Component {
       console.log(err)
     }
   }
+  videoUpload = files => {
+    try{
+
+      const that = this;
+      for(const file of files){
+        const reader  = new FileReader();
+        const fileName = file.name;
+        const fileType = file.type;
+        console.log(file)
+        reader.onload = async function(f) {
+          // The file's text will be printed here
+          console.log(reader.result);
+          const description = $('#video_description').val();
+          const title = $('#video_description').val();
+          const URL = window.URL || window.webkitURL;
+          const uri = URL.createObjectURL(file);
+          const date = null;
+          const source = "upload";
+
+          const item = {
+              title: title,
+              description: description,
+              date: date,
+              uri: uri,
+              source: source,
+              type:5
+          }
+          await that.state.videos.push(item);
+          await that.forceUpdate();
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch(err){
+      console.log(err)
+    }
+  }
+  videosUploadYoutube = files => {
+    try{
+
+      const that = this;
+      for(const file of files){
+        const reader  = new FileReader();
+        const fileName = file.name;
+        const fileType = file.type;
+        console.log(file)
+        reader.onload = async function(f) {
+          // The file's text will be printed here
+          console.log(reader.result)
+          const res = JSON.parse(reader.result)[0];
+          console.log(res)
+          const description = res.snippet.description;
+          const title = res.snippet.title;
+          const uri = res.id;
+          const date = res.snippet.publishedAt.split("T")[0];
+          const source = "youtube";
+
+          const item = {
+              title: title,
+              description: description,
+              date: date,
+              uri: uri,
+              source: source,
+              type:5
+          }
+          await that.state.videos.push(item);
+          await that.forceUpdate();
+        };
+        reader.readAsText(file);
+      }
+    } catch(err){
+      console.log(err)
+    }
+  }
+  imageUpload = files => {
+    try{
+
+      const that = this;
+      for(const file of files){
+        const reader  = new FileReader();
+        const fileName = file.name;
+        const fileType = file.type;
+        console.log(file)
+        reader.onload = async function(f) {
+          // The file's text will be printed here
+          console.log(reader.result);
+          const description = $('#image_description').val();
+          const URL = window.URL || window.webkitURL;
+          const uri = URL.createObjectURL(file);
+          const date = null;
+          const source = "upload";
+
+          const item = {
+              description: description,
+              date: date,
+              uri: uri,
+              source: source,
+              type:4
+          }
+          await that.state.images.push(item);
+          await that.forceUpdate();
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch(err){
+      console.log(err)
+    }
+  }
   scrapInstagram = async function(){
     try {
       const username = this.state.profile.instagram;
@@ -362,18 +484,21 @@ class Portfolio extends Component {
       if(!username){
         return
       }
-      let url
+      let url_base
       if(username.includes('https://www.instagram.com')){
-        url = username
+        url_base = username
       } else {
-        url  = `https://www.instagram.com/${username}/` ;
+        url_base  = `https://www.instagram.com/${username}/` ;
       }
+      //url = `https://cors-anywhere.herokuapp.com/${encodeURIComponent(url)}`
+      const url = `https://secret-ocean-49799.herokuapp.com/${url_base}`
       const config = {
         headers: {
-          'access-control-allow-origin': '*'
+          'Origin': "https://www.instagram.com/"
         }
       }
-      const response = await axios.get(url,config);
+      const response = await axios.get(url);
+      console.log(response)
       const dom = cheerio.load(response.data)
       let script = dom('script').eq(4).html();
       /* Traverse through the JSON of instagram response */
@@ -395,45 +520,7 @@ class Portfolio extends Component {
       console.log(err)
     }
   }
-  scrapYoutube = async function(){
-    try {
-      const channel = this.state.profile.youtube;
-      console.log(channel)
-      if(!channel){
-        return
-      }
-      let url = channel;
-      if(!url.includes('https://www.youtube.com/channel/')){
-        url = `https://www.youtube.com/channel/${channel}`
-      } else {
-        //url = url.split('https://www.youtube.com')[1];
-        url = channel;
-      }
-      console.log(url)
-      const config = {
-        headers: {
-          'access-control-allow-origin': '*'
-        }
-      }
-      //url = 'https://cors-anywhere.herokuapp.com/https://www.youtube.com/channel/UCeMbEZBp1OedIZwKqq8h2lQ'
-      const response = await axios.get(url,config);
-      const dom = cheerio.load(response.data)
-      const script = dom('script').eq(10).html();
-      console.log(script)
-      const items = JSON.parse(script).itemListElement[0].item.itemListElement
 
-      for(const post of items){
-        const item = {
-          uri:post.url,
-          type:5
-        }
-        await this.state.videos.push(item);
-        await this.forceUpdate();
-      }
-    } catch(err){
-      console.log(err)
-    }
-  }
   clear = async function(type){
     if(type === 0) {
       await this.setState({
@@ -682,7 +769,32 @@ class Portfolio extends Component {
                         const postId = post.postId;
 
                         if(item.type === 5){
-                          const uri = `https://www.youtube.com/embed/${item.uri.split('http://www.youtube.com/watch?v=',1)[1]}`;
+                          if(item.source === 'youtube'){
+                            const uri = `https://www.youtube.com/embed/${item.uri}`
+                            return(
+                              <Col
+                                lg={4}
+                                style={{
+                                  display:'flex',
+                                  flexDirection:'column',
+                                  justifyContent:'space-between',
+                                  paddingBottom: '100px'
+                                }}>
+                                <Card>
+                                  <CardBody>
+                                    <center>
+                                      <iframe src={uri} style={{width:'100%'}}
+                                          frameborder="0"
+                                          allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+                                          allowfullscreen>
+                                      </iframe>
+                                    </center>
+                                    <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
+                                  </CardBody>
+                                </Card>
+                              </Col>
+                            )
+                          }
                           return(
                             <Col
                               lg={4}
@@ -695,14 +807,10 @@ class Portfolio extends Component {
                               <Card>
                                 <CardBody>
                                   <center>
-                                    <iframe src={uri} style={{width:'100%'}}
-                                        frameborder="0"
-                                        allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
-                                        allowfullscreen>
-                                    </iframe>
+                                    <video src={item.uri} style={{width:'100%'}} controls/>
                                   </center>
-                                  <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
                                 </CardBody>
+                                <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
                               </Card>
                             </Col>
                           )
@@ -927,24 +1035,24 @@ class Portfolio extends Component {
                     </div>
                     <div style={{paddingTop:'40px'}}>
                       <h4>Images</h4>
-                      <p><small>Optional: Import images data from instagram</small></p>
-                      <Button color="primary" onClick={this.scrapInstagram}>Get from Instagram</Button>
-                      <FormGroup>
-                          <Label>Image</Label>
-                          <ReactFileReader fileTypes={'.jpg .png .jpeg'}>
-                              <Button color="primary">Upload file</Button>
-                          </ReactFileReader>
-                      </FormGroup>
+                      {/*
+                        <p><small>Optional: Import images data from instagram</small></p
+                        <Button color="primary" onClick={this.scrapInstagram}>Get from Instagram</Button>
+
+                      */}
+
 
                       <FormGroup>
                           <Label>Description</Label>
                           <Input className="form-control-alternative" type="text" placeholder="Description" id='image_description'/>
                       </FormGroup>
+
                       <FormGroup>
-                          <Label>Uri</Label>
-                          <Input className="form-control-alternative" type="text" placeholder="Uri" id='image_uri'/>
+                          <Label>Image</Label>
+                          <ReactFileReader handleFiles={this.imageUpload} fileTypes={'*'}>
+                              <Button color="primary">Upload file</Button>
+                          </ReactFileReader>
                       </FormGroup>
-                      <Button onClick={()=>{that.addItem(4)}} color="primary">Add item</Button>
                       <Row>
                       {
                         this.state.images.map(function(item){
@@ -974,13 +1082,52 @@ class Portfolio extends Component {
                     </div>
                     <div style={{paddingTop:'40px'}}>
                       <h4>Videos</h4>
-                      <p><small>Optional: Import videos data from youtube channel</small></p>
-                      <Button color="primary" onClick={this.scrapYoutube}>Get from Youtube</Button>
-
+                      <p><small>Optional: Upload videos data from youtube channel</small></p>
+                      <ReactFileReader handleFiles={this.videosUploadYoutube} fileTypes={'.json'} multiple>
+                          <Button color="primary">Upload from Youtube files</Button>
+                      </ReactFileReader>
+                      <FormGroup>
+                          <Label>Title</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Description" id='video_title'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Description</Label>
+                          <Input className="form-control-alternative" type="text" placeholder="Description" id='video_description'/>
+                      </FormGroup>
+                      <FormGroup>
+                          <Label>Video</Label>
+                          <ReactFileReader handleFiles={this.videoUpload}>
+                              <Button color="primary">Upload file</Button>
+                          </ReactFileReader>
+                      </FormGroup>
                       <Row>
                       {
                         this.state.videos.map(function(item){
-                          const uri = `https://www.youtube.com/embed/${item.uri.split('http://www.youtube.com/watch?v=',1)[1]}`
+                          if(item.source === 'youtube'){
+                            const uri = `https://www.youtube.com/embed/${item.uri}`
+                            return(
+                              <Col
+                                lg={4}
+                                style={{
+                                  display:'flex',
+                                  flexDirection:'column',
+                                  justifyContent:'space-between',
+                                  paddingBottom: '100px'
+                                }}>
+                                <Card>
+                                  <CardBody>
+                                    <center>
+                                      <iframe src={uri} style={{width:'100%'}}
+                                          frameborder="0"
+                                          allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+                                          allowfullscreen>
+                                      </iframe>
+                                    </center>
+                                  </CardBody>
+                                </Card>
+                              </Col>
+                            )
+                          }
                           return(
                             <Col
                               lg={4}
@@ -993,11 +1140,7 @@ class Portfolio extends Component {
                               <Card>
                                 <CardBody>
                                   <center>
-                                    <iframe src={uri} style={{width:'100%'}}
-                                        frameborder="0"
-                                        allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
-                                        allowfullscreen>
-                                    </iframe>
+                                    <video src={item.uri} style={{width:'100%'}} controls/>
                                   </center>
                                 </CardBody>
                               </Card>

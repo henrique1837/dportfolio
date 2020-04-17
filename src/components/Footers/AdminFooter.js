@@ -59,6 +59,13 @@ class Footer extends React.Component {
                   Use it with Brave browser
                 </NavLink>
               </NavItem>
+              <NavItem>
+                <NavLink
+                  href="https://github.com/henrique1837/DecentralizedPortfolio" target='_blank' title='Github repository'
+                >
+                  Github
+                </NavLink>
+              </NavItem>
 
             </Nav>
           </Col>

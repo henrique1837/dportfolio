@@ -1,5 +1,7 @@
 ## DecentralizedPortfolio
 
-  Dapp that allows users import data from linkdin, instagram, youtube, github, gitcoin and others to mount their portfolio and link it with their decentralized identity. Users can add contacts, talk with each other, post jobs offers, comment and write in public chat. Done with 3box
+  Dapp that allows users import data from linkedin, instagram, youtube, github, gitcoin and others to mount their portfolio and link it with their decentralized identity. Users can add contacts, talk with each other, post jobs offers, comment and write in public chat. Done with 3box
 
-  Latest version: [http://gateway.ipfs.io/ipfs/QmVkyk9GYUmjS1sAmtdSRyKvBGNHRvNSAthZE7zwss1PP8](http://gateway.ipfs.io/ipfs/QmVkyk9GYUmjS1sAmtdSRyKvBGNHRvNSAthZE7zwss1PP8)
+  Latest version: [https://ipfs.io/ipns/QmZU6Zop6uKYarpbZwo5JHBtUcPTnPMeQjEQ4QRBgL2zXj/](https://ipfs.io/ipns/QmZU6Zop6uKYarpbZwo5JHBtUcPTnPMeQjEQ4QRBgL2zXj/)
+
+  Template: [https://demos.creative-tim.com/argon-dashboard-react/#/admin/index](https://demos.creative-tim.com/argon-dashboard-react/#/admin/index)

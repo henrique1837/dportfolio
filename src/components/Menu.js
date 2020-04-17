@@ -170,7 +170,7 @@ class Menu extends Component {
         expand="lg"
       >
         <Container>
-          <NavbarBrand>
+          <NavbarBrand href="#DecentralizedPortfolio">
               DecentralizedPortfolio
           </NavbarBrand>
           <button
