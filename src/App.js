@@ -219,29 +219,33 @@ class App extends Component {
     )
   }
   render() {
+
     if(this.state.doingLogin){
       return(
-        <div>
-          <Router>
-            <Menu box={null}
-                  space={null}
-                  hasWeb3={this.state.hasWeb3}
-                  doingLogin={this.state.doingLogin} />
-          </Router>
-          <Container className="themed-container" fluid={false}>
-            <Alert color="info" style={{textAlign: "center",
-                                  marginTop:'20px'}}>
-                <h2 style={{color: 'white'}}>Loading dapp ...</h2>
-                <div id="loading_status"></div>
-            </Alert>
+        <>
+        <Router>
+          <Menu box={null}
+                space={null}
+                hasWeb3={this.state.hasWeb3}
+                doingLogin={this.state.doingLogin} />
+          <Container className="themed-container" fluid={false} style={{display: this.state.doingLogin}}>
+                  <Alert color="info" style={{textAlign: "center",
+                                        marginTop:'20px'}}>
+                      <h2 style={{color: 'white'}}>Loading dapp ...</h2>
+                      <div id="loading_status"></div>
+                  </Alert>
           </Container>
+          <div className="themed-container" fluid={true}>
+            <Home/>
+          </div>
           <Container fluid={false}>
             <Footer style={{maeginTop: '20px'}}/>
           </Container>
-        </div>
-      );
-    }
 
+        </Router>
+        </>
+      )
+    }
     return (
       <div>
         <Router>
@@ -250,8 +254,7 @@ class App extends Component {
                 space={this.state.space}
                 hasWeb3={this.state.hasWeb3}
                 doingLogin={this.state.doingLogin} />
-
-          <Container className="themed-container" fluid={false}>
+          <div className="themed-container" fluid={true}>
 
 
             <Switch>
@@ -264,10 +267,12 @@ class App extends Component {
                       )
                     }
                     return(
-                      <Profile web3={this.state.web3}
-                               box={this.state.box}
-                               space={this.state.space}
-                               coinbase={this.state.coinbase} />
+                      <Container fluid={false}>
+                        <Profile web3={this.state.web3}
+                                 box={this.state.box}
+                                 space={this.state.space}
+                                 coinbase={this.state.coinbase} />
+                      </Container>
                     )
                   }} />
 
@@ -278,21 +283,27 @@ class App extends Component {
                       )
                     }
                     return(
-                      <Portfolio
-                                 web3 = {this.state.web3}
-                                 coinbase = {this.state.coinbase}
-                                 box = {this.state.box}
-                                 space = {this.state.space}
-                           />
+                      <Container fluid={false}>
+                        <Portfolio
+                                   web3 = {this.state.web3}
+                                   coinbase = {this.state.coinbase}
+                                   box = {this.state.box}
+                                   space = {this.state.space}
+                             />
+                      </Container>
+
                     )
                   }} />
 
                   <Route path={"/users"} render={() => {
 
                     return(
-                      <Users box={this.state.box} space={this.state.space} coinbase={this.state.coinbase} />
+                      <Container fluid={false}>
+                        <Users box={this.state.box} space={this.state.space} coinbase={this.state.coinbase} />
+                      </Container>
                     )
                     }} />
+
                   <Route path={"/user/:addr"} render={(props) => {
                       if(this.state.doingLogin && !this.state.space){
                         return(
@@ -301,21 +312,27 @@ class App extends Component {
                       }
                       if(!this.state.space && !this.state.doingLogin){
                         return(
-                          <UserPage {...props} />
+                          <Container fluid={false}>
+                            <UserPage {...props} />
+                          </Container>
                         )
                       }
                       return(
-                        <UserPage box={this.state.box}
-                                  space={this.state.space}
-                                  coinbase={this.state.coinbase}
-                                  {...props} />
+                        <Container fluid={false}>
+                          <UserPage box={this.state.box}
+                                    space={this.state.space}
+                                    coinbase={this.state.coinbase}
+                                    {...props} />
+                        </Container>
                       )
                   }} />
 
                   <Route path={"/jobs"} render={() => {
                     if(!this.state.coinbase ){
                       return(
-                        <Jobs/>
+                        <Container fluid={false}>
+                          <Jobs/>
+                        </Container>
                       )
                     }
                     if(!this.state.space){
@@ -324,13 +341,15 @@ class App extends Component {
                       )
                     }
                     return(
-                        <Jobs box={this.state.box} coinbase={this.state.coinbase} space={this.state.space} />
+                        <Container fluid={false}>
+                          <Jobs box={this.state.box} coinbase={this.state.coinbase} space={this.state.space} />
+                        </Container>
                     )
                   }} />
                   <Route path={"/comments"} render={() => {
                     if(!this.state.coinbase){
                       return(
-                        <div>
+                        <Container fluid={false}>
                            <h4>Comments</h4>
                            <p>Feedbacks or suggestion for nexts versions of this dapp</p>
                            <hr/>
@@ -356,7 +375,7 @@ class App extends Component {
                                />
 
 
-                         </div>
+                         </Container>
                       );
                     }
                     if(!this.state.space){
@@ -366,7 +385,7 @@ class App extends Component {
                     }
 
                     return(
-                      <div>
+                      <Container fluid={false}>
                          <h4>Comments</h4>
                          <p>Use this space to give feedback or suggestion for nexts versions of this dapp</p>
                          <hr/>
@@ -390,15 +409,17 @@ class App extends Component {
                                             // optional
                                             members={false}
                                         />
-                       </div>
+                       </Container>
 
                     );
                   }} />
                   <Route path={"/loginNoWeb3"} render={() => {
                     return(
-                      <center style={{paddingTop: '50px'}}>
-                         <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or login with <a href="#auth_login" onClick={this.login}>authereum</a></p>
-                      </center>
+                      <Container fluid={false}>
+                        <center style={{paddingTop: '50px'}}>
+                           <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or login with <a href="#auth_login" onClick={this.login}>authereum</a></p>
+                        </center>
+                      </Container>
                     )
                   }} />
                   <Route path={"/login"} render={() => {
@@ -409,11 +430,13 @@ class App extends Component {
                     }
 
                     return(
-                      <Row style={{paddingTop: '50px'}}>
-                          <Col lg={3}>
-                            <Button variant="primary" onClick={this.login}>Login with injected web3</Button>
-                          </Col>
-                      </Row>
+                      <Container fluid={false}>
+                        <Row style={{paddingTop: '50px'}}>
+                            <Col lg={3}>
+                              <Button variant="primary" onClick={this.login}>Login with injected web3</Button>
+                            </Col>
+                        </Row>
+                      </Container>
                     )
                   }} />
                   <Route path={"/logout"} render={() => {
@@ -434,7 +457,7 @@ class App extends Component {
                   }} />
             </Switch>
 
-          </Container>
+          </div>
         </Router>
         {
           this.chatBox()
