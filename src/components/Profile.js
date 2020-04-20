@@ -31,8 +31,6 @@ const AppName = Config.AppName
 const usersRegistered = Config.usersRegistered
 const admin = Config.admin
 
-const axios = require('axios');
-const cheerio = require('cheerio');
 
 class Profile extends Component {
   state = {
