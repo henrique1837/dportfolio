@@ -220,42 +220,47 @@ class App extends Component {
   }
   render() {
 
-    if(this.state.doingLogin){
-      return(
-        <>
-        <Router>
-          <Menu box={null}
-                space={null}
-                hasWeb3={this.state.hasWeb3}
-                doingLogin={this.state.doingLogin} />
-          <Container className="themed-container" fluid={false} style={{display: this.state.doingLogin}}>
-                  <Alert color="info" style={{textAlign: "center",
-                                        marginTop:'20px'}}>
-                      <h2 style={{color: 'white'}}>Loading dapp ...</h2>
-                      <div id="loading_status"></div>
-                  </Alert>
-          </Container>
-          <div className="themed-container" fluid={true}>
-            <Home/>
-          </div>
-          <Container fluid={false}>
-            <Footer style={{maeginTop: '20px'}}/>
-          </Container>
 
-        </Router>
-        </>
-      )
-    }
     return (
       <div>
         <Router>
-          {this.renderRedirect()}
-          <Menu box={this.state.box}
-                space={this.state.space}
-                hasWeb3={this.state.hasWeb3}
-                doingLogin={this.state.doingLogin} />
-          <div className="themed-container" fluid={true}>
 
+          {
+            (
+              this.state.doingLogin &&
+               (
+                <Menu box={null}
+                      space={null}
+                      hasWeb3={this.state.hasWeb3}
+                      doingLogin={this.state.doingLogin} />
+               )
+            )
+          }
+          {
+            (
+              !this.state.doingLogin &&
+              (
+                <Menu box={this.state.box}
+                      space={this.state.space}
+                      hasWeb3={this.state.hasWeb3}
+                      doingLogin={this.state.doingLogin} />
+              )
+            )
+          }
+          <div className="themed-container" fluid={true}>
+            {
+              (this.state.doingLogin &&
+                (
+                  <Container className="themed-container" fluid={false} style={{display: this.state.doingLogin}}>
+                          <Alert color="info" style={{textAlign: "center",
+                                                marginTop:'20px'}}>
+                              <h2 style={{color: 'white'}}>Loading dapp ...</h2>
+                              <div id="loading_status"></div>
+                          </Alert>
+                  </Container>
+                )
+              )
+             }
 
             <Switch>
                   <Route path={"/home"} component={Home} />
@@ -305,12 +310,8 @@ class App extends Component {
                     }} />
 
                   <Route path={"/user/:addr"} render={(props) => {
-                      if(this.state.doingLogin && !this.state.space){
-                        return(
-                          <Redirect to={"/home"} />
-                        )
-                      }
-                      if(!this.state.space && !this.state.doingLogin){
+
+                      if(!this.state.space){
                         return(
                           <Container fluid={false}>
                             <UserPage {...props} />
@@ -328,18 +329,14 @@ class App extends Component {
                   }} />
 
                   <Route path={"/jobs"} render={() => {
-                    if(!this.state.coinbase ){
+                    if(!this.state.space){
                       return(
                         <Container fluid={false}>
                           <Jobs/>
                         </Container>
                       )
                     }
-                    if(!this.state.space){
-                      return(
-                        <Redirect to={"/home"} />
-                      )
-                    }
+
                     return(
                         <Container fluid={false}>
                           <Jobs box={this.state.box} coinbase={this.state.coinbase} space={this.state.space} />
@@ -347,7 +344,7 @@ class App extends Component {
                     )
                   }} />
                   <Route path={"/comments"} render={() => {
-                    if(!this.state.coinbase){
+                    if(!this.state.space){
                       return(
                         <Container fluid={false}>
                            <h4>Comments</h4>
@@ -376,11 +373,6 @@ class App extends Component {
 
 
                          </Container>
-                      );
-                    }
-                    if(!this.state.space){
-                      return(
-                        <Redirect to={"/home"} />
                       );
                     }
 

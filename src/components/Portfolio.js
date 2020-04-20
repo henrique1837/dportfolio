@@ -1,11 +1,15 @@
 import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from "web3";
+import ReactDatetime from "react-datetime";
 import $ from 'jquery';
 import {
   Button,
   Card,
   CardBody,
+  CardTitle,
+  CardImg,
+  CardText,
   NavItem,
   NavLink,
   Nav,
@@ -41,10 +45,6 @@ const AppName = Config.AppName
 const admin = Config.admin
 
 
-const axios = require('axios');
-const cheerio = require('cheerio');
-
-
 class Portfolio extends Component {
   state = {
     coinbase:null,
@@ -58,6 +58,7 @@ class Portfolio extends Component {
     publications:[],
     images: [],
     videos: [],
+    erc721: [],
     tabs: "Items",
     tabsItems: "Education"
   }
@@ -70,6 +71,7 @@ class Portfolio extends Component {
 
     this.clear = this.clear.bind(this);
 
+    this.getErc721 = this.getErc721.bind(this);
   }
 
 
@@ -81,6 +83,7 @@ class Portfolio extends Component {
     const profile = await this.props.space.public.all();
     const thread = await this.props.space.joinThread("items_"+this.props.coinbase,{firstModerator:this.props.coinbase,members: true});
     await this.setState({
+      coinbase: this.props.coinbase,
       thread: thread
     })
     const posts = await this.state.thread.getPosts();
@@ -93,6 +96,7 @@ class Portfolio extends Component {
      await this.setState({
        profile: profile
      });
+     await this.getErc721();
      return
   };
   addItem = async function(type){
@@ -478,6 +482,14 @@ class Portfolio extends Component {
     }
   }
 
+  getErc721 = async function(){
+    const collectiblesRes = await fetch(`https://api.opensea.io/api/v1/assets?owner=${this.state.coinbase}&order_by=current_price&order_direction=asc&limit=30`);
+    const collectiblesData = await collectiblesRes.json();
+    await this.setState({
+      erc721: collectiblesData.assets
+    });
+  }
+
   clear = async function(type){
     if(type === 0) {
       await this.setState({
@@ -782,6 +794,43 @@ class Portfolio extends Component {
                       })
                     }
                     </Row>
+                    <h5>Collectibles</h5>
+                    <Row>
+                    {
+                      this.state.erc721.map(function(item){
+
+                        return(
+                          <Col
+                            lg={4}
+                            style={{
+                              display:'flex',
+                              flexDirection:'column',
+                              justifyContent:'space-between',
+                              paddingBottom: '100px'
+                            }}>
+                            <Card>
+                              <CardImg
+                                alt={item.name}
+                                src={item.image_url}
+                                top
+                              />
+                              <CardBody>
+
+                                <CardTitle as="h4"><a href={item.external_link} target='_blank'>{item.name}</a></CardTitle>
+                                <CardText>
+                                  <p>{item.description}</p>
+                                </CardText>
+                              </CardBody>
+                            </Card>
+                          </Col>
+                        )
+
+                      })
+                    }
+                    <Col lg={12}>
+                      <p><small>Collectibles list by <a href='https://opensea.io/assets' target='_blank'>OpenSea</a></small></p>
+                    </Col>
+                    </Row>
                   </div>
                 </TabPane>
                 <TabPane tabId="AddItem">
@@ -903,6 +952,44 @@ class Portfolio extends Component {
                             <Label>Uri</Label>
                             <Input className="form-control-alternative" type="text" placeholder="Uri" id='education_uri'/>
                         </FormGroup>
+                        <FormGroup>
+                          <Row>
+                            <Col lg={6}>
+                              <Label>From</Label>
+                              <InputGroup className="input-group-alternative">
+                                <InputGroupAddon addonType="prepend">
+                                  <InputGroupText>
+                                    <i className="ni ni-calendar-grid-58" />
+                                  </InputGroupText>
+                                </InputGroupAddon>
+                                <ReactDatetime
+                                  inputProps={{
+                                    placeholder: "Date",
+                                    id: 'education_start_date'
+                                  }}
+                                  timeFormat={false}
+                                />
+                              </InputGroup>
+                            </Col>
+                            <Col lg={6}>
+                              <Label>To</Label>
+                              <InputGroup className="input-group-alternative">
+                                <InputGroupAddon addonType="prepend">
+                                  <InputGroupText>
+                                    <i className="ni ni-calendar-grid-58" />
+                                  </InputGroupText>
+                                </InputGroupAddon>
+                                <ReactDatetime
+                                  inputProps={{
+                                    placeholder: "Date",
+                                    id:'education_end_date'
+                                  }}
+                                  timeFormat={false}
+                                />
+                              </InputGroup>
+                            </Col>
+                          </Row>
+                        </FormGroup>
                         <Button onClick={()=>{that.addItem(0)}} color="primary">Add item</Button>
                         <h5>Education items</h5>
                         <ListGroup>
@@ -956,6 +1043,44 @@ class Portfolio extends Component {
                             <Label>Uri</Label>
                             <Input className="form-control-alternative" type="text" placeholder="Uri" id='project_uri'/>
                         </FormGroup>
+                        <FormGroup>
+                          <Row>
+                            <Col lg={6}>
+                              <Label>From</Label>
+                              <InputGroup className="input-group-alternative">
+                                <InputGroupAddon addonType="prepend">
+                                  <InputGroupText>
+                                    <i className="ni ni-calendar-grid-58" />
+                                  </InputGroupText>
+                                </InputGroupAddon>
+                                <ReactDatetime
+                                  inputProps={{
+                                    placeholder: "Date",
+                                    id: 'project_start'
+                                  }}
+                                  timeFormat={false}
+                                />
+                              </InputGroup>
+                            </Col>
+                            <Col lg={6}>
+                              <Label>To</Label>
+                              <InputGroup className="input-group-alternative">
+                                <InputGroupAddon addonType="prepend">
+                                  <InputGroupText>
+                                    <i className="ni ni-calendar-grid-58" />
+                                  </InputGroupText>
+                                </InputGroupAddon>
+                                <ReactDatetime
+                                  inputProps={{
+                                    placeholder: "Date",
+                                    id:'project_end'
+                                  }}
+                                  timeFormat={false}
+                                />
+                              </InputGroup>
+                            </Col>
+                          </Row>
+                        </FormGroup>
                         <Button onClick={()=>{that.addItem(1)}} color="primary">Add item</Button>
                         <ListGroup>
                         {
@@ -1008,6 +1133,44 @@ class Portfolio extends Component {
                             <Label>Location</Label>
                             <Input className="form-control-alternative" type="text" placeholder="Uri" id='experience_location'/>
                         </FormGroup>
+                        <FormGroup>
+                          <Row>
+                            <Col lg={6}>
+                              <Label>From</Label>
+                              <InputGroup className="input-group-alternative">
+                                <InputGroupAddon addonType="prepend">
+                                  <InputGroupText>
+                                    <i className="ni ni-calendar-grid-58" />
+                                  </InputGroupText>
+                                </InputGroupAddon>
+                                <ReactDatetime
+                                  inputProps={{
+                                    placeholder: "Date",
+                                    id: 'experience_start'
+                                  }}
+                                  timeFormat={false}
+                                />
+                              </InputGroup>
+                            </Col>
+                            <Col lg={6}>
+                              <Label>To</Label>
+                              <InputGroup className="input-group-alternative">
+                                <InputGroupAddon addonType="prepend">
+                                  <InputGroupText>
+                                    <i className="ni ni-calendar-grid-58" />
+                                  </InputGroupText>
+                                </InputGroupAddon>
+                                <ReactDatetime
+                                  inputProps={{
+                                    placeholder: "Date",
+                                    id:'experience_end'
+                                  }}
+                                  timeFormat={false}
+                                />
+                              </InputGroup>
+                            </Col>
+                          </Row>
+                        </FormGroup>
                         <Button onClick={()=>{that.addItem(2)}} color="primary">Add item</Button>
                         <ListGroup>
                         {
@@ -1051,7 +1214,20 @@ class Portfolio extends Component {
                         </FormGroup>
                         <FormGroup>
                             <Label>Publication date</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Publication date" id='publication_date'/>
+                            <InputGroup className="input-group-alternative">
+                              <InputGroupAddon addonType="prepend">
+                                <InputGroupText>
+                                  <i className="ni ni-calendar-grid-58" />
+                                </InputGroupText>
+                              </InputGroupAddon>
+                              <ReactDatetime
+                                inputProps={{
+                                  placeholder: "Date",
+                                  id:'publication_date'
+                                }}
+                                timeFormat={false}
+                              />
+                            </InputGroup>
                         </FormGroup>
                         <FormGroup>
                             <Label>Description</Label>
@@ -1061,6 +1237,7 @@ class Portfolio extends Component {
                             <Label>Uri</Label>
                             <Input className="form-control-alternative" type="text" placeholder="Uri" id='publication_uri'/>
                         </FormGroup>
+
                         <Button onClick={()=>{that.addItem(3)}} color="primary">Add item</Button>
                         <ListGroup>
                         {

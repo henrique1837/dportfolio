@@ -7,6 +7,9 @@ import {
   Form,
   Card,
   CardBody,
+  CardImg,
+  CardTitle,
+  CardText,
   NavItem,
   NavLink,
   Nav,
@@ -44,6 +47,7 @@ class UserPage extends Component {
     items: null,
     space: null,
     coinbase: null,
+    erc721: [],
     tabs:"Portfolio"
   }
   constructor(props){
@@ -51,6 +55,8 @@ class UserPage extends Component {
     this.addContact = this.addContact.bind(this);
     this.setItems = this.setItems.bind(this);
     this.setChannel = this.setChannel.bind(this);
+
+    this.getErc721 = this.getErc721.bind(this);
   }
   componentDidMount = async function(){
     console.log(this.props);
@@ -58,6 +64,7 @@ class UserPage extends Component {
       user_address: this.props.match.params.addr
     })
     await this.setItems();
+    await this.getErc721();
     if(this.props.box){
       await this.setState({
         box: this.props.box,
@@ -146,7 +153,7 @@ class UserPage extends Component {
     console.log(isContactAdded)
     console.log("contactsAdded_"+this.state.coinbase);
     if(!isContactAdded){
-      const thread = await space.joinThread("contactsAdded_"+this.states.coinbase,{firstModerator:this.state.coinbase});
+      const thread = await space.joinThread("contactsAdded_"+this.state.coinbase,{firstModerator:this.state.coinbase});
       const postId = await thread.post(this.state.user_address);
       await space.private.set("contactAdded_"+this.state.user_address,postId);
       alert('saved')
@@ -156,6 +163,16 @@ class UserPage extends Component {
     await space.syncDone;
     return
   }
+
+
+  getErc721 = async function(){
+    const collectiblesRes = await fetch(`https://api.opensea.io/api/v1/assets?owner=${this.state.user_address}&order_by=current_price&order_direction=asc&limit=30`);
+    const collectiblesData = await collectiblesRes.json();
+    await this.setState({
+      erc721: collectiblesData.assets
+    });
+  }
+
   toggleNavs = (e,tab) => {
     e.preventDefault();
     this.setState({
@@ -178,64 +195,69 @@ class UserPage extends Component {
         })
       }
 
-
-      if(this.state.confidentialThreadName){
-
-
-
-        return(
+      return(
           <div>
-              <div className="nav-wrapper">
-                <Nav
-                  className="nav-fill flex-column flex-md-row"
-                  id="tabs-icons-text"
-                  pills
-                  role="tablist"
-                >
-                  <NavItem>
-                    <NavLink
-                      aria-selected={this.state.tabs === 'Portfolio'}
-                      className={classnames("mb-sm-3 mb-md-0", {
-                        active: this.state.tabs === 'Portfolio'
-                      })}
-                      onClick={e => this.toggleNavs(e, 'Portfolio')}
-                      href="#Portfolio"
-                      role="tab"
-                    >
-                      <i className="ni ni-cloud-upload-96 mr-2" />
-                      Portfolio
-                    </NavLink>
-                  </NavItem>
-                  <NavItem>
-                    <NavLink
-                      aria-selected={this.state.tabs === 'privMessage'}
-                      className={classnames("mb-sm-3 mb-md-0", {
-                        active: this.state.tabs === 'privMessage'
-                      })}
-                      onClick={e => this.toggleNavs(e,'privMessage')}
-                      href="#privMessage"
-                      role="tab"
-                    >
-                      <i className="ni ni-bell-55 mr-2" />
-                      Private message
-                    </NavLink>
-                  </NavItem>
-                  <NavItem>
-                    <NavLink
-                      aria-selected={this.state.tabs === 'Comments'}
-                      className={classnames("mb-sm-3 mb-md-0", {
-                        active: this.state.tabs === 'Comments'
-                      })}
-                      onClick={e => this.toggleNavs(e,'Comments')}
-                      href="#Comments"
-                      role="tab"
-                    >
-                      <i className="ni ni-calendar-grid-58 mr-2" />
-                      Comments
-                    </NavLink>
-                  </NavItem>
-                </Nav>
-              </div>
+          {
+            (
+              this.state.confidentialThreadName &&
+              this.state.profile &&
+              this.state.items &&
+              (
+                <div className="nav-wrapper">
+                  <Nav
+                    className="nav-fill flex-column flex-md-row"
+                    id="tabs-icons-text"
+                    pills
+                    role="tablist"
+                  >
+                    <NavItem>
+                      <NavLink
+                        aria-selected={this.state.tabs === 'Portfolio'}
+                        className={classnames("mb-sm-3 mb-md-0", {
+                          active: this.state.tabs === 'Portfolio'
+                        })}
+                        onClick={e => this.toggleNavs(e, 'Portfolio')}
+                        href="#Portfolio"
+                        role="tab"
+                      >
+                        <i className="ni ni-cloud-upload-96 mr-2" />
+                        Portfolio
+                      </NavLink>
+                    </NavItem>
+                    <NavItem>
+                      <NavLink
+                        aria-selected={this.state.tabs === 'privMessage'}
+                        className={classnames("mb-sm-3 mb-md-0", {
+                          active: this.state.tabs === 'privMessage'
+                        })}
+                        onClick={e => this.toggleNavs(e,'privMessage')}
+                        href="#privMessage"
+                        role="tab"
+                      >
+                        <i className="ni ni-bell-55 mr-2" />
+                        Private message
+                      </NavLink>
+                    </NavItem>
+                    <NavItem>
+                      <NavLink
+                        aria-selected={this.state.tabs === 'Comments'}
+                        className={classnames("mb-sm-3 mb-md-0", {
+                          active: this.state.tabs === 'Comments'
+                        })}
+                        onClick={e => this.toggleNavs(e,'Comments')}
+                        href="#Comments"
+                        role="tab"
+                      >
+                        <i className="ni ni-calendar-grid-58 mr-2" />
+                        Comments
+                      </NavLink>
+                    </NavItem>
+                  </Nav>
+                </div>
+              )
+            )
+          }
+
               <Card className="shadow">
                 <CardBody>
                   <TabContent activeTab={this.state.tabs}>
@@ -462,273 +484,108 @@ class UserPage extends Component {
                           })
                         }
                         </Row>
+                        <h5>Collectibles</h5>
+                        <Row>
+                        {
+                          this.state.erc721.map(function(item){
+
+                            return(
+                              <Col
+                                lg={4}
+                                style={{
+                                  display:'flex',
+                                  flexDirection:'column',
+                                  justifyContent:'space-between',
+                                  paddingBottom: '100px'
+                                }}>
+                                <Card>
+                                  <CardImg
+                                    alt={item.name}
+                                    src={item.image_url}
+                                    top
+                                  />
+                                  <CardBody>
+                                    <CardTitle as="h4"><a href={item.external_link} target='_blank'>{item.name}</a></CardTitle>
+                                    <CardText>
+                                      <p>{item.description}</p>
+                                    </CardText>
+                                  </CardBody>
+                                </Card>
+                              </Col>
+                            )
+
+                          })
+                        }
+                        <Col lg={12}>
+                          <p><small>Collectibles list by <a href='https://opensea.io/assets' target='_blank'>OpenSea</a></small></p>
+                        </Col>
+                        </Row>
                         </div>
-                        <div>
-                          <Button variant="primary" onClick={this.addContact}>Add contact</Button>
-                        </div>
+                        {
+                          (
+                            this.state.space &&
+                            (
+                              <div>
+                                <Button variant="primary" onClick={this.addContact}>Add contact</Button>
+                              </div>
+                            )
+                          )
+                        }
                        </div>
                     </TabPane>
-                    <TabPane tabId="privMessage">
-                      <h5>Private message</h5>
-                      <PrivateChat threadAddress={this.state.threadAddress} space={this.state.space} coinbase={this.state.coinbase} />
-                    </TabPane>
-                    <TabPane tabId="Comments">
-                      <h5>Comments</h5>
+                    {
+                      (
+                        this.state.confidentialThreadName &&
+                        this.state.profile &&
+                        this.state.items &&
+                        (
+                          <TabPane tabId="privMessage">
+                            <h5>Private message</h5>
+                            <PrivateChat threadAddress={this.state.threadAddress} space={this.state.space} coinbase={this.state.coinbase} />
+                          </TabPane>
+                        )
+                      )
+                    }
+                    {
+                      (
+                        this.state.confidentialThreadName &&
+                        this.state.profile &&
+                        this.state.items &&
+                        (
+                          <TabPane tabId="Comments">
+                            <h5>Comments</h5>
 
-                      <ThreeBoxComments
-                                          // required
-                                          spaceName={AppName}
-                                          threadName={"job_offers_"+profile.address}
-                                          adminEthAddr={profile.address}
+                            <ThreeBoxComments
+                                                // required
+                                                spaceName={AppName}
+                                                threadName={"job_offers_"+profile.address}
+                                                adminEthAddr={profile.address}
 
 
-                                          // Required props for context A) & B)
-                                          box={this.state.box}
-                                          currentUserAddr={this.state.coinbase}
+                                                // Required props for context A) & B)
+                                                box={this.state.box}
+                                                currentUserAddr={this.state.coinbase}
 
-                                          // Required prop for context B)
-                                          //loginFunction={handleLogin}
+                                                // Required prop for context B)
+                                                //loginFunction={handleLogin}
 
-                                          // Required prop for context C)
-                                          //ethereum={ethereum}
+                                                // Required prop for context C)
+                                                //ethereum={ethereum}
 
-                                          // optional
-                                          members={false}
-                    />
-                    </TabPane>
+                                                // optional
+                                                members={false}
+                          />
+                          </TabPane>
+                        )
+                      )
+                    }
+
 
                   </TabContent>
                 </CardBody>
               </Card>
           </div>
         )
-      }
-      return(
-        <div>
-          <div style={{paddingTop:'20px'}}>
-            <ProfileHover
-              address={profile.address}
-              orientation="bottom"
-              noCoverImg
-            />
-          </div>
-          <div style={{paddingTop:'40px'}}>
-            <h5>Decentralized portfolio profile</h5>
-            <p>Name: {profile.name}</p>
-            <p>Description: {profile.description}</p>
-            <p>Techs: {profile.techs}</p>
-            {
-              socialProfiles.map(function(item){
-                return(
-                  <p>{item.name}: <a href={item.uri} href='_blank'>{item.profile}</a></p>
-                )
-              })
-            }
-          </div>
-          <div style={{paddingTop:'40px'}}>
-            <h5>Portfolio</h5>
-          </div>
-          <div style={{paddingTop:'20px'}}>
-
-
-          <h5>Education</h5>
-          <ListGroup>
-          {
-
-            this.state.items.map(function(post){
-              const item = post.message;
-              const postId = post.postId;
-              if(item.type === 0){
-                return(
-                  <ListGroupItem>
-                    <Row>
-                      <Col lg={4}>
-                        <h5>{item.school_name}</h5>
-                        <h6>{item.course}</h6>
-                        <p><small>From {item.start_date} to {item.end_date}</small></p>
-                        <p><a href={item.uri} target="_blank">{item.uri}</a></p>
-                      </Col>
-                      <Col lg={8}>
-                        <p>{item.description}</p>
-                      </Col>
-                    </Row>
-
-                  </ListGroupItem>
-                )
-              }
-
-            })
-          }
-          </ListGroup>
-          <h5>Projects</h5>
-          <ListGroup>
-          {
-            this.state.items.map(function(post){
-              const item = post.message;
-              const postId = post.postId;
-              if(item.type === 1){
-                return(
-                  <ListGroupItem>
-                    <Row>
-                      <Col lg={4}>
-                        <h5>{item.title}</h5>
-                        <p><small>From {item.start_date} to {item.end_date}</small></p>
-                        <p><a href={item.uri} target="_blank">{item.uri}</a></p>
-                      </Col>
-                      <Col lg={8}>
-                        <p>{item.description}</p>
-                      </Col>
-                    </Row>
-                  </ListGroupItem>
-                )
-              }
-
-            })
-          }
-          </ListGroup>
-          <h5>Experience</h5>
-          <ListGroup>
-          {
-            this.state.items.map(function(post){
-              const item = post.message;
-              const postId = post.postId;
-              if(item.type === 2){
-                return(
-                  <ListGroupItem>
-                    <Row>
-                      <Col lg={4}>
-                        <h5>{item.company}</h5>
-                        <h6>{item.title}</h6>
-                        <p><small>From {item.start_date} to {item.end_date}</small></p>
-                        <p><small>{item.location}</small></p>
-                      </Col>
-                      <Col lg={8}>
-                        <p>{item.description}</p>
-                      </Col>
-                    </Row>
-                  </ListGroupItem>
-                )
-              }
-
-            })
-          }
-          </ListGroup>
-          <h5>Publications</h5>
-          <ListGroup>
-          {
-            this.state.items.map(function(post){
-              const item = post.message;
-              const postId = post.postId;
-              if(item.type === 3){
-                return(
-                  <ListGroupItem>
-                    <Row>
-                      <Col lg={4}>
-                        <h5>{item.name}</h5>
-                        <p><small>Published on {item.date}</small></p>
-                        <p><small><a href={item.uri} target='_blank'>{item.uri}</a></small></p>
-                      </Col>
-                      <Col lg={8}>
-                        <p>{item.description}</p>
-                      </Col>
-                    </Row>
-                  </ListGroupItem>
-                )
-              }
-
-            })
-          }
-          </ListGroup>
-          <h5>Images</h5>
-          <Row>
-          {
-            this.state.items.map(function(post){
-              const item = post.message;
-              const postId = post.postId;
-              if(item.type === 4){
-                return(
-                  <Col
-                    lg={4}
-                    style={{
-                      display:'flex',
-                      flexDirection:'column',
-                      justifyContent:'space-between',
-                      paddingBottom: '100px'
-                    }}>
-                    <Card>
-                      <Card.Body>
-                        <center>
-                          <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
-                        </center>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                )
-              }
-
-            })
-          }
-          </Row>
-          <h5>Videos</h5>
-          <Row>
-          {
-            this.state.items.map(function(post){
-              const item = post.message;
-              const postId = post.postId;
-
-              if(item.type === 5){
-                if(item.source === 'youtube'){
-                  const uri = `https://www.youtube.com/embed/${item.uri}`
-                  return(
-                    <Col
-                      lg={4}
-                      style={{
-                        display:'flex',
-                        flexDirection:'column',
-                        justifyContent:'space-between',
-                        paddingBottom: '100px'
-                      }}>
-                      <Card>
-                        <CardBody>
-                          <center>
-                            <iframe src={uri} style={{width:'100%'}}
-                                frameborder="0"
-                                allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen>
-                            </iframe>
-                          </center>
-                        </CardBody>
-                      </Card>
-                    </Col>
-                  )
-                }
-                return(
-                  <Col
-                    lg={4}
-                    style={{
-                      display:'flex',
-                      flexDirection:'column',
-                      justifyContent:'space-between',
-                      paddingBottom: '100px'
-                    }}>
-                    <Card>
-                      <CardBody>
-                        <center>
-                          <video src={item.uri} style={{width:'100%'}} controls/>
-                        </center>
-                      </CardBody>
-
-                    </Card>
-                  </Col>
-                )
-              }
-
-            })
-          }
-          </Row>
-          </div>
-         </div>
-      )
     }
     return(
       <center style={{paddingTop:'40px'}}>

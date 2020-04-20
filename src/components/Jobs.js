@@ -58,9 +58,7 @@ class Jobs extends Component {
   }
 
   componentDidMount = async () => {
-    if(!this.props.space){
-      return;
-    }
+
     await this.setState({
       box: this.props.box,
       coinbase: this.props.coinbase,

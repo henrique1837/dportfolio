@@ -74,96 +74,7 @@ class Menu extends Component {
   }
 
   render(){
-    if(!this.state.box){
-      return(
-        <Navbar
-          className="navbar-horizontal navbar-dark bg-primary mt-4"
-          expand="lg"
-        >
-          <Container>
-
-            <NavbarBrand href="#DecentralizedPortfolio">
-                DecentralizedPortfolio
-            </NavbarBrand>
-            <button
-              aria-controls="navbar-primary"
-              aria-expanded={false}
-              aria-label="Toggle navigation"
-              className="navbar-toggler"
-              data-target="#navbar-primary"
-              data-toggle="collapse"
-              id="navbar-primary"
-              type="button"
-            >
-              <span className="navbar-toggler-icon" />
-            </button>
-            <UncontrolledCollapse navbar toggler="#navbar-primary">
-              <div className="navbar-collapse-header">
-                <Row>
-                  <Col className="collapse-brand" xs="6">
-                    <NavbarBrand href="#DecentralizedPortfolio">
-                        DecentralizedPortfolio
-                    </NavbarBrand>
-                  </Col>
-                  <Col className="collapse-close" xs="6">
-                    <button
-                      aria-controls="navbar-primary"
-                      aria-expanded={false}
-                      aria-label="Toggle navigation"
-                      className="navbar-toggler"
-                      data-target="#navbar-primary"
-                      data-toggle="collapse"
-                      id="navbar-primary"
-                      type="button"
-                    >
-                      <span />
-                      <span />
-                    </button>
-                  </Col>
-                </Row>
-              </div>
-              <Nav className="ml-lg-auto" navbar>
-                <NavItem>
-                  <Link to={"/home"}>
-                    <NavLink>
-                      Home
-                    </NavLink>
-                  </Link>
-                </NavItem>
-                <NavItem>
-                  <Link to={"/users"}>
-                    <NavLink>
-                      Users
-                    </NavLink>
-                  </Link>
-                </NavItem>
-                <NavItem>
-                  <Link to={"/jobs"}>
-                    <NavLink>
-                      Jobs
-                    </NavLink>
-                  </Link>
-                </NavItem>
-                <NavItem>
-                  <Link to={"/comments"}>
-                    <NavLink>
-                      Comments
-                    </NavLink>
-                  </Link>
-                </NavItem>
-                <NavItem>
-                {
-                  this.setLoginItem()
-                }
-                </NavItem>
-              </Nav>
-
-            </UncontrolledCollapse>
-          </Container>
-        </Navbar>
-      );
-    }
-
+    
     return(
       <Navbar
         className="navbar-horizontal navbar-dark bg-primary mt-4"
@@ -210,57 +121,109 @@ class Menu extends Component {
                 </Col>
               </Row>
             </div>
-            <Nav className="ml-lg-auto" navbar>
-            <NavItem>
-              <Link to={"/home"}>
-                <NavLink>
-                  Home
-                </NavLink>
-              </Link>
-            </NavItem>
-            <NavItem>
-              <Link to={"/profile"}>
-                <NavLink>
-                  Profile
-                </NavLink>
-              </Link>
-            </NavItem>
-            <NavItem>
-              <Link to={"/portfolio"}>
-                <NavLink>
-                  Portfolio
-                </NavLink>
-              </Link>
-            </NavItem>
-            <NavItem>
-              <Link to={"/users"}>
-                <NavLink>
-                  Users
-                </NavLink>
-              </Link>
-            </NavItem>
-            <NavItem>
-              <Link to={"/jobs"}>
-                <NavLink>
-                  Jobs
-                </NavLink>
-              </Link>
-            </NavItem>
-            <NavItem>
-              <Link to={"/comments"}>
-                <NavLink>
-                  Comments
-                </NavLink>
-              </Link>
-            </NavItem>
-              <NavItem>
-                <Link to={"/logout"} onClick={this.logout}>
-                  <NavLink>
-                    Logout
-                  </NavLink>
-                </Link>
-              </NavItem>
-            </Nav>
+
+            {
+              (
+                !this.state.box &&
+                (
+                  <Nav className="ml-lg-auto" navbar>
+                    <NavItem>
+                      <Link to={"/home"}>
+                        <NavLink>
+                          Home
+                        </NavLink>
+                      </Link>
+                    </NavItem>
+                    <NavItem>
+                      <Link to={"/users"}>
+                        <NavLink>
+                          Users
+                        </NavLink>
+                      </Link>
+                    </NavItem>
+                    <NavItem>
+                      <Link to={"/jobs"}>
+                        <NavLink>
+                          Jobs
+                        </NavLink>
+                      </Link>
+                    </NavItem>
+                    <NavItem>
+                      <Link to={"/comments"}>
+                        <NavLink>
+                          Comments
+                        </NavLink>
+                      </Link>
+                    </NavItem>
+                    <NavItem>
+                    {
+                      this.setLoginItem()
+                    }
+                    </NavItem>
+                  </Nav>
+                )
+              )
+            }
+            {
+              (
+                this.state.box &&
+                (
+                  <Nav className="ml-lg-auto" navbar>
+                    <NavItem>
+                       <Link to={"/home"}>
+                         <NavLink>
+                           Home
+                         </NavLink>
+                       </Link>
+                     </NavItem>
+                     <NavItem>
+                       <Link to={"/profile"}>
+                         <NavLink>
+                           Profile
+                         </NavLink>
+                       </Link>
+                     </NavItem>
+                     <NavItem>
+                       <Link to={"/portfolio"}>
+                         <NavLink>
+                           Portfolio
+                         </NavLink>
+                       </Link>
+                     </NavItem>
+                     <NavItem>
+                       <Link to={"/users"}>
+                         <NavLink>
+                           Users
+                         </NavLink>
+                       </Link>
+                     </NavItem>
+                     <NavItem>
+                       <Link to={"/jobs"}>
+                         <NavLink>
+                           Jobs
+                         </NavLink>
+                       </Link>
+                     </NavItem>
+                     <NavItem>
+                       <Link to={"/comments"}>
+                         <NavLink>
+                           Comments
+                         </NavLink>
+                       </Link>
+                     </NavItem>
+                     <NavItem>
+                         <Link to={"/logout"} onClick={this.logout}>
+                           <NavLink>
+                             Logout
+                           </NavLink>
+                         </Link>
+                     </NavItem>
+                  </Nav>
+
+                )
+              )
+            }
+
           </UncontrolledCollapse>
         </Container>
       </Navbar>
