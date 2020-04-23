@@ -213,6 +213,7 @@ class App extends Component {
           currentUserAddr={this.state.coinbase}
 
           // optional
+          userProfileURL={address => `user/${address}`}
           mute={false}
           popupChat
       />
