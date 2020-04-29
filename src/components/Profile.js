@@ -9,6 +9,9 @@ import {
   NavItem,
   NavLink,
   Nav,
+  FormGroup,
+  Input,
+  Label,
   TabContent,
   TabPane,
   Container,
@@ -38,6 +41,8 @@ class Profile extends Component {
     space: null,
     coinbase: null,
     web3:null,
+    did : null,
+    linkedAddrs: [],
     threadContacts: null,
     threadViews: null,
     tabs: "Profile",
@@ -71,17 +76,25 @@ class Profile extends Component {
     this.getContacts = this.getContacts.bind(this);
     this.getViews = this.getViews.bind(this);
 
+    this.didAddAddr = this.didAddAddr.bind(this);
+    this.removeLinkedAddr = this.removeLinkedAddr.bind(this);
   }
 
   componentDidMount = async function(){
     await this.setState({
       box: this.props.box,
       space: this.props.space,
+      did: this.props.box.DID,
       coinbase: this.props.coinbase,
       web3: this.props.web3
     });
     console.log(this.state)
     await this.state.space.syncDone;
+    const linkedAddrs = await this.state.box.listAddressLinks();
+    console.log(linkedAddrs)
+    await this.setState({
+      linkedAddrs: linkedAddrs
+    })
     await this.getContacts();
     await this.getViews();
     await this.setState({
@@ -148,6 +161,36 @@ class Profile extends Component {
     alert("saved");
   };
 
+
+  didAddAddr = async function(){
+    const addr = $("#wallet_addr").val();
+    if(!(await this.state.box.isAddressLinked({addres:addr}))){
+      await this.state.box.linkAddress(addr);
+      await this.state.syncDone;
+      const linkedAddrs = await this.state.box.listAddressLinks();
+      await this.setState({
+        linkedAddrs: linkedAddrs
+      })
+      alert("Address linked to did");
+    } else {
+      alert("Address already linked to did");
+    }
+
+  };
+
+  removeLinkedAddr = async function(addr){
+    if(addr == this.state.coinbase){
+      alert(`Cant't remove own address`);
+      return;
+    }
+    if(this.state.box.isAddressLinked(addr)){
+      await this.state.box.box.removeAddressLink(addr);
+      alert('Address removed from did');
+      return;
+    }
+
+  }
+
   toggleNavs = (e,tab) => {
     e.preventDefault();
     this.setState({
@@ -188,6 +231,20 @@ class Profile extends Component {
               >
                 <i className="ni ni-cloud-upload-96 mr-2" />
                 Profile
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                aria-selected={this.state.tabs === 'Identity'}
+                className={classnames("mb-sm-3 mb-md-0", {
+                  active: this.state.tabs === 'Identity'
+                })}
+                onClick={e => this.toggleNavs(e, 'Identity')}
+                href="#Identity"
+                role="tab"
+              >
+                <i className="ni ni-cloud-upload-96 mr-2" />
+                Identity
               </NavLink>
             </NavItem>
             <NavItem>
@@ -248,6 +305,36 @@ class Profile extends Component {
                         customFields={this.state.fields}
                         redirectFn={this.profileSaved}
                     />
+              </TabPane>
+              <TabPane tabId="Identity">
+                <h4>Your decentralized identity</h4>
+                <p>{this.state.did}</p>
+                <h5>Link wallet</h5>
+                <FormGroup>
+                    <Label>Address</Label>
+                    <Input className="form-control-alternative" type="text" placeholder="Address" id='wallet_addr'/>
+                </FormGroup>
+                <Button onClick={this.didAddAddr}>Add</Button>
+                <h5>Wallet addresses linked</h5>
+                {
+                  this.state.linkedAddrs.map(function(item){
+                    const addr = item.address;
+                    let button = <Button variant="danger" onClick={()=>that.removeLinkedAddr(addr)}>Remove</Button>
+                    if(addr == that.state.coinbase){
+                      button = <p></p>
+                    }
+                    return(
+                      <Row>
+                        <Col lg={8}>
+                          <p>{addr}</p>
+                        </Col>
+                        <Col lg={4}>
+                          {button}
+                        </Col>
+                      </Row>
+                    );
+                  })
+                }
               </TabPane>
               <TabPane tabId="Views">
                 <Row>

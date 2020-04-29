@@ -72,6 +72,7 @@ class Portfolio extends Component {
     this.clear = this.clear.bind(this);
 
     this.getErc721 = this.getErc721.bind(this);
+    this.projectsUploadGitCoin = this.projectsUploadGitCoin.bind(this);
   }
 
 
@@ -83,6 +84,8 @@ class Portfolio extends Component {
     const profile = await this.props.space.public.all();
     const thread = await this.props.space.joinThread("items_"+this.props.coinbase,{firstModerator:this.props.coinbase,members: true});
     await this.setState({
+      box: this.props.box,
+      space: this.props.space,
       coinbase: this.props.coinbase,
       thread: thread
     })
@@ -304,6 +307,16 @@ class Portfolio extends Component {
         }
       };
       reader.readAsText(file);
+    } catch(err){
+      console.log(err)
+    }
+  }
+  projectsUploadGitCoin = async function(){
+    try{
+      const gitSpace = await Box.getSpace(this.state.coinbase,"GitCoin");
+      const gitPortfolio = gitSpace.portfolio;
+      console.log(gitPortfolio);
+
     } catch(err){
       console.log(err)
     }
@@ -1031,6 +1044,7 @@ class Portfolio extends Component {
                         <ReactFileReader handleFiles={this.projectsUploadGit} fileTypes={'.json'}>
                             <Button color="primary">Upload from Github file</Button>
                         </ReactFileReader>
+                        <Button color="primary" onClick={this.projectsUploadGitCoin}>Import from GitCoin 3box backup</Button>
                         <FormGroup>
                             <Label>Title</Label>
                             <Input className="form-control-alternative" type="text" placeholder="Title" id='project_title'/>

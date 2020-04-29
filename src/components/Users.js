@@ -187,15 +187,6 @@ class Users extends Component {
         {
           this.state.posts.map(function(post){
             const profile = post.message;
-            console.log(profile)
-            let div_profile = <div></div>
-            //if(profile.name && profile.description){
-              div_profile = <div>
-                                    <p><small>Decentralized portfolio profile</small></p>
-                                    <p>Name: {profile.name}</p>
-                                    <p>Description: {profile.description}</p>
-                                    <p>Techs: {profile.techs}</p>
-                            </div>
             //}
             return(
 
@@ -218,7 +209,8 @@ class Users extends Component {
                         </div>
 
                         <div>
-                            {div_profile}
+                              <p><small>Decentralized portfolio profile</small></p>
+                              <p>Techs: {profile.techs}</p>
                         </div>
                         <div>
                           <Link to={"/user/"+profile.address} style={{all: 'unset'}}>
