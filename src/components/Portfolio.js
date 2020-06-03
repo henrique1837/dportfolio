@@ -59,6 +59,7 @@ class Portfolio extends Component {
     images: [],
     videos: [],
     erc721: [],
+    certifications: [],
     tabs: "Items",
     tabsItems: "Education"
   }
@@ -154,7 +155,17 @@ class Portfolio extends Component {
       }
       await this.state.publications.push(item);
       await this.forceUpdate();
-    }
+    } else if(type === 6){
+     // Publications //
+     item = {
+           name: $("#certifications_name").val(),
+           authority: $("#certifications_authority").val(),
+           uri: $("#certifications_uri").val(),
+           type: type
+     }
+     await this.state.publications.push(item);
+     await this.forceUpdate();
+   }
 
     return;
   };
@@ -200,6 +211,12 @@ class Portfolio extends Component {
            await this.state.thread.post(vid)
          }
        }
+     } else if(type === 6){
+       for(const cert of this.state.certifications){
+         if(!items.includes(cert)){
+           await this.state.thread.post(cert)
+         }
+       }
      }
 
     this.clear(type)
@@ -239,6 +256,37 @@ class Portfolio extends Component {
               type:0
             }
             await that.state.education.push(item);
+            await that.forceUpdate();
+          }
+        }
+      };
+      reader.readAsText(file);
+    } catch(err){
+      console.log(err)
+    }
+  }
+  certificationsUpload = files => {
+    try{
+      const file = files[0];
+      const that = this;
+      const reader  = new FileReader();
+      const fileName = file.name;
+      const fileType = file.type;
+      console.log(file)
+      reader.onload = async function(f) {
+        // The file's text will be printed here
+        console.log(reader.result)
+        const csv = Papa.parse(reader.result);
+        for(var i=1;i<csv.data.length;i++){
+          const data = csv.data[i]
+          if(data.length > 0){
+            const item = {
+              name: data[0],
+              authority: data[2],
+              uri: data[1],
+              type:6
+            }
+            await that.state.certifications.push(item);
             await that.forceUpdate();
           }
         }
@@ -528,6 +576,10 @@ class Portfolio extends Component {
       await this.setState({
         videos: []
       });
+    }  else if(type === 6){
+      await this.setState({
+        certifications: []
+      });
     }
 
   }
@@ -617,6 +669,33 @@ class Portfolio extends Component {
                                 </Col>
                                 <Col lg={6}>
                                   <p>{item.description}</p>
+                                </Col>
+                                <Col lg={2}>
+                                  <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
+                                </Col>
+                              </Row>
+
+                            </ListGroupItem>
+                          )
+                        }
+
+                      })
+                    }
+                    </ListGroup>
+                    <h5>Certifications</h5>
+                    <ListGroup>
+                    {
+
+                      this.state.posts.map(function(post){
+                        const item = post.message;
+                        const postId = post.postId;
+                        if(item.type === 6){
+                          return(
+                            <ListGroupItem>
+                              <Row>
+                                <Col lg={10}>
+                                  <h5><a href={item.uri} target="_blank">{item.name}</a></h5>
+                                  <h6>{item.authority}</h6>
                                 </Col>
                                 <Col lg={2}>
                                   <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
@@ -871,6 +950,20 @@ class Portfolio extends Component {
                         </NavItem>
                         <NavItem>
                           <NavLink
+                            aria-selected={this.state.tabsItems === 'Certifications'}
+                            className={classnames("mb-sm-6 mb-md-0", {
+                              active: this.state.tabsItems === 'Certifications'
+                            })}
+                            onClick={e => this.toggleNavsItems(e, 'Certifications')}
+                            href="#Items#Certifications"
+                            role="tab"
+                          >
+                            <i className="ni ni-cloud-upload-96 mr-2" />
+                            Certifications
+                          </NavLink>
+                        </NavItem>
+                        <NavItem>
+                          <NavLink
                             aria-selected={this.state.tabsItems === 'Projects'}
                             className={classnames("mb-sm-6 mb-md-0", {
                               active: this.state.tabsItems === 'Projects'
@@ -1034,6 +1127,47 @@ class Portfolio extends Component {
                         </ListGroup>
                         <Button onClick={()=>{that.saveItem(0)}} color="primary">Save</Button>
                         <Button onClick={()=>{this.clear(0)}} color="danger">Clear</Button>
+                      </TabPane>
+                      <TabPane tabId="Certifications">
+                        <h4>Certifications</h4>
+                        <p><small>Optional: Import certifications data from linkedin (Certifications.csv)</small></p>
+                        <ReactFileReader handleFiles={this.certificationsUpload} fileTypes={'.csv'}>
+                            <Button color="primary">Upload</Button>
+                        </ReactFileReader>
+                        <FormGroup>
+                            <Label>Course</Label>
+                            <Input className="form-control-alternative" type="text" placeholder="Name" id='certifications_name'/>
+                        </FormGroup>
+                        <FormGroup>
+                            <Label>Issuer</Label>
+                            <Input className="form-control-alternative" type="text" placeholder="Description" id='certifications_authority'/>
+                        </FormGroup>
+                        <FormGroup>
+                            <Label>Uri</Label>
+                            <Input className="form-control-alternative" type="text" placeholder="Uri" id='certifications_uri'/>
+                        </FormGroup>
+                        <Button onClick={()=>{that.addItem(6)}} color="primary">Add item</Button>
+                        <h5>Certifications items</h5>
+                        <ListGroup>
+                        {
+                          this.state.certifications.map(function(item){
+                            return(
+                              <ListGroupItem>
+                                <div>
+                                  <Row>
+                                    <Col lg={12}>
+                                      <h5><a href={item.uri} target="_blank">{item.name}</a></h5>
+                                      <h6>{item.authority}</h6>
+                                    </Col>
+                                  </Row>
+                                </div>
+                              </ListGroupItem>
+                            )
+                          })
+                        }
+                        </ListGroup>
+                        <Button onClick={()=>{that.saveItem(6)}} color="primary">Save</Button>
+                        <Button onClick={()=>{this.clear(6)}} color="danger">Clear</Button>
                       </TabPane>
                       <TabPane tabId="Projects">
                         <h4>Projects</h4>

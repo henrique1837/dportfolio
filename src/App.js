@@ -1,7 +1,7 @@
 import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from "web3";
-import Authereum from 'authereum'
+import Authereum from 'authereum';
 import $ from 'jquery';
 import {
   Button,
@@ -11,7 +11,8 @@ import {
   Alert,
   Card,
   Modal,
-  Spinner} from 'reactstrap';
+  Spinner
+} from 'reactstrap';
 import {
   HashRouter as Router,
   Link,

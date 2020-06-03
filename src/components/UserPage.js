@@ -318,6 +318,30 @@ class UserPage extends Component {
                           })
                         }
                         </ListGroup>
+                        <h5>Certifcations</h5>
+                        <ListGroup>
+                        {
+
+                          this.state.items.map(function(post){
+                            const item = post.message;
+                            const postId = post.postId;
+                            if(item.type === 6){
+                              return(
+                                <ListGroupItem>
+                                  <Row>
+                                    <Col lg={12}>
+                                      <h5><a href={item.uri} target="_blank">{item.name}</a></h5>
+                                      <h6>{item.authority}</h6>
+                                    </Col>
+                                  </Row>
+
+                                </ListGroupItem>
+                              )
+                            }
+
+                          })
+                        }
+                        </ListGroup>
                         <h5>Projects</h5>
                         <ListGroup>
                         {
