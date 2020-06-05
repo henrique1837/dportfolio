@@ -59,19 +59,24 @@ class UserPage extends Component {
     this.getErc721 = this.getErc721.bind(this);
   }
   componentDidMount = async function(){
-    console.log(this.props);
-    await this.setState({
-      user_address: this.props.match.params.addr
-    })
-    await this.setItems();
-    await this.getErc721();
-    if(this.props.box){
+
+    try{
+      console.log(this.props);
       await this.setState({
-        box: this.props.box,
-        space: this.props.space,
-        coinbase: this.props.coinbase
-      });
-      await this.setChannel();
+        user_address: this.props.match.params.addr
+      })
+      await this.setItems();
+      await this.getErc721();
+      if(this.props.space){
+        await this.setState({
+          box: this.props.box,
+          space: this.props.space,
+          coinbase: this.props.coinbase
+        });
+        await this.setChannel();
+      }
+    } catch(err){
+      console.log(err)
     }
 
   }
@@ -95,7 +100,7 @@ class UserPage extends Component {
       const confidentialThreadNameByUser = "contact_"+this.state.user_address+"_"+this.state.coinbase;
       await space.public.set('contactThread_'+this.state.user_address,threadAddressByUser);
       const thread = await space.joinThreadByAddress(threadAddressByUser)
-      //console.log(await thread.getPosts());
+      console.log(thread);
       await space.syncDone;
       await this.setState({
         confidentialThreadName: confidentialThreadNameByUser,
@@ -108,6 +113,8 @@ class UserPage extends Component {
       console.log(threadAddress)
       if(!threadAddress){
         const thread = await space.createConfidentialThread(confidentialThreadName);
+        const postId = await thread.post("Channel set");
+        await thread.removePost(postId);
         //const thread = await space.joinThread(confidentialThreadName,{firstModerator:this.state.coinbase,members: true});
         const members = await thread.listMembers();
 

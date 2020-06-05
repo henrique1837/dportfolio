@@ -38,13 +38,12 @@ class Menu extends Component {
     this.setState({
       box: this.props.box,
       space: this.props.space,
-      hasWeb3: this.props.hasWeb3,
       doingLogin: this.props.doingLogin
     })
   }
 
   setLoginItem = function(){
-    if(!this.state.hasWeb3){
+    if(!window.ethereum){
       return(
         <Link to={"/loginNoWeb3"} >
           <NavLink>
@@ -74,7 +73,7 @@ class Menu extends Component {
   }
 
   render(){
-    
+
     return(
       <Navbar
         className="navbar-horizontal navbar-dark bg-primary mt-4"

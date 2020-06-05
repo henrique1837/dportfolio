@@ -78,30 +78,34 @@ class Portfolio extends Component {
 
 
   componentDidMount = async ()  => {
-    if(!this.props.space){
-      return
-    }
-    await this.props.space.syncDone;
-    const profile = await this.props.space.public.all();
-    const thread = await this.props.space.joinThread("items_"+this.props.coinbase,{firstModerator:this.props.coinbase,members: true});
-    await this.setState({
-      box: this.props.box,
-      space: this.props.space,
-      coinbase: this.props.coinbase,
-      thread: thread
-    })
-    const posts = await this.state.thread.getPosts();
-    await this.setState({posts});
+    try{
+      if(!this.props.space){
+        return
+      }
+      await this.props.space.syncDone;
+      const profile = await this.props.space.public.all();
+      const thread = await this.props.space.joinThread("items_"+this.props.coinbase,{firstModerator:this.props.coinbase,members: true});
+      await this.setState({
+        box: this.props.box,
+        space: this.props.space,
+        coinbase: this.props.coinbase,
+        thread: thread
+      })
+      const posts = await this.state.thread.getPosts();
+      await this.setState({posts});
 
-     await this.state.thread.onUpdate(async()=> {
-       const posts = await this.state.thread.getPosts();
-       await this.setState({posts});
-     });
-     await this.setState({
-       profile: profile
-     });
-     await this.getErc721();
-     return
+       await this.state.thread.onUpdate(async()=> {
+         const posts = await this.state.thread.getPosts();
+         await this.setState({posts});
+       });
+       await this.setState({
+         profile: profile
+       });
+       await this.getErc721();
+       return
+    } catch(err){
+      console.log(err)
+    }
   };
   addItem = async function(type){
     // Education item //

@@ -81,26 +81,30 @@ class Profile extends Component {
   }
 
   componentDidMount = async function(){
-    await this.setState({
-      box: this.props.box,
-      space: this.props.space,
-      did: this.props.box.DID,
-      coinbase: this.props.coinbase,
-      web3: this.props.web3
-    });
-    console.log(this.state)
-    await this.state.space.syncDone;
-    const linkedAddrs = await this.state.box.listAddressLinks();
-    console.log(linkedAddrs)
-    await this.setState({
-      linkedAddrs: linkedAddrs
-    })
-    await this.getContacts();
-    await this.getViews();
-    await this.setState({
-      loaded: true
-    });
-    return;
+    try{
+      await this.setState({
+        box: this.props.box,
+        space: this.props.space,
+        did: this.props.box.DID,
+        coinbase: this.props.coinbase,
+        web3: this.props.web3
+      });
+      console.log(this.state)
+      await this.state.space.syncDone;
+      const linkedAddrs = await this.state.box.listAddressLinks();
+      console.log(linkedAddrs)
+      await this.setState({
+        linkedAddrs: linkedAddrs
+      })
+      await this.getContacts();
+      await this.getViews();
+      await this.setState({
+        loaded: true
+      });
+      return;
+    } catch(err){
+      console.log(err)
+    }
   }
 
   getContacts = async function(){
@@ -164,7 +168,9 @@ class Profile extends Component {
 
   didAddAddr = async function(){
     const addr = $("#wallet_addr").val();
-    if(!(await this.state.box.isAddressLinked({addres:addr}))){
+    const isLinked = await this.state.box.isAddressLinked({address:addr})
+    console.log(isLinked)
+    if(!isLinked){
       await this.state.box.linkAddress(addr);
       await this.state.syncDone;
       const linkedAddrs = await this.state.box.listAddressLinks();

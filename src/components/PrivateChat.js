@@ -44,20 +44,24 @@ class PrivateChat extends Component {
 
 
   componentDidMount = async ()  => {
-    const thread = await this.props.space.joinThreadByAddress(this.props.threadAddress);
+    try{
+      const thread = await this.props.space.joinThreadByAddress(this.props.threadAddress);
 
-    this.setState({
-      thread: thread,
-      space: this.props.space
-    })
-    await this.state.syncDone;
-    const posts = await this.state.thread.getPosts();
-    this.setState({posts});
-    console.log(posts)
-     await this.state.thread.onUpdate(async()=> {
-       const posts = await this.state.thread.getPosts();
-       this.setState({posts});
-     });
+      this.setState({
+        thread: thread,
+        space: this.props.space
+      })
+      await this.state.syncDone;
+      const posts = await this.state.thread.getPosts();
+      this.setState({posts});
+      console.log(posts)
+       await this.state.thread.onUpdate(async()=> {
+         const posts = await this.state.thread.getPosts();
+         this.setState({posts});
+       });
+    } catch(err){
+      console.log(err)
+    }
   };
   addMsg = async function(){
     const msg = {

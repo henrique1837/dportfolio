@@ -71,10 +71,10 @@ class App extends Component {
   componentDidMount = async () => {
 
     if(window.ethereum){
-      this.setState({
+      await this.setState({
         hasWeb3:true
       })
-      await this.login();
+      // await this.login();
 
     }
 
@@ -144,14 +144,7 @@ class App extends Component {
   };
 
 
-  loginPageNoWeb3 = function(){
-    this.setState({
-      page: <div>
-               <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or login with <a href="#auth_login" onClick={this.login}>authereum</a></p>
-            </div>
-    });
-    return
-  }
+
 
   openSpace = async function(){
     const coinbase = this.state.coinbase;
@@ -233,7 +226,6 @@ class App extends Component {
                (
                 <Menu box={null}
                       space={null}
-                      hasWeb3={this.state.hasWeb3}
                       doingLogin={this.state.doingLogin} />
                )
             )
@@ -244,7 +236,6 @@ class App extends Component {
               (
                 <Menu box={this.state.box}
                       space={this.state.space}
-                      hasWeb3={this.state.hasWeb3}
                       doingLogin={this.state.doingLogin} />
               )
             )
@@ -364,7 +355,11 @@ class App extends Component {
                                    //currentUserAddr={this.state.coinbase}
 
                                    // Required prop for context B)
-                                   //loginFunction={handleLogin}
+                                   loginFunction={()=>{
+                                     return(
+                                       <Redirect to={"/login"} />
+                                     )
+                                   }}
 
                                    // Required prop for context C)
                                    ethereum={null}
@@ -395,7 +390,7 @@ class App extends Component {
                                             currentUserAddr={this.state.coinbase}
 
                                             // Required prop for context B)
-                                            //loginFunction={handleLogin}
+                                            //loginFunction={this.login}
 
                                             // Required prop for context C)
                                             //ethereum={ethereum}
@@ -408,6 +403,11 @@ class App extends Component {
                     );
                   }} />
                   <Route path={"/loginNoWeb3"} render={() => {
+                    if(window.ethereum){
+                      return(
+                        <Redirect to={"/login"} />
+                      );
+                    }
                     return(
                       <Container fluid={false}>
                         <center style={{paddingTop: '50px'}}>

@@ -46,40 +46,45 @@ class Users extends Component {
   }
 
   componentDidMount = async () => {
-    await this.setState({
-      box: this.props.box,
-      space: this.props.space,
-      coinbase: this.props.coinbase
-    });
 
-    if(!this.state.space){
-      const posts = await Box.getThread(AppName, usersRegistered, admin,false)
+    try{
+      await this.setState({
+        box: this.props.box,
+        space: this.props.space,
+        coinbase: this.props.coinbase
+      });
+
+      if(!this.state.space){
+        const posts = await Box.getThread(AppName, usersRegistered, admin,false)
+        const postsFiltered = await this.filterPosts(posts);
+        await this.setState({
+          posts: postsFiltered
+        });
+        return;
+      }
+
+      const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin,members: false});
+      await this.setState({
+        thread: thread
+      })
+      const posts = await this.state.thread.getPosts();
       const postsFiltered = await this.filterPosts(posts);
+      console.log(postsFiltered)
       await this.setState({
         posts: postsFiltered
       });
-      return;
-    }
 
-    const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin,members: false});
-    await this.setState({
-      thread: thread
-    })
-    const posts = await this.state.thread.getPosts();
-    const postsFiltered = await this.filterPosts(posts);
-    console.log(postsFiltered)
-    await this.setState({
-      posts: postsFiltered
-    });
-
-    this.state.thread.onUpdate(async()=> {
-       const posts = await this.state.thread.getPosts();
-       const postsFiltered = await this.filterPosts(posts);
-       await this.setState({
-         posts: postsFiltered
+      this.state.thread.onUpdate(async()=> {
+         const posts = await this.state.thread.getPosts();
+         const postsFiltered = await this.filterPosts(posts);
+         await this.setState({
+           posts: postsFiltered
+         });
        });
-     });
-    return;
+      return;
+    } catch(err){
+      console.log(err)
+    }
 
   };
 
