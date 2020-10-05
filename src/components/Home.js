@@ -4,11 +4,6 @@ import {
   Container,
   Row,
   Col,
-  Card,
-  CardBody,
-  CardTitle,
-  CardText,
-  CardHeader,
   Modal
 } from 'reactstrap';
 class Home extends Component {
@@ -136,7 +131,7 @@ class Home extends Component {
                  <Col lg={4}>
                    <h1 className="text-white">Share same data in multiple dapps</h1>
                    <p className="text-lead text-light">
-                     Every dapp that uses 3box can request same data that you input here! 
+                     Every dapp that uses 3box can request same data that you input here!
                    </p>
                  </Col>
                  <Col lg={4}>

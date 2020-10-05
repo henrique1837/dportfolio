@@ -1,7 +1,4 @@
 import React,{Component} from 'react';
-import ReactDOM from 'react-dom';
-import Web3 from "web3";
-import $ from 'jquery';
 import {
   Button,
   Form,
@@ -15,16 +12,12 @@ import {
   Nav,
   TabContent,
   TabPane,
-  Container,
   Row,
   Col,
   Spinner,
   ListGroup,
   ListGroupItem,
-  ListGroupItemHeading,
-  ListGroupItemText
 } from 'reactstrap';
-//import * as Box from '3box';
 import {withRouter} from 'react-router-dom';
 import classnames from "classnames";
 import ThreeBoxComments from '3box-comments-react';
@@ -190,18 +183,6 @@ class UserPage extends Component {
     const that = this;
     if(this.state.profile && this.state.items){
       const profile = this.state.profile
-      console.log(this.state);
-      const items = this.state.items
-      const socialProfiles = [];
-
-      if(profile.pinterest){
-        socialProfiles.push({
-          name: "Pinterest",
-          profile: profile.pinterest.replace(/.*pinterest.com/,'').replace('/','').replace('/',''),
-          uri: profile.pinterest
-        })
-      }
-
       return(
           <div>
           {
@@ -280,15 +261,40 @@ class UserPage extends Component {
                         <div style={{paddingTop:'40px'}}>
                           <h5>Decentralized portfolio profile</h5>
                           <p>Name: {profile.name}</p>
-                          <p>Description: {profile.description}</p>
                           <p>Techs: {profile.techs}</p>
                           {
-                            socialProfiles.map(function(item){
-                              return(
-                                <p>{item.name}: <a href={item.uri} href='_blank'>{item.profile}</a></p>
+                            (
+                              this.state.profile.gitcoin &&
+                              (
+                                <p>Gitcoin: {profile.gitcoin}</p>
                               )
-                            })
+                            )
                           }
+                          {
+                            (
+                              this.state.profile.youtube &&
+                              (
+                                <p>Youtube: {profile.youtube}</p>
+                              )
+                            )
+                          }
+                          {
+                            (
+                              this.state.profile.pinterest &&
+                              (
+                                <p>Pinterest: {profile.pinterest}</p>
+                              )
+                            )
+                          }
+                          {
+                            (
+                              this.state.profile.spotify &&
+                              (
+                                <p>Spotify: {profile.spotify}</p>
+                              )
+                            )
+                          }
+                          <p>Description: {profile.description}</p>
                         </div>
                         <div style={{paddingTop:'40px'}}>
                           <h5>Portfolio</h5>

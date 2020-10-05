@@ -1,27 +1,20 @@
 import React,{Component} from 'react';
-import ReactDOM from 'react-dom';
-import Web3 from "web3";
 import $ from 'jquery';
 import {
   Button,
   FormGroup,
   Input,
   Label,
-  Container,
   Row,
   Col,
-  Card,
   Spinner
 } from 'reactstrap';
 //import * as Box from '3box';
 import {Link} from 'react-router-dom';
-
-
-import EditProfile from '3box-profile-edit-react';
-import ChatBox from '3box-chatbox-react';
-import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
-import UserPage from './UserPage.js';
+
+
+
 
 const Box = require('3box');
 const Config = require('../config.js');
@@ -32,6 +25,7 @@ const admin = Config.admin
 
 
 class Users extends Component {
+
   state = {
     users: [],
     box: null,
@@ -167,7 +161,7 @@ class Users extends Component {
   };
 
   render(){
-    const that = this;
+
     if(!this.state.posts){
       return(
         <center style={{paddingTop:'40px'}}>

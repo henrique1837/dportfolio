@@ -1,6 +1,4 @@
 import React,{Component} from 'react';
-import ReactDOM from 'react-dom';
-import Web3 from "web3";
 import ReactDatetime from "react-datetime";
 import $ from 'jquery';
 import {
@@ -15,7 +13,6 @@ import {
   Nav,
   TabContent,
   TabPane,
-  Container,
   Row,
   Col,
   FormGroup,
@@ -31,12 +28,6 @@ import {
 import ReactFileReader from 'react-file-reader';
 import Papa from 'papaparse';
 import classnames from "classnames";
-//import getWeb3 from "./components/getWeb3.js";
-//import * as Box from '3box';
-import EditProfile from '3box-profile-edit-react';
-import ChatBox from '3box-chatbox-react';
-import ThreeBoxComments from '3box-comments-react';
-import ProfileHover from 'profile-hover';
 
 const Box = require('3box');
 
@@ -167,7 +158,7 @@ class Portfolio extends Component {
            uri: $("#certifications_uri").val(),
            type: type
      }
-     await this.state.publications.push(item);
+     await this.state.certifications.push(item);
      await this.forceUpdate();
    }
 
@@ -606,8 +597,41 @@ class Portfolio extends Component {
         <div>
           <div>
             <h3>Your public informations</h3>
+            <p>Decentralized Identity: {this.state.box.DID}</p>
             <p>Wallet address: {this.state.profile.address}</p>
             <p>Name: {this.state.profile.name}</p>
+            {
+              (
+                this.state.profile.gitcoin &&
+                (
+                  <p>Gitcoin: {this.state.profile.gitcoin}</p>
+                )
+              )
+            }
+            {
+              (
+                this.state.profile.youtube &&
+                (
+                  <p>Youtube: {this.state.profile.youtube}</p>
+                )
+              )
+            }
+            {
+              (
+                this.state.profile.pinterest &&
+                (
+                  <p>Spotify: {this.state.profile.pinterest}</p>
+                )
+              )
+            }
+            {
+              (
+                this.state.profile.spotify &&
+                (
+                  <p>Spotify: {this.state.profile.spotify}</p>
+                )
+              )
+            }
             <p>Description: {this.state.profile.description}</p>
           </div>
           <hr/>

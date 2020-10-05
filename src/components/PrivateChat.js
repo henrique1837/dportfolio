@@ -1,10 +1,7 @@
 import React,{Component} from 'react';
-import ReactDOM from 'react-dom';
-import Web3 from "web3";
 import $ from 'jquery';
 import {
   Button,
-  Container,
   Row,
   Col,
   Spinner,
@@ -14,11 +11,8 @@ import {
   InputGroupText,
   InputGroupAddon,
   Label
-} from 'reactstrap';//import getWeb3 from "./components/getWeb3.js";
-//import * as Box from '3box';
-import EditProfile from '3box-profile-edit-react';
-import ChatBox from '3box-chatbox-react';
-import ThreeBoxComments from '3box-comments-react';
+} from 'reactstrap';
+
 import ProfileHover from 'profile-hover';
 
 const Box = require('3box');
@@ -99,7 +93,7 @@ class PrivateChat extends Component {
     }
   }
   render(){
-    const that = this;
+    
     if(this.state.thread){
       return(
         <div>

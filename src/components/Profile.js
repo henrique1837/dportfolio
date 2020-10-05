@@ -1,6 +1,4 @@
 import React,{Component} from 'react';
-import ReactDOM from 'react-dom';
-import Web3 from "web3";
 import $ from 'jquery';
 import {
   Button,
@@ -14,18 +12,14 @@ import {
   Label,
   TabContent,
   TabPane,
-  Container,
   Row,
   Col,
   Spinner
 } from 'reactstrap';
-//import getWeb3 from "./components/getWeb3.js";
-//import * as Box from '3box';
 import {Link} from 'react-router-dom';
 import EditProfile from '3box-profile-edit-react';
 import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
-import UserPage from './UserPage.js';
 import classnames from "classnames";
 const Box = require('3box');
 
@@ -64,8 +58,13 @@ class Profile extends Component {
       },
       { // for a field with a text input
         inputType: 'text',
-        key: 'instagram', // the key used to save the value
-        field: 'Instagram' // how to display the key in the UI
+        key: 'spotify', // the key used to save the value
+        field: 'Spotify' // how to display the key in the UI
+      },
+      { // for a field with a text input
+        inputType: 'text',
+        key: 'youtube', // the key used to save the value
+        field: 'Youtube Channel' // how to display the key in the UI
       }
     ]
   }
@@ -141,8 +140,36 @@ class Profile extends Component {
     return;
   }
 
+  deleteViews = async () => {
+    const coinbase = this.state.coinbase
+    console.log("contacts_"+coinbase)
+    const thread = await this.state.space.joinThread("contacts_"+coinbase,{firstModerator:coinbase});
+    const posts = await thread.getPosts();
+    for(const post of posts){
+      try{
+        await thread.deletePost(post.postId);
+      } catch(err){
+
+      }
+    }
+  }
+  deleteContacts = async () => {
+    const coinbase = this.state.coinbase
+    console.log("contacts_"+coinbase)
+    const thread = await this.state.space.joinThread("contactsAdded_"+coinbase,{firstModerator:coinbase});
+    const posts = await thread.getPosts();
+    for(const post of posts){
+      try{
+        await thread.deletePost(post.postId);
+      } catch(err){
+
+      }
+    }
+  }
+
   profileSaved = async function() {
     await this.props.space.syncDone;
+    await this.state.space.public.set('address',this.state.coinbase);
     const profile = await this.state.space.public.all();
     console.log(profile)
     const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
@@ -162,6 +189,8 @@ class Profile extends Component {
     }
     const postId = await thread.post(postProfile);
     await this.state.space.private.set('registration',postId);
+    console.log(await thread.getPosts());
+    console.log(await Box.getThreadByAddress(thread.address));
     alert("saved");
   };
 
@@ -204,6 +233,46 @@ class Profile extends Component {
     });
   };
 
+  removeProfile = async () => {
+    await this.props.space.syncDone;
+    const profile = await this.state.space.public.all();
+    console.log(profile)
+    const thread = await this.state.space.joinThread(usersRegistered,{firstModerator:admin});
+    let oldPostId = await this.state.space.private.get('registration');
+    if(oldPostId){
+      await thread.deletePost(oldPostId);
+    }
+    alert("Profile removed");
+    console.log(await thread.getPosts());
+    console.log(await Box.getThreadByAddress(thread.address));
+    await this.state.space.private.set('registration',null);
+
+  }
+
+  deleteProfile = async () => {
+    await this.props.space.syncDone;
+    const profile = await this.state.space.public.all();
+    for(const key of Object.keys(profile)){
+      console.log(key)
+      if(key.includes('orbitdb')){
+        console.log(key.substr(7))
+        const thread = await this.state.space.joinThreadByAddress(key.substr(7));
+        const posts = await thread.getPosts();
+        for(const post of posts){
+          try{
+            await thread.deletePost(post.postId);
+            console.log("Post deleted");
+          } catch(err){
+            console.log(err)
+          }
+        }
+      }
+      await this.state.space.public.remove(key);
+    }
+    alert("Profile erased");
+
+  }
+
 
   render() {
     if(!this.state.loaded){
@@ -239,6 +308,8 @@ class Profile extends Component {
                 Profile
               </NavLink>
             </NavItem>
+
+            {/*
             <NavItem>
               <NavLink
                 aria-selected={this.state.tabs === 'Identity'}
@@ -252,7 +323,9 @@ class Profile extends Component {
                 <i className="ni ni-cloud-upload-96 mr-2" />
                 Identity
               </NavLink>
+
             </NavItem>
+            */}
             <NavItem>
               <NavLink
                 aria-selected={this.state.tabs === 'Views'}
@@ -311,6 +384,12 @@ class Profile extends Component {
                         customFields={this.state.fields}
                         redirectFn={this.profileSaved}
                     />
+                  <h5>Remove profile</h5>
+                  <p>Remove your profile from users list</p>
+                  <Button onClick={this.removeProfile} color="danger">Remove</Button>
+                  <h5>Delete profile</h5>
+                  <p>Delete your entire Decentralized Portfolio Space</p>
+                  <Button onClick={this.deleteProfile} color="danger">Delete</Button>
               </TabPane>
               <TabPane tabId="Identity">
                 <h4>Your decentralized identity</h4>

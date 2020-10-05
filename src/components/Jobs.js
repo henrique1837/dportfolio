@@ -1,6 +1,5 @@
 import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
-import Web3 from "web3";
 import $ from 'jquery';
 
 import {
@@ -12,7 +11,6 @@ import {
   FormGroup,
   TabContent,
   TabPane,
-  Container,
   Row,
   Col,
   Spinner,
@@ -24,9 +22,6 @@ import {
 //import * as Box from '3box';
 import {Link} from 'react-router-dom';
 
-import EditProfile from '3box-profile-edit-react';
-import ChatBox from '3box-chatbox-react';
-import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
 import UserPage from './UserPage.js';
 import classnames from "classnames";
@@ -98,7 +93,7 @@ class Jobs extends Component {
 
 
   renderUserPage = async(profile) => {
-    const removed = ReactDOM.unmountComponentAtNode(document.getElementById("userPage"))
+    ReactDOM.unmountComponentAtNode(document.getElementById("userPage"))
 
     console.log(profile);
 

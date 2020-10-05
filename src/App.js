@@ -1,30 +1,21 @@
 import React,{Component} from 'react';
-import ReactDOM from 'react-dom';
 import Web3 from "web3";
-import Authereum from 'authereum';
-import $ from 'jquery';
 import {
   Button,
   Container,
   Row,
   Col,
   Alert,
-  Card,
-  Modal,
   Spinner
 } from 'reactstrap';
 import {
   HashRouter as Router,
-  Link,
   Route,
   Switch,
   Redirect,
-  withRouter
 } from 'react-router-dom';
-import EditProfile from '3box-profile-edit-react';
 import ChatBox from '3box-chatbox-react';
 import ThreeBoxComments from '3box-comments-react';
-import ProfileHover from 'profile-hover';
 
 import Home from './components/Home.js';
 import Menu from './components/Menu.js';
@@ -84,15 +75,9 @@ class App extends Component {
     try {
       // Get network provider and web3 instance.
       let web3;
-      if(window.ethereum){
-        await window.ethereum.enable();
-        web3 = new Web3(window.ethereum);
-      } else {
-        const authereum = new Authereum('mainnet');
-        const provider = await authereum.getProvider()
-        web3 = new Web3(provider);
-        await provider.enable()
-      }
+      await window.ethereum.enable();
+      web3 = new Web3(window.ethereum);
+
 
       await this.setState({
         doingLogin: true
@@ -101,35 +86,27 @@ class App extends Component {
       // Use web3 to get the user's coinbase.
       const coinbase = await web3.eth.getCoinbase();
       console.log(coinbase);
-      ReactDOM.render(
-        <div>
-          <Spinner color="secondary" />
-          <p>Aprove access to your 3Box account</p>
-        </div>,
-        document.getElementById("loading_status")
-      );
-      const box = await Box.openBox(coinbase,window.ethereum);
-      //const space = await box.openSpace(AppName);
-      ReactDOM.render(
-        <div>
-          <Spinner color="secondary" />
-          <p>Syncing your profile</p>
-        </div>,
-        document.getElementById("loading_status")
-      );
-      await box.syncDone;
-
+      this.setState({
+        loading_status: <div>
+                          <Spinner color="secondary" />
+                          <p>Aprove access to your 3Box account</p>
+                        </div>
+      })
+      const box = await Box.create()
       await this.setState({
         web3:web3,
         coinbase:coinbase,
         box: box
       });
-      await this.openSpace();
+      await this.openSpace(box);
     } catch (error) {
       // Catch any errors for any of the above operations.
-
       this.setState({
-        doingLogin: false
+        doingLogin: false,
+        loginError: <div>
+                          <Spinner color="secondary" />
+                          <p>{error.responseText}</p>
+                    </div>
       });
       console.error(error);
     }
@@ -146,29 +123,25 @@ class App extends Component {
 
 
 
-  openSpace = async function(){
-    const coinbase = this.state.coinbase;
-    const box = this.state.box;
+  openSpace = async function(box){
 
-    ReactDOM.render(
-      <div>
-      <Spinner color="secondary" />
-      <p>Aprove access to open your Decentralized Portfolio Space</p>
-      </div>,
-      document.getElementById("loading_status")
-    );
+    const spaces = [AppName];
+    console.log("Auth")
+    this.setState({
+      loading_status: <div>
+                        <Spinner color="secondary" />
+                        <p>Opening your Decentralized Portfolio Space</p>
+                      </div>
+    })
+    await box.auth(spaces, { address: this.state.coinbase, provider: window.ethereum });
+    console.log("Sync box")
+    await box.syncDone;
+    console.log("Open space")
     const space = await box.openSpace(AppName);
-
-    ReactDOM.render(
-      <div>
-      <Spinner color="secondary" />
-      <p>Opening your profile</p>
-      </div>,
-      document.getElementById("loading_status")
-    );
+    console.log("Sync space")
     await space.syncDone;
+    console.log("Get profile")
     const profile = await space.public.all();
-    await space.public.set('address',this.state.coinbase);
     this.setRedirect();
     this.setState({
       profile: profile,
@@ -248,12 +221,26 @@ class App extends Component {
                           <Alert color="info" style={{textAlign: "center",
                                                 marginTop:'20px'}}>
                               <h2 style={{color: 'white'}}>Loading dapp ...</h2>
-                              <div id="loading_status"></div>
+                              {this.state.loading_status}
                           </Alert>
                   </Container>
                 )
               )
              }
+
+             {
+               (this.state.loginError &&
+                 (
+                   <Container className="themed-container" fluid={false} style={{display: this.state.doingLogin}}>
+                           <Alert color="info" style={{textAlign: "center",
+                                                 marginTop:'20px'}}>
+                               <h2 style={{color: 'white'}}>Login Error</h2>
+                               {this.state.loginError}
+                           </Alert>
+                   </Container>
+                 )
+               )
+              }
 
             <Switch>
                   <Route path={"/home"} component={Home} />
@@ -411,12 +398,17 @@ class App extends Component {
                     return(
                       <Container fluid={false}>
                         <center style={{paddingTop: '50px'}}>
-                           <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> or login with <a href="#auth_login" onClick={this.login}>authereum</a></p>
+                           <p>Use <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a> , <a href="https://metamask.io/" target="_blank">Metamask</a> or <a href="https://alphawallet.com/" target="_blank">Alpha Wallet</a></p>
                         </center>
                       </Container>
                     )
                   }} />
                   <Route path={"/login"} render={() => {
+                    if(this.state.space){
+                      return(
+                        <Redirect to={"/profile"} />
+                      );
+                    }
                     if(!this.state.hasWeb3){
                       return(
                         <Redirect to={"/loginNoWeb3"} />

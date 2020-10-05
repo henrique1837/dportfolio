@@ -2,18 +2,10 @@ import React,{Component} from 'react';
 
 import {Link} from 'react-router-dom';
 import {
-  Button,
   Form,
-  Table,
-  Tabs,
-  Tab,
   Container,
   Row,
   Col,
-  Alert,
-  Card,
-  Modal,
-  Collapse,
   UncontrolledCollapse,
   Nav,
   NavbarBrand,
