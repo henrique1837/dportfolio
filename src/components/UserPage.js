@@ -166,7 +166,7 @@ class UserPage extends Component {
 
 
   getErc721 = async function(){
-    const collectiblesRes = await fetch(`https://api.opensea.io/api/v1/assets?owner=${this.state.user_address}&order_by=current_price&order_direction=asc&limit=30`);
+    const collectiblesRes = await fetch(`https://rinkeby-api.opensea.io/api/v1/assets?owner=${this.state.user_address}&order_by=current_price&order_direction=asc&limit=30`);
     const collectiblesData = await collectiblesRes.json();
     await this.setState({
       erc721: collectiblesData.assets
@@ -453,7 +453,7 @@ class UserPage extends Component {
                                   <Card>
                                     <Card.Body>
                                       <center>
-                                        <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
+                                        <img src={`https://ipfs.io/ipfs/${item.uri}`} caption={item.description} style={{width:'100%'}}/>
                                       </center>
                                     </Card.Body>
                                   </Card>
@@ -509,7 +509,7 @@ class UserPage extends Component {
                                   <Card>
                                     <CardBody>
                                       <center>
-                                        <video src={item.uri} style={{width:'100%'}} controls/>
+                                        <video src={`https://ipfs.io/ipfs/${item.uri}`} style={{width:'100%'}} controls/>
                                       </center>
                                     </CardBody>
 
@@ -521,7 +521,7 @@ class UserPage extends Component {
                           })
                         }
                         </Row>
-                        <h5>Collectibles</h5>
+                        <h5>Rinkeby Testnet Collectibles</h5>
                         <Row>
                         {
                           this.state.erc721.map(function(item){
@@ -554,7 +554,7 @@ class UserPage extends Component {
                           })
                         }
                         <Col lg={12}>
-                          <p><small>Collectibles list by <a href='https://opensea.io/assets' target='_blank'>OpenSea</a></small></p>
+                          <p><small>Rinkeby Collectibles list by <a href='https://rinkeby.opensea.io/assets' target='_blank'>OpenSea</a></small></p>
                         </Col>
                         </Row>
                         </div>

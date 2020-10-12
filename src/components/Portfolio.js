@@ -35,6 +35,8 @@ const Config = require('../config.js');
 const AppName = Config.AppName
 const admin = Config.admin
 
+const IPFS = require('ipfs-api');
+const ipfs = new IPFS({host: "ipfs.infura.io", port: 5001, protocol: "https"});
 
 class Portfolio extends Component {
   state = {
@@ -445,7 +447,9 @@ class Portfolio extends Component {
           const description = $('#video_description').val();
           const title = $('#video_description').val();
           const URL = window.URL || window.webkitURL;
-          const uri = URL.createObjectURL(file);
+          //const uri = URL.createObjectURL(file);
+          const res = await ipfs.add(Buffer.from(reader.result));
+          const uri = res[0].hash;
           const date = null;
           const source = "upload";
 
@@ -460,7 +464,7 @@ class Portfolio extends Component {
           await that.state.videos.push(item);
           await that.forceUpdate();
         };
-        reader.readAsDataURL(file);
+        reader.readAsArrayBuffer(file);
       }
     } catch(err){
       console.log(err)
@@ -517,7 +521,9 @@ class Portfolio extends Component {
           console.log(reader.result);
           const description = $('#image_description').val();
           const URL = window.URL || window.webkitURL;
-          const uri = URL.createObjectURL(file);
+          //const uri = URL.createObjectURL(file);
+          const res = await ipfs.add(Buffer.from(reader.result));
+          const uri = res[0].hash
           const date = null;
           const source = "upload";
 
@@ -531,7 +537,7 @@ class Portfolio extends Component {
           await that.state.images.push(item);
           await that.forceUpdate();
         };
-        reader.readAsDataURL(file);
+        reader.readAsArrayBuffer(file);
       }
     } catch(err){
       console.log(err)
@@ -539,7 +545,7 @@ class Portfolio extends Component {
   }
 
   getErc721 = async function(){
-    const collectiblesRes = await fetch(`https://api.opensea.io/api/v1/assets?owner=${this.state.coinbase}&order_by=current_price&order_direction=asc&limit=30`);
+    const collectiblesRes = await fetch(`https://rinkeby-api.opensea.io/api/v1/assets?owner=${this.state.coinbase}&order_by=current_price&order_direction=asc&limit=30`);
     const collectiblesData = await collectiblesRes.json();
     await this.setState({
       erc721: collectiblesData.assets
@@ -844,7 +850,7 @@ class Portfolio extends Component {
                               <Card>
                                 <CardBody>
                                   <center>
-                                    <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
+                                    <img src={`https://ipfs.io/ipfs/${item.uri}`} caption={item.description} style={{width:'100%'}}/>
                                   </center>
                                   <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
                                 </CardBody>
@@ -914,7 +920,7 @@ class Portfolio extends Component {
                       })
                     }
                     </Row>
-                    <h5>Collectibles</h5>
+                    <h5>Rinkeby Testnet Collectibles</h5>
                     <Row>
                     {
                       this.state.erc721.map(function(item){
@@ -948,7 +954,7 @@ class Portfolio extends Component {
                       })
                     }
                     <Col lg={12}>
-                      <p><small>Collectibles list by <a href='https://opensea.io/assets' target='_blank'>OpenSea</a></small></p>
+                      <p><small>Rinkeby Collectibles list by <a href='https://rinkeby.opensea.io/assets' target='_blank'>OpenSea</a></small></p>
                     </Col>
                     </Row>
                   </div>
@@ -1479,7 +1485,7 @@ class Portfolio extends Component {
                                 <Card>
                                   <CardBody>
                                     <center>
-                                      <img src={item.uri} caption={item.description} style={{width:'100%'}}/>
+                                      <img src={`https://ipfs.io/ipfs/${item.uri}`} caption={item.description} style={{width:'100%'}}/>
                                     </center>
                                   </CardBody>
                                 </Card>
@@ -1551,7 +1557,7 @@ class Portfolio extends Component {
                                 <Card>
                                   <CardBody>
                                     <center>
-                                      <video src={item.uri} style={{width:'100%'}} controls/>
+                                      <video src={`https://ipfs.io/ipfs/${item.uri}`} style={{width:'100%'}} controls/>
                                     </center>
                                   </CardBody>
                                 </Card>

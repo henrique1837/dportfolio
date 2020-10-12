@@ -168,7 +168,7 @@ class Profile extends Component {
   }
 
   profileSaved = async function() {
-    await this.props.space.syncDone;
+    await this.state.space.syncDone;
     await this.state.space.public.set('address',this.state.coinbase);
     const profile = await this.state.space.public.all();
     console.log(profile)
