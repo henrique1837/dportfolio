@@ -264,6 +264,14 @@ class UserPage extends Component {
                           <p>Techs: {profile.techs}</p>
                           {
                             (
+                              this.state.profile.status &&
+                              (
+                                <p>Status: {profile.status}</p>
+                              )
+                            )
+                          }
+                          {
+                            (
                               this.state.profile.gitcoin &&
                               (
                                 <p>Gitcoin: {profile.gitcoin}</p>

@@ -1,10 +1,10 @@
 import React,{Component} from 'react';
-import $ from 'jquery';
 import {
   Button,
-  FormGroup,
-  Input,
-  Label,
+  Card,
+  CardBody,
+  CardText,
+  CardTitle,
   Row,
   Col,
   Spinner
@@ -35,7 +35,6 @@ class Users extends Component {
 
   constructor(props){
     super(props);
-    this.filterUsers = this.filterUsers.bind(this);
     this.filterPosts = this.filterPosts.bind(this);
   }
 
@@ -51,6 +50,7 @@ class Users extends Component {
       if(!this.state.space){
         const posts = await Box.getThread(AppName, usersRegistered, admin,false)
         const postsFiltered = await this.filterPosts(posts);
+        console.log(postsFiltered)
         await this.setState({
           posts: postsFiltered
         });
@@ -62,17 +62,20 @@ class Users extends Component {
         thread: thread
       })
       const posts = await this.state.thread.getPosts();
+      console.log(await Box.getThread(AppName,usersRegistered,admin,false));
       const postsFiltered = await this.filterPosts(posts);
       console.log(postsFiltered)
       await this.setState({
-        posts: postsFiltered
+        posts: postsFiltered,
       });
 
       this.state.thread.onUpdate(async()=> {
          const posts = await this.state.thread.getPosts();
+         console.log(await Box.getThread(AppName,usersRegistered,admin,false));
          const postsFiltered = await this.filterPosts(posts);
+         console.log(postsFiltered)
          await this.setState({
-           posts: postsFiltered
+           posts: postsFiltered,
          });
        });
       return;
@@ -101,64 +104,6 @@ class Users extends Component {
   }
 
 
-  filterUsers = async function(){
-    try{
-      if(!$("#input_filter").val().replace(/\s/g, '')){
-        $(".div_profile").show();
-        return
-      }
-      const values = $("#input_filter").val().replace(/\s/g, '').toLowerCase().split(',');
-
-      $(".div_profile").hide();
-      console.log(values)
-      const users = this.state.users;
-      const filteredUsers = [];
-      console.log(values)
-      console.log(users)
-      for(var i=users.length-1;i>=0;i--){
-        const user = users[i].message;
-        console.log(user)
-        const techs = user.techs;
-        const allTrue = [];
-        if(techs){
-          const treatedTechs = techs.toLowerCase().replace(/\s/g, '').split(',');
-          console.log(treatedTechs)
-          for(const value of values){
-            if(treatedTechs.includes(value)){
-                allTrue.push(true);
-            } else {
-                allTrue.push(false)
-            }
-
-          }
-        }
-        if(allTrue.length>0){
-          const isFiltered = allTrue.every(function(isTrue){
-              return isTrue == true
-          });
-          console.log(isFiltered)
-          if(isFiltered){
-            filteredUsers.push(user.address);
-          }
-
-        }
-      }
-      console.log(filteredUsers);
-      if(filteredUsers.length>0){
-        for(const filteredUser of filteredUsers){
-            $(".div_profile.div_"+filteredUser).show();
-        }
-      }
-
-
-    } catch(err){
-      console.log(err)
-      $(".div_profile").show();
-    }
-
-
-    return
-  };
 
   render(){
 
@@ -171,61 +116,60 @@ class Users extends Component {
       );
     }
     return(
-      <div>
-        <Row>
-          <h4>Users</h4>
-        </Row>
-        <Row>
-          <FormGroup>
-            <Label>Techs</Label>
-            <Input type="text" className="form-control-alternative" placeholder="Techs" id='input_filter' onChange={this.filterUsers}/>
-          </FormGroup>
-        </Row>
-        <Row>
+      <Card className="shadow">
 
-        {
-          this.state.posts.map(function(post){
-            const profile = post.message;
-            //}
-            return(
+        <CardBody>
+          <CardTitle>
+            <h4>Users</h4>
+          </CardTitle>
+          <CardText>
+            <Row>
+
+            {
+              this.state.posts.map(function(post){
+                const profile = post.message
+                //}
+                return(
 
 
 
-                    <Col className={"div_profile div_"+profile.address}
-                         lg={4}
-                         style={{
-                           display:'flex',
-                           flexDirection:'column',
-                           justifyContent:'space-between',
-                           paddingBottom: '100px'
-                         }}>
-                        <div>
-                            <ProfileHover
-                              address={profile.address}
-                              orientation="bottom"
-                              noCoverImg
-                            />
-                        </div>
+                        <Col className={"div_profile div_"+profile.address}
+                             lg={4}
+                             style={{
+                               display:'flex',
+                               flexDirection:'column',
+                               justifyContent:'space-between',
+                               paddingBottom: '100px'
+                             }}>
+                            <div>
+                                <ProfileHover
+                                  address={profile.address}
+                                  orientation="bottom"
+                                  noCoverImg
+                                />
+                            </div>
 
-                        <div>
-                              <p><small>Decentralized portfolio profile</small></p>
-                              <p>Techs: {profile.techs}</p>
-                        </div>
-                        <div>
-                          <Link to={"/user/"+profile.address} style={{all: 'unset'}}>
-                            <Button color="primary">Portfolio</Button>
-                          </Link>
-                        </div>
-                    </Col>
-
-
-            )
-          })
-        }
-        </Row>
+                            <div>
+                                  <p><small>Decentralized portfolio profile</small></p>
+                                  <p>Techs: {profile.techs}</p>
+                            </div>
+                            <div>
+                              <Link to={"/user/"+profile.address} style={{all: 'unset'}}>
+                                <Button color="primary">Portfolio</Button>
+                              </Link>
+                            </div>
+                        </Col>
 
 
-      </div>
+                )
+              })
+            }
+            </Row>
+          </CardText>
+        </CardBody>
+
+
+      </Card>
     )
   }
 }

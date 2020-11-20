@@ -68,7 +68,7 @@ class Menu extends Component {
 
     return(
       <Navbar
-        className="navbar-horizontal navbar-dark bg-primary mt-4"
+        className="navbar-horizontal mt-4 navbar-dark bg-default"
         expand="lg"
       >
         <Container>
@@ -91,7 +91,7 @@ class Menu extends Component {
             <div className="navbar-collapse-header">
               <Row>
                 <Col className="collapse-brand" xs="6">
-                  <NavbarBrand href="#DecentralizedPortfolio">
+                  <NavbarBrand style={{color: "#172b4d"}} href="#DecentralizedPortfolio">
                       DecentralizedPortfolio
                   </NavbarBrand>
                 </Col>

@@ -1,5 +1,4 @@
 import React,{Component} from 'react';
-import $ from 'jquery';
 import {
   Button,
   Card,
@@ -48,6 +47,11 @@ class Profile extends Component {
       },
       { // for a field with a text input
         inputType: 'text',
+        key: 'status', // the key used to save the value
+        field: 'Status' // how to display the key in the UI
+      },
+      { // for a field with a text input
+        inputType: 'text',
         key: 'gitcoin', // the key used to save the value
         field: 'Gitcoin' // how to display the key in the UI
       },
@@ -75,7 +79,6 @@ class Profile extends Component {
     this.getContacts = this.getContacts.bind(this);
     this.getViews = this.getViews.bind(this);
 
-    this.didAddAddr = this.didAddAddr.bind(this);
     this.removeLinkedAddr = this.removeLinkedAddr.bind(this);
   }
 
@@ -195,23 +198,7 @@ class Profile extends Component {
   };
 
 
-  didAddAddr = async function(){
-    const addr = $("#wallet_addr").val();
-    const isLinked = await this.state.box.isAddressLinked({address:addr})
-    console.log(isLinked)
-    if(!isLinked){
-      await this.state.box.linkAddress(addr);
-      await this.state.syncDone;
-      const linkedAddrs = await this.state.box.listAddressLinks();
-      await this.setState({
-        linkedAddrs: linkedAddrs
-      })
-      alert("Address linked to did");
-    } else {
-      alert("Address already linked to did");
-    }
 
-  };
 
   removeLinkedAddr = async function(addr){
     if(addr == this.state.coinbase){
@@ -384,12 +371,14 @@ class Profile extends Component {
                         customFields={this.state.fields}
                         redirectFn={this.profileSaved}
                     />
-                  <h5>Remove profile</h5>
-                  <p>Remove your profile from users list</p>
-                  <Button onClick={this.removeProfile} color="danger">Remove</Button>
-                  <h5>Delete profile</h5>
-                  <p>Delete your entire Decentralized Portfolio Space</p>
-                  <Button onClick={this.deleteProfile} color="danger">Delete</Button>
+                    <div style={{paddingTop: '50px'}}>
+                      <h5>Remove profile</h5>
+                      <p>Remove your profile from users list</p>
+                      <Button onClick={this.removeProfile} color="danger">Remove</Button>
+                      <h5>Delete profile</h5>
+                      <p>Delete your entire Decentralized Portfolio Space</p>
+                      <Button onClick={this.deleteProfile} color="danger">Delete</Button>
+                    </div>
               </TabPane>
               <TabPane tabId="Identity">
                 <h4>Your decentralized identity</h4>

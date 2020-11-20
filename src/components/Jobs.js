@@ -1,6 +1,4 @@
 import React,{Component} from 'react';
-import ReactDOM from 'react-dom';
-import $ from 'jquery';
 
 import {
   Button,
@@ -23,7 +21,6 @@ import {
 import {Link} from 'react-router-dom';
 
 import ProfileHover from 'profile-hover';
-import UserPage from './UserPage.js';
 import classnames from "classnames";
 
 const Box = require('3box');
@@ -46,8 +43,6 @@ class Jobs extends Component {
 
   constructor(props){
     super(props);
-    this.renderUserPage = this.renderUserPage.bind(this);
-    this.filterJobs = this.filterJobs.bind(this);
     this.addItem = this.addItem.bind(this);
     this.removeItem = this.removeItem.bind(this);
   }
@@ -75,12 +70,15 @@ class Jobs extends Component {
         thread: thread
       })
       posts = await this.state.thread.getPosts();
-
-      await this.setState({posts});
+      this.setState({
+        posts:posts
+      });
 
       this.state.thread.onUpdate(async()=> {
          const posts = await this.state.thread.getPosts();
-         this.setState({posts});
+         this.setState({
+           posts:posts
+         });
        });
       return;
     } catch(err){
@@ -91,86 +89,20 @@ class Jobs extends Component {
   };
 
 
-
-  renderUserPage = async(profile) => {
-    ReactDOM.unmountComponentAtNode(document.getElementById("userPage"))
-
-    console.log(profile);
-
-    ReactDOM.render(
-      <UserPage box={this.state.box} coinbase={this.state.coinbase} profile={profile} />,
-      document.getElementById('userPage')
-    );
-
-    return
-  };
-
-  filterJobs = async function(){
-    try{
-      if(!$("#input_filter").val().replace(/\s/g, '')){
-        $(".div_job").show();
-        return
-      }
-      const values = $("#input_filter").val().replace(/\s/g, '').toLowerCase().split(',');
-
-      $(".div_job").hide();
-      console.log(values)
-      const posts = this.state.posts;
-      const filteredPosts = [];
-      for(var i=posts.length-1;i>=0;i--){
-        const post = posts[i];
-        console.log(post)
-        const techs = post.message.techs;
-        const allTrue = [];
-        if(techs){
-          const treatedTechs = techs.toLowerCase().replace(/\s/g, '').split(',');
-          console.log(treatedTechs)
-          for(const value of values){
-            if(treatedTechs.includes(value)){
-                allTrue.push(true);
-            } else {
-                allTrue.push(false)
-            }
-
-          }
-        }
-        if(allTrue.length>0){
-          const isFiltered = allTrue.every(function(isTrue){
-              return isTrue == true
-          });
-          console.log(isFiltered)
-          if(isFiltered){
-            filteredPosts.push(post.postId);
-          }
-
-        }
-      }
-      console.log(filteredPosts);
-      if(filteredPosts.length>0){
-        for(const filteredPost of filteredPosts){
-            $(".div_job.div_"+filteredPost).show();
-        }
-      }
-
-
-    } catch(err){
-      console.log(err)
-      $(".div_job").show();
-    }
-
-
-    return
-  };
   addItem = async function(){
     const profile = await this.state.space.public.all();
-    const  item = {
-        from: profile,
-        name: $("#item_name").val(),
-        description: $("#item_description").val(),
-        techs: $("#item_techs").val()
+    if(profile.address){
+      const  item = {
+          from: profile,
+          name: this.state.item_name,
+          description: this.state.item_description,
+          techs: this.state.item_techs
+      }
+      await this.state.thread.post(item);
+      alert('Item saved');
+    } else {
+      alert("Need to save your profile first")
     }
-    await this.state.thread.post(item);
-    alert('Item saved');
     return;
   };
   removeItem = async function(postId){
@@ -212,18 +144,14 @@ class Jobs extends Component {
             <h4>Jobs offers</h4>
           </Row>
           <Row>
-            <FormGroup>
-              <Label>Techs</Label>
-              <Input className="form-control-alternative" type="text" placeholder="Techs" id='input_filter' onChange={this.filterJobs}/>
-            </FormGroup>
-          </Row>
-          <Row>
 
               {
                 this.state.posts.map(function(post){
-                  const postId = post.postId;
-                  const job = post.message;
+                  const job = post.message
                   const from = job.from;
+                  if(!from){
+                    return;
+                  }
                   let div_job = <div></div>
                   if(job.name && job.description){
                     div_job = <div>
@@ -234,7 +162,7 @@ class Jobs extends Component {
                                         </div>
                   }
                   return(
-                        <Col className={"div_job div_"+postId}
+                        <Col
                               lg={4}
                               style={{
                                 display:'flex',

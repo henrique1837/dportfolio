@@ -19,14 +19,14 @@
 import React from "react";
 
 // reactstrap components
-import { Container, Row, Col, Nav, NavItem, NavLink } from "reactstrap";
+import { Row, Col, Nav, NavItem, NavLink } from "reactstrap";
 
 class Footer extends React.Component {
   render() {
     return (
       <footer className="footer">
         <Row className="align-items-center justify-content-xl-between">
-          <Col xl="6">
+          <Col xl="10">
             <div className="copyright text-center text-xl-left text-muted">
               © 2020{"DecentralizedPortfolio"} template by
               <a
@@ -40,25 +40,8 @@ class Footer extends React.Component {
             </div>
           </Col>
 
-          <Col xl="6">
-            <Nav className="nav-footer justify-content-center justify-content-xl-end">
-              <NavItem>
-                <NavLink
-                  href="https://www.creative-tim.com?ref=adr-admin-footer"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Creative Tim
-                </NavLink>
-              </NavItem>
-
-              <NavItem>
-                <NavLink
-                  href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'
-                >
-                  Use it with Brave browser
-                </NavLink>
-              </NavItem>
+          <Col xl="2">
+            <Nav>
               <NavItem>
                 <NavLink
                   href="https://github.com/henrique1837/DecentralizedPortfolio" target='_blank' title='Github repository'

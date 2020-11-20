@@ -1,6 +1,4 @@
 import React,{Component} from 'react';
-import ReactDatetime from "react-datetime";
-import $ from 'jquery';
 import {
   Button,
   Card,
@@ -54,7 +52,8 @@ class Portfolio extends Component {
     erc721: [],
     certifications: [],
     tabs: "Items",
-    tabsItems: "Education"
+    tabsItems: "Education",
+    inputs: []
   }
 
   constructor(props){
@@ -89,6 +88,7 @@ class Portfolio extends Component {
 
        await this.state.thread.onUpdate(async()=> {
          const posts = await this.state.thread.getPosts();
+         console.log(await Box.getThread(AppName,"items_"+this.props.coinbase,this.props.coinbase,true));
          await this.setState({posts});
        });
        await this.setState({
@@ -100,18 +100,25 @@ class Portfolio extends Component {
       console.log(err)
     }
   };
+
+  handleOnChange = async e => {
+    e.preventDefault();
+    this.state.inputs[e.target.name] = e.target.value;
+    await this.forceUpdate();
+  }
+
   addItem = async function(type){
     // Education item //
     let item;
 
     if(type === 0){
       item = {
-        school_name: $("#education_school").val(),
-        course: $("#education_course").val(),
-        start_date: $("#education_start_date").val(),
-        end_date: $("#education_end_date").val(),
-        description: $("#education_description").val(),
-        uri: $("#education_uri").val(),
+        school_name: this.state.inputs.education_school,
+        course: this.state.inputs.education_course,
+        start_date: this.state.inputs.education_start_date,
+        end_date: this.state.inputs.education_end_date,
+        description: this.state.inputs.education_description,
+        uri: this.state.inputs.education_uri,
         type: type
       }
       await this.state.education.push(item);
@@ -119,11 +126,11 @@ class Portfolio extends Component {
     } else if(type === 1){
       // Projects //
       item = {
-        title: $("#project_title").val(),
-        description: $("#project_description").val(),
-        start_date: $("#project_start").val(),
-        end_date: $("#project_end").val(),
-        uri: $("#project_uri").val(),
+        title: this.state.inputs.project_title,
+        description: this.state.inputs.project_description,
+        start_date: this.state.inputs.project_start,
+        end_date: this.state.inputs.project_end,
+        uri: this.state.inputs.project_uri,
         type: type
       }
       await this.state.projects.push(item);
@@ -131,12 +138,12 @@ class Portfolio extends Component {
     } else if(type === 2){
        // Experience //
        item = {
-         company: $("#experience_company").val(),
-         title: $("#experience_title").val(),
-         description: $("#experience_description").val(),
-         location: $('#experience_location').val(),
-         start_date: $("#experience_start").val(),
-         end_date: $("#experience_end").val(),
+         company: this.state.inputs.experience_company,
+         title: this.state.inputs.experience_title,
+         description: this.state.inputs.experience_description,
+         location: this.state.inputs.experience_location,
+         start_date: this.state.inputs.experience_start,
+         end_date: this.state.inputs.experience_end,
          type: type
        }
        await this.state.experience.push(item);
@@ -144,10 +151,10 @@ class Portfolio extends Component {
      } else if(type === 3){
       // Publications //
       item = {
-            name: $("#publication_name").val(),
-            description: $("#experience_description").val(),
-            date: $("#publication_date").val(),
-            uri: $("#publication_uri").val(),
+            name: this.state.inputs.publication_name,
+            description: this.state.inputs.publication_description,
+            date: this.state.inputs.publication_date,
+            uri: this.state.inputs.publication_uri,
             type: type
       }
       await this.state.publications.push(item);
@@ -155,9 +162,9 @@ class Portfolio extends Component {
     } else if(type === 6){
      // Publications //
      item = {
-           name: $("#certifications_name").val(),
-           authority: $("#certifications_authority").val(),
-           uri: $("#certifications_uri").val(),
+           name: this.state.inputs.certifications_name,
+           authority: this.state.inputs.certifications_authority,
+           uri: this.state.certifications_uri,
            type: type
      }
      await this.state.certifications.push(item);
@@ -432,113 +439,103 @@ class Portfolio extends Component {
       console.log(err)
     }
   }
-  videoUpload = files => {
+  videoUpload = e => {
+    e.preventDefault();
     try{
-
+      const file = e.target.files[0]
       const that = this;
-      for(const file of files){
-        const reader  = new FileReader();
-        const fileName = file.name;
-        const fileType = file.type;
-        console.log(file)
-        reader.onload = async function(f) {
-          // The file's text will be printed here
-          console.log(reader.result);
-          const description = $('#video_description').val();
-          const title = $('#video_description').val();
-          const URL = window.URL || window.webkitURL;
-          //const uri = URL.createObjectURL(file);
-          const res = await ipfs.add(Buffer.from(reader.result));
-          const uri = res[0].hash;
-          const date = null;
-          const source = "upload";
+      const reader  = new FileReader();
+      const fileName = file.name;
+      const fileType = file.type;
+      console.log(file)
+      reader.onload = async function(f) {
+        // The file's text will be printed here
+        console.log(reader.result);
+        const description = that.state.inputs.video_description;
+        const title = that.state.inputs.video_title;
+        //const uri = URL.createObjectURL(file);
+        const res = await ipfs.add(Buffer.from(reader.result));
+        const uri = res[0].hash;
+        const date = null;
+        const source = "upload";
 
-          const item = {
-              title: title,
-              description: description,
-              date: date,
-              uri: uri,
-              source: source,
-              type:5
-          }
-          await that.state.videos.push(item);
-          await that.forceUpdate();
-        };
-        reader.readAsArrayBuffer(file);
-      }
+        const item = {
+            title: title,
+            description: description,
+            date: date,
+            uri: uri,
+            source: source,
+            type:5
+        }
+        await that.state.videos.push(item);
+        await that.forceUpdate();
+      };
+      reader.readAsArrayBuffer(file);
     } catch(err){
       console.log(err)
     }
   }
-  videosUploadYoutube = files => {
+  videosUploadYoutube = e => {
     try{
-
+      const file = e.target.files[0];
       const that = this;
-      for(const file of files){
-        const reader  = new FileReader();
-        const fileName = file.name;
-        const fileType = file.type;
-        console.log(file)
-        reader.onload = async function(f) {
-          // The file's text will be printed here
-          console.log(reader.result)
-          const res = JSON.parse(reader.result)[0];
-          console.log(res)
-          const description = res.snippet.description;
-          const title = res.snippet.title;
-          const uri = res.id;
-          const date = res.snippet.publishedAt.split("T")[0];
-          const source = "youtube";
+      const reader  = new FileReader();
+      const fileName = file.name;
+      const fileType = file.type;
+      console.log(file)
+      reader.onload = async function(f) {
+        // The file's text will be printed here
+        console.log(reader.result)
+        const res = JSON.parse(reader.result)[0];
+        console.log(res)
+        const description = res.snippet.description;
+        const title = res.snippet.title;
+        const uri = res.id;
+        const date = res.snippet.publishedAt.split("T")[0];
+        const source = "youtube";
 
-          const item = {
-              title: title,
-              description: description,
-              date: date,
-              uri: uri,
-              source: source,
-              type:5
-          }
-          await that.state.videos.push(item);
-          await that.forceUpdate();
-        };
-        reader.readAsText(file);
-      }
+        const item = {
+            title: title,
+            description: description,
+            date: date,
+            uri: uri,
+            source: source,
+            type:5
+        }
+        await that.state.videos.push(item);
+        await that.forceUpdate();
+      };
+      reader.readAsText(file);
     } catch(err){
       console.log(err)
     }
   }
-  imageUpload = files => {
+  imageUpload = e => {
     try{
-
+      const file = e.target.files[0]
       const that = this;
-      for(const file of files){
-        const reader  = new FileReader();
-        const fileName = file.name;
-        const fileType = file.type;
-        console.log(file)
-        reader.onload = async function(f) {
-          // The file's text will be printed here
-          console.log(reader.result);
-          const description = $('#image_description').val();
-          const URL = window.URL || window.webkitURL;
-          //const uri = URL.createObjectURL(file);
-          const res = await ipfs.add(Buffer.from(reader.result));
-          const uri = res[0].hash
-          const date = null;
-          const source = "upload";
+      const reader  = new FileReader();
+      console.log(file)
+      reader.onload = async function(f) {
+        // The file's text will be printed here
+        console.log(reader.result);
+        const description = that.state.inputs.image_description;
+        const res = await ipfs.add(Buffer.from(reader.result));
+        const uri = res[0].hash
+        const date = null;
+        const source = "upload";
 
-          const item = {
-              description: description,
-              date: date,
-              uri: uri,
-              source: source,
-              type:4
-          }
-          await that.state.images.push(item);
-          await that.forceUpdate();
-        };
-        reader.readAsArrayBuffer(file);
-      }
+        const item = {
+            description: description,
+            date: date,
+            uri: uri,
+            source: source,
+            type:4
+        }
+        await that.state.images.push(item);
+        await that.forceUpdate();
+      };
+      reader.readAsArrayBuffer(file);
     } catch(err){
       console.log(err)
     }
@@ -582,6 +579,11 @@ class Portfolio extends Component {
         certifications: []
       });
     }
+    /*
+    this.setState({
+      inputs: []
+    })
+    */
 
   }
   toggleNavs = (e,tab) => {
@@ -596,6 +598,11 @@ class Portfolio extends Component {
       tabsItems: tab
     });
   };
+
+  handleDateOnChange = async (moment) => {
+    this.state.inputs["a"] = moment;
+    await this.forceUpdate();
+  }
   render(){
     const that = this;
     if(this.state.profile){
@@ -603,9 +610,17 @@ class Portfolio extends Component {
         <div>
           <div>
             <h3>Your public informations</h3>
-            <p>Decentralized Identity: {this.state.box.DID}</p>
-            <p>Wallet address: {this.state.profile.address}</p>
+            <p style={{wordBreak: 'break-all'}}>Decentralized Identity: {this.state.box.DID}</p>
+            <p>Wallet address: {this.state.coinbase}</p>
             <p>Name: {this.state.profile.name}</p>
+            {
+              (
+                this.state.profile.status &&
+                (
+                  <p>Status: {this.state.profile.status}</p>
+                )
+              )
+            }
             {
               (
                 this.state.profile.gitcoin &&
@@ -1078,19 +1093,19 @@ class Portfolio extends Component {
                         </ReactFileReader>
                         <FormGroup>
                             <Label>School Name</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Name" id='education_school'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Name" name='education_school'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Course</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Description" id='education_course'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Description" name='education_course'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Description</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Description" id='education_description'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Description" name='education_description'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Uri</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Uri" id='education_uri'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Uri" name='education_uri'/>
                         </FormGroup>
                         <FormGroup>
                           <Row>
@@ -1102,13 +1117,7 @@ class Portfolio extends Component {
                                     <i className="ni ni-calendar-grid-58" />
                                   </InputGroupText>
                                 </InputGroupAddon>
-                                <ReactDatetime
-                                  inputProps={{
-                                    placeholder: "Date",
-                                    id: 'education_start_date'
-                                  }}
-                                  timeFormat={false}
-                                />
+                                <input type="date" name="education_start_date" onChange={this.handleOnChange} />
                               </InputGroup>
                             </Col>
                             <Col lg={6}>
@@ -1119,13 +1128,7 @@ class Portfolio extends Component {
                                     <i className="ni ni-calendar-grid-58" />
                                   </InputGroupText>
                                 </InputGroupAddon>
-                                <ReactDatetime
-                                  inputProps={{
-                                    placeholder: "Date",
-                                    id:'education_end_date'
-                                  }}
-                                  timeFormat={false}
-                                />
+                                <input type="date" name="education_end_date" onChange={this.handleOnChange} />
                               </InputGroup>
                             </Col>
                           </Row>
@@ -1170,15 +1173,15 @@ class Portfolio extends Component {
                         </ReactFileReader>
                         <FormGroup>
                             <Label>Course</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Name" id='certifications_name'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Name" name='certifications_name'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Issuer</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Description" id='certifications_authority'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Description" name='certifications_authority'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Uri</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Uri" id='certifications_uri'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Uri" name='certifications_uri'/>
                         </FormGroup>
                         <Button onClick={()=>{that.addItem(6)}} color="primary">Add item</Button>
                         <h5>Certifications items</h5>
@@ -1215,15 +1218,15 @@ class Portfolio extends Component {
                         <Button color="primary" onClick={this.projectsUploadGitCoin}>Import from GitCoin 3box backup</Button>
                         <FormGroup>
                             <Label>Title</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Title" id='project_title'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Title" name='project_title'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Description</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Description" id='project_description'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Description" name='project_description'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Uri</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Uri" id='project_uri'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Uri" name='project_uri'/>
                         </FormGroup>
                         <FormGroup>
                           <Row>
@@ -1235,13 +1238,7 @@ class Portfolio extends Component {
                                     <i className="ni ni-calendar-grid-58" />
                                   </InputGroupText>
                                 </InputGroupAddon>
-                                <ReactDatetime
-                                  inputProps={{
-                                    placeholder: "Date",
-                                    id: 'project_start'
-                                  }}
-                                  timeFormat={false}
-                                />
+                                <input type="date" name="project_start" onChange={this.handleOnChange} />
                               </InputGroup>
                             </Col>
                             <Col lg={6}>
@@ -1252,13 +1249,8 @@ class Portfolio extends Component {
                                     <i className="ni ni-calendar-grid-58" />
                                   </InputGroupText>
                                 </InputGroupAddon>
-                                <ReactDatetime
-                                  inputProps={{
-                                    placeholder: "Date",
-                                    id:'project_end'
-                                  }}
-                                  timeFormat={false}
-                                />
+                                <input type="date" name="project_end" onChange={this.handleOnChange} />
+
                               </InputGroup>
                             </Col>
                           </Row>
@@ -1301,19 +1293,19 @@ class Portfolio extends Component {
                         </ReactFileReader>
                         <FormGroup>
                             <Label>Company</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Title" id='experience_company'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Title" name='experience_company'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Title</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Title" id='experience_title'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Title" name='experience_title'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Description</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Description" id='experience_description'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Description" name='experience_description'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Location</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Uri" id='experience_location'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Uri" name='experience_location'/>
                         </FormGroup>
                         <FormGroup>
                           <Row>
@@ -1325,13 +1317,8 @@ class Portfolio extends Component {
                                     <i className="ni ni-calendar-grid-58" />
                                   </InputGroupText>
                                 </InputGroupAddon>
-                                <ReactDatetime
-                                  inputProps={{
-                                    placeholder: "Date",
-                                    id: 'experience_start'
-                                  }}
-                                  timeFormat={false}
-                                />
+                                <input type="date" name="experience_start" onChange={this.handleOnChange} />
+
                               </InputGroup>
                             </Col>
                             <Col lg={6}>
@@ -1342,13 +1329,9 @@ class Portfolio extends Component {
                                     <i className="ni ni-calendar-grid-58" />
                                   </InputGroupText>
                                 </InputGroupAddon>
-                                <ReactDatetime
-                                  inputProps={{
-                                    placeholder: "Date",
-                                    id:'experience_end'
-                                  }}
-                                  timeFormat={false}
-                                />
+                                <input type="date" name="experience_end" onChange={this.handleOnChange} />
+
+
                               </InputGroup>
                             </Col>
                           </Row>
@@ -1392,7 +1375,7 @@ class Portfolio extends Component {
                         </ReactFileReader>
                         <FormGroup>
                             <Label>Name</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Name" id='publication_name'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Name" name='publication_name'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Publication date</Label>
@@ -1402,22 +1385,17 @@ class Portfolio extends Component {
                                   <i className="ni ni-calendar-grid-58" />
                                 </InputGroupText>
                               </InputGroupAddon>
-                              <ReactDatetime
-                                inputProps={{
-                                  placeholder: "Date",
-                                  id:'publication_date'
-                                }}
-                                timeFormat={false}
-                              />
+                              <input type="date" name="publication_date" onChange={this.handleOnChange} />
+
                             </InputGroup>
                         </FormGroup>
                         <FormGroup>
                             <Label>Description</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Description" id='publication_description'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Description" name='publication_description'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Uri</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Uri" id='publication_uri'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Uri" name='publication_uri'/>
                         </FormGroup>
 
                         <Button onClick={()=>{that.addItem(3)}} color="primary">Add item</Button>
@@ -1461,7 +1439,7 @@ class Portfolio extends Component {
 
                         <FormGroup>
                             <Label>Description</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Description" id='image_description'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Description" name='image_description'/>
                         </FormGroup>
 
                         <FormGroup>
@@ -1505,11 +1483,11 @@ class Portfolio extends Component {
                         </ReactFileReader>
                         <FormGroup>
                             <Label>Title</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Description" id='video_title'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Description" name='video_title'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Description</Label>
-                            <Input className="form-control-alternative" type="text" placeholder="Description" id='video_description'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Description" name='video_description'/>
                         </FormGroup>
                         <FormGroup>
                             <Label>Video</Label>

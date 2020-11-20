@@ -31,3 +31,29 @@
  .popupChat{
    position: fixed;
  }
+
+
+.edit.show {
+  display: block;
+}
+ @media (max-width: 767.98px){
+  .navbar-collapse.collapsing, .navbar-collapse.show {
+      padding: 1.5rem;
+      border-radius: 0.375rem;
+      background: #FFF;
+      box-shadow: 0 50px 100px rgba(50, 50, 93, 0.1), 0 15px 35px rgba(50, 50, 93, 0.15), 0 5px 15px rgba(0, 0, 0, 0.1);
+      -webkit-animation: show-navbar-collapse .2s ease forwards;
+      /* animation: show-navbar-collapse .2s ease forwards; */
+  }
+  .edit {
+    max-width: 100%;
+    margin: 0 auto;
+    margin: 0;
+    padding: 0;
+    /* min-width: 100vw; */
+    position: relative;
+    top: 40px;
+    /* z-index: 1; */
+  }
+
+}

@@ -54,10 +54,6 @@ class App extends Component {
 
     this.openSpace = this.openSpace.bind(this);
 
-
-    this.setRedirect = this.setRedirect.bind(this);
-    this.renderRedirect = this.renderRedirect.bind(this);
-    this.chatBox = this.chatBox.bind(this);
   }
   componentDidMount = async () => {
 
@@ -74,9 +70,8 @@ class App extends Component {
   login = async function(){
     try {
       // Get network provider and web3 instance.
-      let web3;
       await window.ethereum.enable();
-      web3 = new Web3(window.ethereum);
+      const web3 = new Web3(window.ethereum);
 
 
       await this.setState({
@@ -141,8 +136,15 @@ class App extends Component {
     console.log("Sync space")
     await space.syncDone;
     console.log("Get profile")
+    if(window.ethereum.isStatus) {
+      // we are running in Status
+      let code = await space.public.get('status');
+      if(!code){
+        code = await window.ethereum.status.getContactCode();
+        await space.public.set('status',code);
+      }
+    }
     const profile = await space.public.all();
-    this.setRedirect();
     this.setState({
       profile: profile,
       space: space,
@@ -152,40 +154,6 @@ class App extends Component {
   }
 
 
-  setRedirect = () => {
-    this.setState({
-      redirect: true
-    })
-  }
-  renderRedirect = () => {
-    if (this.state.redirect) {
-      return(
-        <Redirect to={'/home'} />
-      );
-    }
-  }
-  chatBox = function(){
-    if(!this.state.space){
-      return
-    }
-    return(
-      <ChatBox
-          // required
-          spaceName={AppName}
-          threadName="chat"
-
-
-          // Required props for context A) & B)
-          box={this.state.box}
-          currentUserAddr={this.state.coinbase}
-
-          // optional
-          userProfileURL={address => `user/${address}`}
-          mute={false}
-          popupChat
-      />
-    )
-  }
   render() {
 
 
@@ -417,11 +385,18 @@ class App extends Component {
 
                     return(
                       <Container fluid={false}>
-                        <Row style={{paddingTop: '50px'}}>
-                            <Col lg={3}>
-                              <Button variant="primary" onClick={this.login}>Login with injected web3</Button>
-                            </Col>
-                        </Row>
+                        {
+                          (
+                            !this.state.doingLogin &&
+                            (
+                              <Row style={{paddingTop: '50px'}}>
+                                  <Col lg={3}>
+                                    <Button variant="primary" onClick={this.login}>Login with injected web3</Button>
+                                  </Col>
+                              </Row>
+                            )
+                          )
+                        }
                       </Container>
                     )
                   }} />
@@ -446,7 +421,27 @@ class App extends Component {
           </div>
         </Router>
         {
-          this.chatBox()
+
+        (
+          this.state.space &&
+          (
+            <ChatBox
+                // required
+                spaceName={AppName}
+                threadName="chat"
+
+
+                // Required props for context A) & B)
+                box={this.state.box}
+                currentUserAddr={this.state.coinbase}
+
+                // optional
+                userProfileURL={address => `user/${address}`}
+                mute={false}
+                popupChat
+            />
+          )
+        )
 
         }
         <Container fluid={false}>

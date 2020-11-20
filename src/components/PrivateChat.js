@@ -1,5 +1,4 @@
 import React,{Component} from 'react';
-import $ from 'jquery';
 import {
   Button,
   Row,
@@ -60,40 +59,20 @@ class PrivateChat extends Component {
   addMsg = async function(){
     const msg = {
       from: this.props.coinbase,
-      content: $("#input_msg").val()
+      content: this.state.input_msg
     };
     await this.state.thread.post(msg);
-    $("#input_msg").val("");
-    $("#input_msg").html("");
     return;
   };
 
-
-
-  fileUpload = function(){
-    try{
-      var file = $("#input_file")[0].files[0];
-      var reader  = new FileReader();
-      var fileName = file.name;
-      var fileType = file.type;
-      console.log(file)
-      reader.onload = function(e) {
-        // The file's text will be printed here
-        console.log(e.target.result);
-        $("#item_img").html(JSON.stringify({
-          fileName: fileName,
-          fileType: fileType,
-          content: e.target.result
-        }));
-      };
-      reader.readAsDataURL(file);
-    } catch(err){
-      console.log(err)
-      $("#item_img").html("");
-    }
+  handleOnChange = e => {
+    this.setState({
+      input_msg: e.target.value
+    })
   }
+
   render(){
-    
+
     if(this.state.thread){
       return(
         <div>
@@ -141,6 +120,9 @@ class PrivateChat extends Component {
                         placeholder="Message"
                         type="text"
                         id='input_msg'
+                        name="input_msg"
+                        value={this.state.input_msg}
+                        onChange={this.handleOnChange}
                       />
                     </InputGroup>
                     <Button onClick={this.addMsg}>Send</Button>
