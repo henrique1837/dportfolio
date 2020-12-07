@@ -4,7 +4,6 @@ import {
   Container,
   Row,
   Col,
-  Modal
 } from 'reactstrap';
 class Home extends Component {
   state = {
@@ -21,7 +20,7 @@ class Home extends Component {
                  <Col lg="5" md="6">
                    <h1 className="text-white">How to use this dapp?</h1>
                    <ol className="text-lead text-light text-left">
-                       <li>Install <a href="https://brave.com/?ref=hen956" target='_blank' title='Brave Browser'>Brave Browser</a></li>
+                       <li>Install <a href='https://metamask.io/' target='_blank'>Metamask</a>,<a href="https://brave.com/" target='_blank' title='Brave Browser'>Brave Browser</a>,<a href="https://status.im/" target="_blank">Status</a> or <a href="https://alphawallet.com/" target="_blank">AlphaWallet</a></li>
                        <li>
                          Create your ethereum wallet (or import existing one) <br/>
                          <img src={require('../imgs/brave_Crypto0.png')} style={{maxWidth:' 100%'}}/> <br/>
@@ -50,54 +49,7 @@ class Home extends Component {
     }
     return(
       <>
-      <Modal
-        className="modal-dialog-centered modal-primary"
-        contentClassName="bg-gradient-primary"
-        isOpen={this.state.tutorial}
-        toggle={() => this.setState({
-          tutorial: false
-        })}
-      >
-        <div className="modal-header">
-          <h6 className="modal-title" id="modal-title-notification">
-            Your attention is required
-          </h6>
-          <button
-            aria-label="Close"
-            className="close"
-            data-dismiss="modal"
-            type="button"
-            onClick={() => this.setState({
-              tutorial: false
-            })}
-          >
-            <span aria-hidden={true}>×</span>
-          </button>
-        </div>
-        <div className="modal-body">
-          <div className="py-3 text-center">
-            <i className="ni ni-bell-55 ni-3x" />
-            <h4 className="heading mt-4">You should read this!</h4>
-            <p>
-              A small river named Duden flows by their place and
-              supplies it with the necessary regelialia.
-            </p>
-          </div>
-        </div>
-        <div className="modal-footer">
-          <Button
-            className="text-white ml-auto"
-            color="link"
-            data-dismiss="modal"
-            type="button"
-            onClick={() => this.setState({
-              tutorial: false
-            })}
-          >
-            Close
-          </Button>
-        </div>
-      </Modal>
+
       <div className="header bg-gradient-info py-7 py-lg-8">
           <Container>
             <div className="header-body text-center mb-7">

@@ -34,8 +34,7 @@
   ],
   "dependencies": {
     "3box": "^1.22.2",
-    "3box-chatbox-react": "0.0.5",
-    "3box-comments-react": "0.0.9",
+    "3box-chatbox-react": "^0.3.0",
     "3box-profile-edit-react": "0.0.4",
     "classnames": "2.2.6",
     "ipfs-api": "^26.1.2",

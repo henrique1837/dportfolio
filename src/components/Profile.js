@@ -17,9 +17,12 @@ import {
 } from 'reactstrap';
 import {Link} from 'react-router-dom';
 import EditProfile from '3box-profile-edit-react';
-import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
 import classnames from "classnames";
+
+
+import CommentBox from './CommentBox.js';
+
 const Box = require('3box');
 
 const Config = require('../config.js');
@@ -93,11 +96,6 @@ class Profile extends Component {
       });
       console.log(this.state)
       await this.state.space.syncDone;
-      const linkedAddrs = await this.state.box.listAddressLinks();
-      console.log(linkedAddrs)
-      await this.setState({
-        linkedAddrs: linkedAddrs
-      })
       await this.getContacts();
       await this.getViews();
       await this.setState({
@@ -291,7 +289,7 @@ class Profile extends Component {
                 href="#Profile"
                 role="tab"
               >
-                <i className="ni ni-cloud-upload-96 mr-2" />
+                <i className="ni ni-badge mr-2" />
                 Profile
               </NavLink>
             </NavItem>
@@ -337,7 +335,7 @@ class Profile extends Component {
                 href="#Contacts"
                 role="tab"
               >
-                <i className="ni ni-calendar-grid-58 mr-2" />
+                <i className="ni ni-circle-08 mr-2" />
                 Contacts
               </NavLink>
             </NavItem>
@@ -351,7 +349,7 @@ class Profile extends Component {
                 href="#Comments"
                 role="tab"
               >
-                <i className="ni ni-calendar-grid-58 mr-2" />
+                <i className="ni ni-chat-round mr-2" />
                 Comments
               </NavLink>
             </NavItem>
@@ -361,12 +359,12 @@ class Profile extends Component {
           <CardBody>
             <TabContent activeTab={this.state.tabs}>
               <TabPane tabId="Profile">
+                <p><b>All informations are public</b></p>
                 <EditProfile
                         // required
                         box={this.state.box}
                         space={this.state.space}
                         currentUserAddr={this.state.coinbase}
-
                         // optional
                         customFields={this.state.fields}
                         redirectFn={this.profileSaved}
@@ -493,25 +491,10 @@ class Profile extends Component {
                 </Row>
               </TabPane>
               <TabPane tabId="Comments">
-                <ThreeBoxComments
-                                      // required
-                                      spaceName={AppName}
-                                      threadName={"job_offers_"+this.state.coinbase}
-                                      adminEthAddr={this.state.coinbase}
-
-
-                                      // Required props for context A) & B)
-                                      box={this.state.box}
-                                      currentUserAddr={this.state.coinbase}
-
-                                      // Required prop for context B)
-                                      //loginFunction={handleLogin}
-
-                                      // Required prop for context C)
-                                      //ethereum={ethereum}
-
-                                      // optional
-                                      members={false}
+                <CommentBox
+                  // required
+                  space={this.state.space}
+                  threadName={"job_offers_"+this.state.coinbase}
                 />
               </TabPane>
             </TabContent>

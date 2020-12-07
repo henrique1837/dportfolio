@@ -33,6 +33,7 @@ class PrivateChat extends Component {
   constructor(props){
     super(props);
     this.addMsg = this.addMsg.bind(this);
+    this.rmMsg = this.rmMsg.bind(this);
   }
 
 
@@ -65,6 +66,11 @@ class PrivateChat extends Component {
     return;
   };
 
+  rmMsg = async function(postId){
+    await this.state.thread.deletePost(postId);
+    return;
+  };
+
   handleOnChange = e => {
     this.setState({
       input_msg: e.target.value
@@ -72,7 +78,7 @@ class PrivateChat extends Component {
   }
 
   render(){
-
+    const that = this;
     if(this.state.thread){
       return(
         <div>
@@ -85,6 +91,7 @@ class PrivateChat extends Component {
                       const content = msg.content;
                       return(
                         <div>
+                          <p><b>Messages are encrypted between parties</b></p>
                           <Row>
                             <Col lg={4}>
                               <ProfileHover
@@ -94,9 +101,21 @@ class PrivateChat extends Component {
                               />
 
                             </Col>
-                            <Col lg={8}>
-                              {content}
-                            </Col>
+                            {
+                              (
+                                (that.state.space.user.DID == post.author) &&
+                                (
+                                  <>
+                                  <Col lg={6}>
+                                    {content}
+                                  </Col>
+                                  <Col lg={2}>
+                                    <Button color="danger" onClick={()=>{that.rmMsg(post.postId)}}>Delete</Button>
+                                  </Col>
+                                  </>
+                                )
+                              )
+                            }
 
                           </Row>
                         </div>
@@ -106,7 +125,7 @@ class PrivateChat extends Component {
                   }
                 </div>
                 <div>
-                  <FormGroup>
+                  <FormGroup onSubmit={this.addMsg}>
                     <InputGroup className="input-group-alternative mb-4">
                     <Label>Message</Label>
                       <InputGroupAddon addonType="prepend">

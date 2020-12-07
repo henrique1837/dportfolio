@@ -39,15 +39,20 @@ class Menu extends Component {
       return(
         <Link to={"/loginNoWeb3"} >
           <NavLink>
+          <i className="ni ni-lock-circle-open" />
             Login
           </NavLink>
         </Link>
       )
     }
+    if(this.state.doingLogin){
+      return
+    }
     return(
 
-      <Link to={"/login"}>
-        <NavLink>
+      <Link to={"#"}>
+        <NavLink onClick={this.props.login}>
+        <i className="ni ni-lock-circle-open" />
           Login
         </NavLink>
       </Link>
@@ -73,7 +78,7 @@ class Menu extends Component {
       >
         <Container>
           <NavbarBrand href="#DecentralizedPortfolio">
-              DecentralizedPortfolio
+              DecentralizedPortfolio Beta
           </NavbarBrand>
           <button
             aria-controls="navbar-primary"
@@ -92,7 +97,7 @@ class Menu extends Component {
               <Row>
                 <Col className="collapse-brand" xs="6">
                   <NavbarBrand style={{color: "#172b4d"}} href="#DecentralizedPortfolio">
-                      DecentralizedPortfolio
+                      DecentralizedPortfolio Beta
                   </NavbarBrand>
                 </Col>
                 <Col className="collapse-close" xs="6">
@@ -121,6 +126,7 @@ class Menu extends Component {
                     <NavItem>
                       <Link to={"/home"}>
                         <NavLink>
+                        <i className="ni ni-atom" />
                           Home
                         </NavLink>
                       </Link>
@@ -128,6 +134,7 @@ class Menu extends Component {
                     <NavItem>
                       <Link to={"/users"}>
                         <NavLink>
+                        <i className="ni ni-circle-08" />
                           Users
                         </NavLink>
                       </Link>
@@ -135,6 +142,7 @@ class Menu extends Component {
                     <NavItem>
                       <Link to={"/jobs"}>
                         <NavLink>
+                        <i className="ni ni-single-copy-04" />
                           Jobs
                         </NavLink>
                       </Link>
@@ -142,6 +150,7 @@ class Menu extends Component {
                     <NavItem>
                       <Link to={"/comments"}>
                         <NavLink>
+                        <i className="ni ni-chat-round" />
                           Comments
                         </NavLink>
                       </Link>
@@ -163,6 +172,7 @@ class Menu extends Component {
                     <NavItem>
                        <Link to={"/home"}>
                          <NavLink>
+                         <i className="ni ni-atom" />
                            Home
                          </NavLink>
                        </Link>
@@ -170,6 +180,7 @@ class Menu extends Component {
                      <NavItem>
                        <Link to={"/profile"}>
                          <NavLink>
+                         <i className="ni ni-badge" />
                            Profile
                          </NavLink>
                        </Link>
@@ -177,6 +188,7 @@ class Menu extends Component {
                      <NavItem>
                        <Link to={"/portfolio"}>
                          <NavLink>
+                         <i className="ni ni-briefcase-24" />
                            Portfolio
                          </NavLink>
                        </Link>
@@ -184,6 +196,7 @@ class Menu extends Component {
                      <NavItem>
                        <Link to={"/users"}>
                          <NavLink>
+                         <i className="ni ni-circle-08" />
                            Users
                          </NavLink>
                        </Link>
@@ -191,6 +204,7 @@ class Menu extends Component {
                      <NavItem>
                        <Link to={"/jobs"}>
                          <NavLink>
+                         <i className="ni ni-single-copy-04" />
                            Jobs
                          </NavLink>
                        </Link>
@@ -198,6 +212,7 @@ class Menu extends Component {
                      <NavItem>
                        <Link to={"/comments"}>
                          <NavLink>
+                         <i className="ni ni-chat-round" />
                            Comments
                          </NavLink>
                        </Link>
@@ -205,6 +220,7 @@ class Menu extends Component {
                      <NavItem>
                          <Link to={"/logout"} onClick={this.logout}>
                            <NavLink>
+                           <i className="ni ni-user-run" />
                              Logout
                            </NavLink>
                          </Link>

@@ -116,60 +116,62 @@ class Users extends Component {
       );
     }
     return(
-      <Card className="shadow">
+      <div style={{paddingTop:'40px'}}>
+        <Card className="shadow">
 
-        <CardBody>
-          <CardTitle>
-            <h4>Users</h4>
-          </CardTitle>
-          <CardText>
-            <Row>
+          <CardBody>
+            <CardTitle>
+              <h4>Users</h4>
+            </CardTitle>
+            <CardText>
+              <Row>
 
-            {
-              this.state.posts.map(function(post){
-                const profile = post.message
-                //}
-                return(
-
-
-
-                        <Col className={"div_profile div_"+profile.address}
-                             lg={4}
-                             style={{
-                               display:'flex',
-                               flexDirection:'column',
-                               justifyContent:'space-between',
-                               paddingBottom: '100px'
-                             }}>
-                            <div>
-                                <ProfileHover
-                                  address={profile.address}
-                                  orientation="bottom"
-                                  noCoverImg
-                                />
-                            </div>
-
-                            <div>
-                                  <p><small>Decentralized portfolio profile</small></p>
-                                  <p>Techs: {profile.techs}</p>
-                            </div>
-                            <div>
-                              <Link to={"/user/"+profile.address} style={{all: 'unset'}}>
-                                <Button color="primary">Portfolio</Button>
-                              </Link>
-                            </div>
-                        </Col>
+              {
+                this.state.posts.map(function(post){
+                  const profile = post.message
+                  //}
+                  return(
 
 
-                )
-              })
-            }
-            </Row>
-          </CardText>
-        </CardBody>
+
+                          <Col className={"div_profile div_"+profile.address}
+                               lg={4}
+                               style={{
+                                 display:'flex',
+                                 flexDirection:'column',
+                                 justifyContent:'space-between',
+                                 paddingBottom: '100px'
+                               }}>
+                              <div>
+                                  <ProfileHover
+                                    address={profile.address}
+                                    orientation="bottom"
+                                    noCoverImg
+                                  />
+                              </div>
+
+                              <div>
+                                    <p><small>Decentralized portfolio profile</small></p>
+                                    <p>Techs: {profile.techs}</p>
+                              </div>
+                              <div>
+                                <Link to={"/user/"+profile.address} style={{all: 'unset'}}>
+                                  <Button color="primary">Portfolio</Button>
+                                </Link>
+                              </div>
+                          </Col>
 
 
-      </Card>
+                  )
+                })
+              }
+              </Row>
+            </CardText>
+          </CardBody>
+
+
+        </Card>
+      </div>
     )
   }
 }

@@ -20,9 +20,10 @@ import {
 } from 'reactstrap';
 import {withRouter} from 'react-router-dom';
 import classnames from "classnames";
-import ThreeBoxComments from '3box-comments-react';
 import ProfileHover from 'profile-hover';
+
 import PrivateChat from './PrivateChat.js'
+import CommentBox from './CommentBox.js';
 
 const Box = require('3box');
 
@@ -54,7 +55,6 @@ class UserPage extends Component {
   componentDidMount = async function(){
 
     try{
-      console.log(this.props);
       await this.setState({
         user_address: this.props.match.params.addr
       })
@@ -88,7 +88,6 @@ class UserPage extends Component {
     }
     const userProfile = await Box.getSpace(this.state.user_address,AppName);
     const threadAddressByUser = userProfile['contactThread_'+this.state.coinbase];
-    console.log(threadAddressByUser);
     if(threadAddressByUser){
       const confidentialThreadNameByUser = "contact_"+this.state.user_address+"_"+this.state.coinbase;
       await space.public.set('contactThread_'+this.state.user_address,threadAddressByUser);
@@ -103,11 +102,10 @@ class UserPage extends Component {
     } else {
       const confidentialThreadName = "contact_"+this.state.coinbase+"_"+this.state.user_address;
       let threadAddress = await space.public.get('contactThread_'+this.state.user_address);
-      console.log(threadAddress)
       if(!threadAddress){
         const thread = await space.createConfidentialThread(confidentialThreadName);
         const postId = await thread.post("Channel set");
-        await thread.removePost(postId);
+        await thread.deletePost(postId);
         //const thread = await space.joinThread(confidentialThreadName,{firstModerator:this.state.coinbase,members: true});
         const members = await thread.listMembers();
 
@@ -118,25 +116,26 @@ class UserPage extends Component {
         threadAddress = thread.address
 
         await space.public.set('contactThread_'+this.state.user_address,threadAddress);
-
       }
-
-
       await this.setState({
         confidentialThreadName: confidentialThreadName,
         threadAdmin: this.state.coinbase,
         threadAddress: threadAddress
       });
+
     }
+
     return
   }
   setItems = async function(){
     let profile = this.state.profile;
+    const boxProfile = await Box.getProfile(this.state.user_address);
     if(!profile){
       profile = await Box.getSpace(this.state.user_address,AppName);
     }
     await this.setState({
-      profile: profile
+      profile: profile,
+      boxProfile: boxProfile
     });
     const posts = await Box.getThread(AppName,"items_"+this.state.user_address,this.state.user_address,true);
     await this.setState({
@@ -180,93 +179,117 @@ class UserPage extends Component {
     });
   };
   render(){
-    const that = this;
     if(this.state.profile && this.state.items){
       const profile = this.state.profile
       return(
-          <div>
-          {
-            (
-              this.state.confidentialThreadName &&
-              this.state.profile &&
-              this.state.items &&
-              (
-                <div className="nav-wrapper">
-                  <Nav
-                    className="nav-fill flex-column flex-md-row"
-                    id="tabs-icons-text"
-                    pills
-                    role="tablist"
-                  >
-                    <NavItem>
-                      <NavLink
-                        aria-selected={this.state.tabs === 'Portfolio'}
-                        className={classnames("mb-sm-3 mb-md-0", {
-                          active: this.state.tabs === 'Portfolio'
-                        })}
-                        onClick={e => this.toggleNavs(e, 'Portfolio')}
-                        href="#Portfolio"
-                        role="tab"
+          <div style={{paddingTop:'40px'}}>
+              {
+                (
+                  this.state.confidentialThreadName &&
+                  (
+                    <div className="nav-wrapper">
+                      <Nav
+                        className="nav-fill flex-column flex-md-row"
+                        id="tabs-icons-text"
+                        pills
+                        role="tablist"
                       >
-                        <i className="ni ni-cloud-upload-96 mr-2" />
-                        Portfolio
-                      </NavLink>
-                    </NavItem>
-                    <NavItem>
-                      <NavLink
-                        aria-selected={this.state.tabs === 'privMessage'}
-                        className={classnames("mb-sm-3 mb-md-0", {
-                          active: this.state.tabs === 'privMessage'
-                        })}
-                        onClick={e => this.toggleNavs(e,'privMessage')}
-                        href="#privMessage"
-                        role="tab"
-                      >
-                        <i className="ni ni-bell-55 mr-2" />
-                        Private message
-                      </NavLink>
-                    </NavItem>
-                    <NavItem>
-                      <NavLink
-                        aria-selected={this.state.tabs === 'Comments'}
-                        className={classnames("mb-sm-3 mb-md-0", {
-                          active: this.state.tabs === 'Comments'
-                        })}
-                        onClick={e => this.toggleNavs(e,'Comments')}
-                        href="#Comments"
-                        role="tab"
-                      >
-                        <i className="ni ni-calendar-grid-58 mr-2" />
-                        Comments
-                      </NavLink>
-                    </NavItem>
-                  </Nav>
-                </div>
-              )
-            )
-          }
-
+                        <NavItem>
+                          <NavLink
+                            aria-selected={this.state.tabs === 'Portfolio'}
+                            className={classnames("mb-sm-3 mb-md-0", {
+                              active: this.state.tabs === 'Portfolio'
+                            })}
+                            onClick={e => this.toggleNavs(e, 'Portfolio')}
+                            href="#Portfolio"
+                            role="tab"
+                          >
+                            <i className="ni ni-cloud-upload-96 mr-2" />
+                            Portfolio
+                          </NavLink>
+                        </NavItem>
+                        <NavItem>
+                          <NavLink
+                            aria-selected={this.state.tabs === 'privMessage'}
+                            className={classnames("mb-sm-3 mb-md-0", {
+                              active: this.state.tabs === 'privMessage'
+                            })}
+                            onClick={e => this.toggleNavs(e,'privMessage')}
+                            href="#privMessage"
+                            role="tab"
+                          >
+                            <i className="ni ni-bell-55 mr-2" />
+                            Private message
+                          </NavLink>
+                        </NavItem>
+                        <NavItem>
+                          <NavLink
+                            aria-selected={this.state.tabs === 'Comments'}
+                            className={classnames("mb-sm-3 mb-md-0", {
+                              active: this.state.tabs === 'Comments'
+                            })}
+                            onClick={e => this.toggleNavs(e,'Comments')}
+                            href="#Comments"
+                            role="tab"
+                          >
+                            <i className="ni ni-calendar-grid-58 mr-2" />
+                            Comments
+                          </NavLink>
+                        </NavItem>
+                      </Nav>
+                    </div>
+                  )
+                )
+              }
               <Card className="shadow">
                 <CardBody>
                   <TabContent activeTab={this.state.tabs}>
                     <TabPane tabId="Portfolio">
                       <div>
-                        <div style={{paddingTop:'20px'}}>
-                          <ProfileHover
-                            address={profile.address}
-                            orientation="bottom"
-                            noCoverImg
-                          />
+                        <Row style={{paddingTop:'20px'}}>
+                          <Col lg={6}>
+                            <ProfileHover
+                              address={profile.address}
+                              orientation="bottom"
+                              noCoverImg
+                            />
+                          </Col>
+                          <Col lg={6}>
+                          {
+                            (
+                              this.state.space &&
+                              (this.state.coinbase.toLowerCase() != this.state.profile.address.toLowerCase()) &&
+                              (
+                                <center>
+                                  <Button variant="primary" onClick={this.addContact}>Add contact</Button>
+                                </center>
+                              )
+                            )
+                          }
+                          </Col>
+                        </Row>
+                        <div style={{paddingTop:'40px',wordBreak: 'break-all'}}>
+                          <h5>3box profile</h5>
+                          <h6>About</h6>
+                          <p>Website: <a href={this.state.boxProfile.website} target="_blank">{this.state.boxProfile.website}</a></p>
+                          <p>Member since: {this.state.boxProfile.memberSince}</p>
+                          <h6>Work</h6>
+                          <p>Employer: {this.state.boxProfile.employer}</p>
+                          <p>Job Title: {this.state.boxProfile.job}</p>
+                          <h6>Education</h6>
+                          <p>School: {this.state.boxProfile.school}</p>
+                          <p>Degree: {this.state.boxProfile.degree}</p>
+                          <p>Major: {this.state.boxProfile.major}</p>
+                          <p>Year: {this.state.boxProfile.year}</p>
                         </div>
-                        <div style={{paddingTop:'40px'}}>
+                        <div style={{paddingTop:'40px',wordBreak: 'break-all'}}>
                           <h5>Decentralized portfolio profile</h5>
-                          <p>Name: {profile.name}</p>
                           <p>Techs: {profile.techs}</p>
                           {
                             (
                               this.state.profile.status &&
                               (
-                                <p>Status: {profile.status}</p>
+                                <p>Status: <a href={`https://join.status.im/u/${this.state.profile.status}`} target="_blank">{this.state.profile.status}</a></p>
                               )
                             )
                           }
@@ -311,34 +334,7 @@ class UserPage extends Component {
 
 
                         <h5>Education</h5>
-                        <ListGroup>
-                        {
 
-                          this.state.items.map(function(post){
-                            const item = post.message;
-                            const postId = post.postId;
-                            if(item.type === 0){
-                              return(
-                                <ListGroupItem>
-                                  <Row>
-                                    <Col lg={4}>
-                                      <h5>{item.school_name}</h5>
-                                      <h6>{item.course}</h6>
-                                      <p><small>From {item.start_date} to {item.end_date}</small></p>
-                                      <p><a href={item.uri} target="_blank">{item.uri}</a></p>
-                                    </Col>
-                                    <Col lg={8}>
-                                      <p>{item.description}</p>
-                                    </Col>
-                                  </Row>
-
-                                </ListGroupItem>
-                              )
-                            }
-
-                          })
-                        }
-                        </ListGroup>
                         <h5>Certifcations</h5>
                         <ListGroup>
                         {
@@ -566,16 +562,7 @@ class UserPage extends Component {
                         </Col>
                         </Row>
                         </div>
-                        {
-                          (
-                            this.state.space &&
-                            (
-                              <div>
-                                <Button variant="primary" onClick={this.addContact}>Add contact</Button>
-                              </div>
-                            )
-                          )
-                        }
+
                        </div>
                     </TabPane>
                     {
@@ -584,48 +571,26 @@ class UserPage extends Component {
                         this.state.profile &&
                         this.state.items &&
                         (
+                          <>
                           <TabPane tabId="privMessage">
                             <h5>Private message</h5>
                             <PrivateChat threadAddress={this.state.threadAddress} space={this.state.space} coinbase={this.state.coinbase} />
                           </TabPane>
-                        )
-                      )
-                    }
-                    {
-                      (
-                        this.state.confidentialThreadName &&
-                        this.state.profile &&
-                        this.state.items &&
-                        (
                           <TabPane tabId="Comments">
                             <h5>Comments</h5>
 
-                            <ThreeBoxComments
-                                                // required
-                                                spaceName={AppName}
-                                                threadName={"job_offers_"+profile.address}
-                                                adminEthAddr={profile.address}
+                            <CommentBox
+                              // required
+                              coinbase={this.state.coinbase}
+                              space={this.state.space}
+                              threadName={"job_offers_"+profile.address}
 
-
-                                                // Required props for context A) & B)
-                                                box={this.state.box}
-                                                currentUserAddr={this.state.coinbase}
-
-                                                // Required prop for context B)
-                                                //loginFunction={handleLogin}
-
-                                                // Required prop for context C)
-                                                //ethereum={ethereum}
-
-                                                // optional
-                                                members={false}
                           />
                           </TabPane>
+                          </>
                         )
                       )
                     }
-
-
                   </TabContent>
                 </CardBody>
               </Card>

@@ -23,6 +23,8 @@ import {
   ListGroup,
   Spinner
 } from 'reactstrap';
+import ProfileHover from 'profile-hover';
+
 import ReactFileReader from 'react-file-reader';
 import Papa from 'papaparse';
 import classnames from "classnames";
@@ -75,13 +77,15 @@ class Portfolio extends Component {
         return
       }
       await this.props.space.syncDone;
+      const boxProfile = await Box.getProfile(this.props.coinbase);
       const profile = await this.props.space.public.all();
       const thread = await this.props.space.joinThread("items_"+this.props.coinbase,{firstModerator:this.props.coinbase,members: true});
       await this.setState({
         box: this.props.box,
         space: this.props.space,
         coinbase: this.props.coinbase,
-        thread: thread
+        thread: thread,
+        boxProfile: boxProfile
       })
       const posts = await this.state.thread.getPosts();
       await this.setState({posts});
@@ -94,7 +98,11 @@ class Portfolio extends Component {
        await this.setState({
          profile: profile
        });
-       await this.getErc721();
+       try{
+         await this.getErc721();
+       } catch(err){
+         console.log(err)
+       }
        return
     } catch(err){
       console.log(err)
@@ -113,12 +121,10 @@ class Portfolio extends Component {
 
     if(type === 0){
       item = {
-        school_name: this.state.inputs.education_school,
-        course: this.state.inputs.education_course,
-        start_date: this.state.inputs.education_start_date,
-        end_date: this.state.inputs.education_end_date,
-        description: this.state.inputs.education_description,
-        uri: this.state.inputs.education_uri,
+        name: this.state.inputs.school,
+        degree: this.state.inputs.degree,
+        year: this.state.inputs.year,
+        major: this.state.inputs.major,
         type: type
       }
       await this.state.education.push(item);
@@ -180,11 +186,11 @@ class Portfolio extends Component {
         items.push(post.message)
       }
       if(type === 0){
-        for(const edu of this.state.education){
-          if(!items.includes(edu)){
-            await this.state.thread.post(edu)
-          }
-        }
+        const edu = this.state.education[0];
+        await this.state.box.public.setMultiple(
+          ['school','degree','major','year'],
+          [edu.school,edu.degree,edu.major,edu.year]
+        );
       } else if(type === 1){
         for(const project of this.state.projects){
           if(!items.includes(project)){
@@ -221,7 +227,19 @@ class Portfolio extends Component {
            await this.state.thread.post(cert)
          }
        }
-     }
+     } else if(type === 7){
+      // Publications //
+
+      await this.state.box.public.setMultiple(
+        ['employer','job'],
+        [this.state.inputs.employer,this.state.inputs.job]
+      );
+      const boxProfile = await this.state.box.public.all();
+      this.setState({
+        boxProfile: boxProfile
+      })
+
+    }
 
     this.clear(type)
     alert('Items saved');
@@ -607,54 +625,81 @@ class Portfolio extends Component {
     const that = this;
     if(this.state.profile){
       return(
-        <div>
-          <div>
-            <h3>Your public informations</h3>
-            <p style={{wordBreak: 'break-all'}}>Decentralized Identity: {this.state.box.DID}</p>
-            <p>Wallet address: {this.state.coinbase}</p>
-            <p>Name: {this.state.profile.name}</p>
-            {
-              (
-                this.state.profile.status &&
+        <div style={{paddingTop:'40px'}}>
+          <Card>
+            <CardBody>
+            <div style={{wordBreak: 'break-all'}}>
+                <div style={{paddingBottom:'20px'}}>
+                  <ProfileHover
+                    address={this.state.coinbase}
+                    orientation="bottom"
+                    noCoverImg
+                  />
+                </div>
+                <p><b>All informations are public</b></p>
+                <h5>3box profile</h5>
+                <p>Decentralized Identity: {this.state.box.DID}</p>
+                <h6>About</h6>
+                <p>Website: <a href={this.state.boxProfile.website} target="_blank">{this.state.boxProfile.website}</a></p>
+                <p>Member since: {this.state.boxProfile.memberSince}</p>
+                <h6>Work</h6>
+                <p>Employer: {this.state.boxProfile.employer}</p>
+                <p>Job Title: {this.state.boxProfile.job}</p>
+                <h6>Education</h6>
+                <p>School: {this.state.boxProfile.school}</p>
+                <p>Degree: {this.state.boxProfile.degree}</p>
+                <p>Major: {this.state.boxProfile.major}</p>
+                <p>Year: {this.state.boxProfile.year}</p>
+
+            </div>
+            <div style={{paddingTop:'40px',wordBreak: 'break-all'}}>
+              <h3>Decentralized Portfolio Profile</h3>
+              <p>Wallet address: {this.state.coinbase}</p>
+              <p>Techs: {this.state.profile.techs}</p>
+              {
                 (
-                  <p>Status: {this.state.profile.status}</p>
+                  this.state.profile.status &&
+                  (
+                    <p>Status: {this.state.profile.status}</p>
+                  )
                 )
-              )
-            }
-            {
-              (
-                this.state.profile.gitcoin &&
+              }
+              {
                 (
-                  <p>Gitcoin: {this.state.profile.gitcoin}</p>
+                  this.state.profile.gitcoin &&
+                  (
+                    <p>Gitcoin: {this.state.profile.gitcoin}</p>
+                  )
                 )
-              )
-            }
-            {
-              (
-                this.state.profile.youtube &&
+              }
+              {
                 (
-                  <p>Youtube: {this.state.profile.youtube}</p>
+                  this.state.profile.youtube &&
+                  (
+                    <p>Youtube: {this.state.profile.youtube}</p>
+                  )
                 )
-              )
-            }
-            {
-              (
-                this.state.profile.pinterest &&
+              }
+              {
                 (
-                  <p>Spotify: {this.state.profile.pinterest}</p>
+                  this.state.profile.pinterest &&
+                  (
+                    <p>Spotify: {this.state.profile.pinterest}</p>
+                  )
                 )
-              )
-            }
-            {
-              (
-                this.state.profile.spotify &&
+              }
+              {
                 (
-                  <p>Spotify: {this.state.profile.spotify}</p>
+                  this.state.profile.spotify &&
+                  (
+                    <p>Spotify: {this.state.profile.spotify}</p>
+                  )
                 )
-              )
-            }
-            <p>Description: {this.state.profile.description}</p>
-          </div>
+              }
+              <p>Description: {this.state.profile.description}</p>
+            </div>
+            </CardBody>
+          </Card>
           <hr/>
           <div className="nav-wrapper">
             <Nav
@@ -673,7 +718,7 @@ class Portfolio extends Component {
                   href="#Items"
                   role="tab"
                 >
-                  <i className="ni ni-cloud-upload-96 mr-2" />
+                  <i className="ni ni-briefcase-24 mr-2" />
                   Items
                 </NavLink>
               </NavItem>
@@ -687,7 +732,7 @@ class Portfolio extends Component {
                   href="#AddItem"
                   role="tab"
                 >
-                  <i className="ni ni-bell-55 mr-2" />
+                  <i className="ni ni-cloud-upload-96 mr-2" />
                   Add item
                 </NavLink>
               </NavItem>
@@ -699,38 +744,6 @@ class Portfolio extends Component {
                 <TabPane tabId="Items">
                   <div>
                     <h4>Items added</h4>
-                    <h5>Education</h5>
-                    <ListGroup>
-                    {
-
-                      this.state.posts.map(function(post){
-                        const item = post.message;
-                        const postId = post.postId;
-                        if(item.type === 0){
-                          return(
-                            <ListGroupItem>
-                              <Row>
-                                <Col lg={4}>
-                                  <h5>{item.school_name}</h5>
-                                  <h6>{item.course}</h6>
-                                  <p><small>From {item.start_date} to {item.end_date}</small></p>
-                                  <p><a href={item.uri} target="_blank">{item.uri}</a></p>
-                                </Col>
-                                <Col lg={6}>
-                                  <p>{item.description}</p>
-                                </Col>
-                                <Col lg={2}>
-                                  <Button onClick={()=>{ that.removeItem(postId)}} color="danger">Remove Item</Button>
-                                </Col>
-                              </Row>
-
-                            </ListGroupItem>
-                          )
-                        }
-
-                      })
-                    }
-                    </ListGroup>
                     <h5>Certifications</h5>
                     <ListGroup>
                     {
@@ -993,7 +1006,7 @@ class Portfolio extends Component {
                             href="#Items#Education"
                             role="tab"
                           >
-                            <i className="ni ni-cloud-upload-96 mr-2" />
+                            <i className="ni ni-hat-3 mr-2" />
                             Education
                           </NavLink>
                         </NavItem>
@@ -1007,7 +1020,7 @@ class Portfolio extends Component {
                             href="#Items#Certifications"
                             role="tab"
                           >
-                            <i className="ni ni-cloud-upload-96 mr-2" />
+                            <i className="ni ni-paper-diploma mr-2" />
                             Certifications
                           </NavLink>
                         </NavItem>
@@ -1021,7 +1034,7 @@ class Portfolio extends Component {
                             href="#Items#Projects"
                             role="tab"
                           >
-                            <i className="ni ni-cloud-upload-96 mr-2" />
+                            <i className="ni ni-archive-2 mr-2" />
                             Projects
                           </NavLink>
                         </NavItem>
@@ -1035,7 +1048,7 @@ class Portfolio extends Component {
                             href="#Items#Experience"
                             role="tab"
                           >
-                            <i className="ni ni-cloud-upload-96 mr-2" />
+                            <i className="ni ni-building mr-2" />
                             Experience
                           </NavLink>
                         </NavItem>
@@ -1049,7 +1062,7 @@ class Portfolio extends Component {
                             href="#Items#Publications"
                             role="tab"
                           >
-                            <i className="ni ni-cloud-upload-96 mr-2" />
+                            <i className="ni ni-collection mr-2" />
                             Publications
                           </NavLink>
                         </NavItem>
@@ -1063,7 +1076,7 @@ class Portfolio extends Component {
                             href="#Items#Images"
                             role="tab"
                           >
-                            <i className="ni ni-cloud-upload-96 mr-2" />
+                            <i className="ni ni-image mr-2" />
                             Images
                           </NavLink>
                         </NavItem>
@@ -1077,7 +1090,7 @@ class Portfolio extends Component {
                             href="#Items#Videos"
                             role="tab"
                           >
-                            <i className="ni ni-cloud-upload-96 mr-2" />
+                            <i className="ni ni-tv-2 mr-2" />
                             Videos
                           </NavLink>
                         </NavItem>
@@ -1087,53 +1100,39 @@ class Portfolio extends Component {
                     <TabContent activeTab={this.state.tabsItems}>
                       <TabPane tabId="Education">
                         <h4>Education</h4>
-                        <p><small>Optional: Import education data from linkedin (Education.csv)</small></p>
-                        <ReactFileReader handleFiles={this.educationUpload} fileTypes={'.csv'}>
-                            <Button color="primary">Upload</Button>
-                        </ReactFileReader>
+                        {
+                          /*
+                          <p><small>Optional: Import education data from linkedin (Education.csv)</small></p>
+                          <ReactFileReader handleFiles={this.educationUpload} fileTypes={'.csv'}>
+                              <Button color="primary">Upload</Button>
+                          </ReactFileReader>
+                          */
+                        }
+
                         <FormGroup>
                             <Label>School Name</Label>
-                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Name" name='education_school'/>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="school" name='school'/>
                         </FormGroup>
                         <FormGroup>
-                            <Label>Course</Label>
-                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Description" name='education_course'/>
+                            <Label>Degree</Label>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Degree" name='degree'/>
                         </FormGroup>
                         <FormGroup>
-                            <Label>Description</Label>
-                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Description" name='education_description'/>
+                            <Label>Major</Label>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Major" name='major'/>
                         </FormGroup>
                         <FormGroup>
-                            <Label>Uri</Label>
-                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Uri" name='education_uri'/>
+                            <Label>Year</Label>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Year" name='year'/>
                         </FormGroup>
-                        <FormGroup>
-                          <Row>
-                            <Col lg={6}>
-                              <Label>From</Label>
-                              <InputGroup className="input-group-alternative">
-                                <InputGroupAddon addonType="prepend">
-                                  <InputGroupText>
-                                    <i className="ni ni-calendar-grid-58" />
-                                  </InputGroupText>
-                                </InputGroupAddon>
-                                <input type="date" name="education_start_date" onChange={this.handleOnChange} />
-                              </InputGroup>
-                            </Col>
-                            <Col lg={6}>
-                              <Label>To</Label>
-                              <InputGroup className="input-group-alternative">
-                                <InputGroupAddon addonType="prepend">
-                                  <InputGroupText>
-                                    <i className="ni ni-calendar-grid-58" />
-                                  </InputGroupText>
-                                </InputGroupAddon>
-                                <input type="date" name="education_end_date" onChange={this.handleOnChange} />
-                              </InputGroup>
-                            </Col>
-                          </Row>
-                        </FormGroup>
-                        <Button onClick={()=>{that.addItem(0)}} color="primary">Add item</Button>
+                        {
+                          (
+                            (this.state.education.length == 0) &&
+                            (
+                              <Button onClick={()=>{that.addItem(0)}} color="primary">Add item</Button>
+                            )
+                          )
+                        }
                         <h5>Education items</h5>
                         <ListGroup>
                         {
@@ -1141,21 +1140,10 @@ class Portfolio extends Component {
                             return(
                               <ListGroupItem>
                                 <div>
-                                  <Row>
-                                    <Col lg={6}>
-                                      <h5>{item.school_name}</h5>
-                                      <h6>{item.course}</h6>
-                                      <p><a href={item.uri} target='_blank'>{item.uri}</a></p>
-                                      <p><small>From {item.start_date} to {item.end_date}</small></p>
-                                    </Col>
-                                    <Col lg={6}>
-                                      <p>
-                                      {
-                                        item.description
-                                      }
-                                      </p>
-                                    </Col>
-                                  </Row>
+                                  <p>School: {item.school}</p>
+                                  <p>Degree: {item.degree}</p>
+                                  <p>Major: {item.major}</p>
+                                  <p>Year: {item.year}</p>
                                 </div>
                               </ListGroupItem>
                             )
@@ -1286,7 +1274,17 @@ class Portfolio extends Component {
                         <Button onClick={()=>{that.clear(1)}} color="danger">Clear</Button>
                       </TabPane>
                       <TabPane tabId="Experience">
-                        <h4>Experience</h4>
+                        <h4>Actual Work</h4>
+                        <FormGroup>
+                            <Label>Company</Label>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Company" name='employer'/>
+                        </FormGroup>
+                        <FormGroup>
+                            <Label>Title</Label>
+                            <Input onChange={this.handleOnChange} className="form-control-alternative" type="text" placeholder="Title" name='job'/>
+                        </FormGroup>
+                        <Button onClick={()=>{that.saveItem(7)}} color="primary">Save</Button>
+                        <h4>Work Experience</h4>
                         <p><small>Optional: Import projects data from linkedin (Positions.csv)</small></p>
                         <ReactFileReader handleFiles={this.experienceUpload} fileTypes={'Positions.csv'}>
                             <Button color="primary">Upload</Button>
